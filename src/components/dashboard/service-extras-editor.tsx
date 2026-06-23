@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { GripVertical, Link2, Pencil, Plus, X } from "lucide-react";
+import { GripVertical, Link, Pencil, Plus, X } from "@/lib/admin-icons";
 import { DeleteServiceButton } from "@/components/dashboard/delete-service-button";
 import { ImageUploadField } from "@/components/dashboard/image-upload-field";
 import { ServiceAddonForm, type ServiceAddonFormValues } from "@/components/dashboard/service-addon-form";
@@ -194,7 +194,7 @@ export function ServiceExtrasEditor({
               setEditingId(null);
             }}
           >
-            <Link2 className="h-3.5 w-3.5" />
+            <Link className="h-3.5 w-3.5" />
             Link existing
           </Button>
         </div>

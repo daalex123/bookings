@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Building2, Plus } from "lucide-react";
+import { Building2, Plus } from "@/lib/admin-icons";
 import { createBusiness } from "@/lib/actions";
 import { asJoined } from "@/lib/utils";
 import { getCurrentUser, isSuperAdmin } from "@/lib/supabase/auth";

@@ -1,5 +1,5 @@
 import { format, startOfDay, endOfDay } from "date-fns";
-import { CalendarDays, Scissors } from "lucide-react";
+import { Calendar, Package } from "@/lib/admin-icons";
 import { asJoined } from "@/lib/utils";
 import { bookingPublicUrl } from "@/lib/booking";
 import { getSiteUrl } from "@/lib/site-url";
@@ -87,12 +87,12 @@ export default async function BusinessOverviewPage({
         <StatCard
           label="Appointments today"
           value={todayCount ?? 0}
-          icon={CalendarDays}
+          icon={Calendar}
         />
         <StatCard
           label="Active services"
           value={serviceCount ?? 0}
-          icon={Scissors}
+          icon={Package}
         />
       </div>
 

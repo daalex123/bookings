@@ -3,25 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Building2,
-  CalendarDays,
-  LayoutDashboard,
-  Menu,
-  Scissors,
-  Settings,
-  Users,
-  X,
-} from "lucide-react";
+import { AdminNavIcons, Menu, X } from "@/lib/admin-icons";
 import { signOut } from "@/lib/actions";
 import { cn } from "@/lib/utils";
 
 const businessNav = [
-  { href: "", label: "Overview", icon: LayoutDashboard },
-  { href: "/services", label: "Services", icon: Scissors },
-  { href: "/appointments", label: "Appointments", icon: CalendarDays },
-  { href: "/customers", label: "Customers", icon: Users },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "", label: "Overview", icon: AdminNavIcons.overview },
+  { href: "/services", label: "Services", icon: AdminNavIcons.services },
+  { href: "/appointments", label: "Appointments", icon: AdminNavIcons.appointments },
+  { href: "/customers", label: "Customers", icon: AdminNavIcons.customers },
+  { href: "/settings", label: "Settings", icon: AdminNavIcons.settings },
 ] as const;
 
 function getBusinessId(pathname: string): string | null {
@@ -73,7 +64,7 @@ export function AdminSidebar({
                 : "admin-pill-idle"
             )}
           >
-            <Building2 className="h-[18px] w-[18px]" strokeWidth={1.75} />
+            <AdminNavIcons.businesses className="h-[18px] w-[18px]" strokeWidth={1.75} />
             Businesses
           </Link>
         ) : (
@@ -105,7 +96,7 @@ export function AdminSidebar({
               onClick={() => setMobileOpen(false)}
               className="mt-2 flex items-center gap-3 rounded-full px-4 py-3 text-sm font-medium admin-pill-idle"
             >
-              <Building2 className="h-[18px] w-[18px]" strokeWidth={1.75} />
+              <AdminNavIcons.businesses className="h-[18px] w-[18px]" strokeWidth={1.75} />
               All businesses
             </Link>
           </>

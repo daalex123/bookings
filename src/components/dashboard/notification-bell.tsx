@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { Bell } from "lucide-react";
+import { Bell } from "@/lib/admin-icons";
 import {
   markAllNotificationsRead,
   markNotificationRead,

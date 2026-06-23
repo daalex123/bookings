@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from "next/image";
-import { ImagePlus, Loader2, Upload } from "lucide-react";
+import NextImage from "next/image";
+import { Image as ImageIcon, Loader2, Upload } from "@/lib/admin-icons";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import type { UploadKind } from "@/lib/storage/upload";
@@ -98,7 +98,7 @@ export function ImageUploadField({
         <div className="flex flex-wrap items-center gap-4">
           {url ? (
             <div className="relative h-28 w-28 overflow-hidden rounded-xl border bg-white">
-              <Image
+              <NextImage
                 src={url}
                 alt=""
                 fill
@@ -108,7 +108,7 @@ export function ImageUploadField({
             </div>
           ) : (
             <div className="flex h-28 w-28 items-center justify-center rounded-xl border border-dashed bg-white text-[#8b92a5]">
-              <ImagePlus className="h-8 w-8" />
+              <ImageIcon className="h-8 w-8" />
             </div>
           )}
 

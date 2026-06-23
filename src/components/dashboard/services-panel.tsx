@@ -3,15 +3,16 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import {
+  Calendar,
   ChevronDown,
   Clock,
   GripVertical,
+  List,
+  Package,
   Pencil,
   Plus,
-  Scissors,
   Search,
-  Timer,
-} from "lucide-react";
+} from "@/lib/admin-icons";
 import { DeleteServiceButton } from "@/components/dashboard/delete-service-button";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { ServiceForm, type ServiceFormValues } from "@/components/dashboard/service-form";
@@ -192,9 +193,9 @@ export function ServicesPanel({
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Primary services" value={services.length} icon={Scissors} />
-        <StatCard label="Additional services" value={extraCount} icon={Timer} />
-        <StatCard label="Active on booking page" value={activeCount} icon={Timer} />
+        <StatCard label="Primary services" value={services.length} icon={Package} />
+        <StatCard label="Additional services" value={extraCount} icon={List} />
+        <StatCard label="Active on booking page" value={activeCount} icon={Calendar} />
       </div>
 
       {showAddForm && (
@@ -302,7 +303,7 @@ export function ServicesPanel({
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center text-[#8b92a5]">
-                            <Scissors className="h-5 w-5" strokeWidth={1.75} />
+                            <Package className="h-5 w-5" strokeWidth={1.75} />
                           </div>
                         )}
                       </div>
@@ -336,7 +337,7 @@ export function ServicesPanel({
                             {service.duration_minutes} min
                           </span>
                           <span className="inline-flex items-center gap-1.5">
-                            <Timer className="h-3.5 w-3.5" />
+                            <Clock className="h-3.5 w-3.5" />
                             Every {interval} min
                           </span>
                           <span className="font-medium text-[#1e2235]">
@@ -419,7 +420,7 @@ export function ServicesPanel({
         ) : (
           <div className="px-6 py-14 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f0f2f5] text-[#1e2235]">
-              <Scissors className="h-6 w-6" strokeWidth={1.75} />
+              <Package className="h-6 w-6" strokeWidth={1.75} />
             </div>
             <p className="mt-4 font-semibold text-[#1e2235]">No services yet</p>
             <p className="mt-1 text-sm text-[#8b92a5]">

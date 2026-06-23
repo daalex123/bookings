@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Search } from "lucide-react";
+import { Search } from "@/lib/admin-icons";
 import { NotificationBell } from "@/components/dashboard/notification-bell";
 import type { Notification } from "@/types/database";
 

@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Users } from "lucide-react";
+import { Users } from "@/lib/admin-icons";
 import { asJoined } from "@/lib/utils";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { createClient } from "@/lib/supabase/server";

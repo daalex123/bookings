@@ -3,14 +3,14 @@
 import { useMemo, useState } from "react";
 import { format, isPast, isToday } from "date-fns";
 import {
-  CalendarDays,
+  Calendar,
   ChevronDown,
   Clock,
   Pencil,
   Plus,
   Search,
   User,
-} from "lucide-react";
+} from "@/lib/admin-icons";
 import {
   AppointmentForm,
   type CustomerOption,
@@ -186,7 +186,7 @@ export function AppointmentsPanel({
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Today" value={todayCount} icon={CalendarDays} />
+        <StatCard label="Today" value={todayCount} icon={Calendar} />
         <StatCard label="Pending" value={pendingCount} icon={Clock} />
         <StatCard label="Upcoming" value={upcomingCount} icon={User} />
       </div>
@@ -306,7 +306,7 @@ export function AppointmentsPanel({
 
                       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#8b92a5]">
                         <span className="inline-flex items-center gap-1.5">
-                          <CalendarDays className="h-3.5 w-3.5" />
+                          <Calendar className="h-3.5 w-3.5" />
                           {format(new Date(appt.start_at), "PPP · p")}
                         </span>
                         <span>
@@ -427,7 +427,7 @@ export function AppointmentsPanel({
         ) : (
           <div className="px-6 py-14 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f0f2f5] text-[#1e2235]">
-              <CalendarDays className="h-6 w-6" strokeWidth={1.75} />
+              <Calendar className="h-6 w-6" strokeWidth={1.75} />
             </div>
             <p className="mt-4 font-semibold text-[#1e2235]">No appointments yet</p>
             <p className="mt-1 text-sm text-[#8b92a5]">

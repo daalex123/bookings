@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2 } from "@/lib/admin-icons";
 import { useActionToast } from "@/hooks/use-action-toast";
 import type { ActionResult } from "@/lib/action-result";
 import { Button } from "@/components/ui/button";

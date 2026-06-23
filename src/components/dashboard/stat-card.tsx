@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "@/lib/admin-icons";
 import { cn } from "@/lib/utils";
 
 export function StatCard({

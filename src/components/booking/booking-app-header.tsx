@@ -36,7 +36,10 @@ export async function BookingAppHeader({
   if (user) {
     const [fullName, userNotifications] = await Promise.all([
       getProfileName(user.id),
-      getUserNotifications(user.id),
+      getUserNotifications(user.id, {
+        businessId: business?.id,
+        customerOnly: Boolean(business),
+      }),
     ]);
     displayName = fullName || user.email?.split("@")[0] || "there";
     notifications = userNotifications;
@@ -58,6 +61,7 @@ export async function BookingAppHeader({
       registerHref={registerHref}
       logoUrl={business?.logo_url}
       businessName={business?.name}
+      businessId={business?.id}
       userId={user?.id}
       notifications={notifications}
     />

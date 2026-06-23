@@ -13,6 +13,7 @@ export function BookingWelcomeHeader({
   registerHref,
   logoUrl,
   businessName,
+  businessId,
   userId,
   notifications = [],
 }: {
@@ -22,6 +23,7 @@ export function BookingWelcomeHeader({
   registerHref?: string;
   logoUrl?: string | null;
   businessName?: string;
+  businessId?: string;
   userId?: string;
   notifications?: Notification[];
 }) {
@@ -78,6 +80,7 @@ export function BookingWelcomeHeader({
               userId={userId}
               initialNotifications={notifications}
               variant="booking"
+              businessId={businessId}
             />
           ) : null}
           <BookingSignOutButton variant="compact" />

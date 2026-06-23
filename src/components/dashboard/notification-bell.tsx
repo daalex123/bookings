@@ -27,10 +27,12 @@ export function NotificationBell({
   userId,
   initialNotifications,
   variant = "admin",
+  businessId,
 }: {
   userId: string;
   initialNotifications: Notification[];
   variant?: "admin" | "booking";
+  businessId?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -38,7 +40,10 @@ export function NotificationBell({
   const isBooking = variant === "booking";
 
   const { notifications, unreadCount, markReadLocal, markAllReadLocal } =
-    useNotifications(userId, initialNotifications);
+    useNotifications(userId, initialNotifications, {
+      businessId: isBooking ? businessId : undefined,
+      customerOnly: isBooking,
+    });
 
   useEffect(() => {
     if (!open) return;
@@ -67,7 +72,7 @@ export function NotificationBell({
   function handleMarkAllRead() {
     markAllReadLocal();
     startTransition(async () => {
-      await markAllNotificationsRead();
+      await markAllNotificationsRead(isBooking ? businessId : undefined);
     });
   }
 

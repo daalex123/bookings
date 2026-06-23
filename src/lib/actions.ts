@@ -18,8 +18,10 @@ import { slotToTimestamps } from "@/lib/availability";
 import {
   authUrl,
   BUSINESS_CONTEXT_COOKIE,
+  getActiveBusinessContext,
   safeRedirectPath,
 } from "@/lib/business-context";
+import { CUSTOMER_NOTIFICATION_TYPES } from "@/lib/notifications/constants";
 import { DEFAULT_CURRENCY, DEFAULT_TIMEZONE } from "@/lib/constants";
 import { getPublicBusiness, publicBusinessCacheTag } from "@/lib/booking-data";
 import { bookingPagePathBySlug, bookingFlowUrl } from "@/lib/booking";
@@ -758,13 +760,22 @@ export async function cancelMyAppointment(appointmentId: string) {
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const { error } = await supabase
+  const activeBusiness = await getActiveBusinessContext();
+
+  let query = supabase
     .from("appointments")
     .update({ status: "cancelled" })
     .eq("id", appointmentId)
     .eq("customer_id", user.id);
 
+  if (activeBusiness) {
+    query = query.eq("business_id", activeBusiness.businessId);
+  }
+
+  const { error, data } = await query.select("id");
+
   if (error) return { error: error.message };
+  if (!data?.length) return { error: "Appointment not found" };
 
   revalidatePath("/my-appointments");
   return { success: true };
@@ -786,18 +797,27 @@ export async function markNotificationRead(notificationId: string) {
   revalidatePath("/dashboard");
 }
 
-export async function markAllNotificationsRead() {
+export async function markAllNotificationsRead(businessId?: string) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return;
 
-  await supabase
+  let query = supabase
     .from("notifications")
     .update({ read_at: new Date().toISOString() })
     .eq("user_id", user.id)
     .is("read_at", null);
 
+  if (businessId) {
+    query = query
+      .eq("business_id", businessId)
+      .in("type", CUSTOMER_NOTIFICATION_TYPES);
+  }
+
+  await query;
+
   revalidatePath("/dashboard");
+  revalidatePath("/my-appointments");
 }

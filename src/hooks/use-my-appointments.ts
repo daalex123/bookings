@@ -17,6 +17,7 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 type AppointmentRow = {
   id: string;
   customer_id: string;
+  business_id: string;
   start_at: string;
   end_at: string;
   created_at: string;
@@ -57,7 +58,8 @@ function hasMeaningfulChange(
 
 export function useMyAppointments(
   userId: string,
-  initialAppointments: CustomerAppointmentItem[]
+  initialAppointments: CustomerAppointmentItem[],
+  businessId?: string
 ) {
   const [appointments, setAppointments] = useState<CustomerAppointmentItem[]>(() =>
     sortAppointments(initialAppointments)
@@ -146,7 +148,7 @@ export function useMyAppointments(
 
       channel = await subscribePostgresChannel(
         supabase,
-        `customer-appointments:${userId}`,
+        `customer-appointments:${userId}${businessId ? `:${businessId}` : ""}`,
         (next) =>
           next
             .on(
@@ -159,6 +161,7 @@ export function useMyAppointments(
               },
               async (payload) => {
                 const row = payload.new as AppointmentRow;
+                if (businessId && row.business_id !== businessId) return;
                 const item = await fetchCustomerAppointment(supabase, row.id);
                 if (!item || cancelled) return;
                 applyAppointments((current) => upsertAppointment(current, item));
@@ -174,6 +177,7 @@ export function useMyAppointments(
               },
               async (payload) => {
                 const row = payload.new as AppointmentRow;
+                if (businessId && row.business_id !== businessId) return;
                 const existing = appointmentsRef.current.find(
                   (item) => item.id === row.id
                 );
@@ -206,8 +210,11 @@ export function useMyAppointments(
                 filter: `customer_id=eq.${userId}`,
               },
               (payload) => {
-                const row = payload.old as { id?: string };
+                const row = payload.old as { id?: string; business_id?: string };
                 if (!row.id) return;
+                if (businessId && row.business_id && row.business_id !== businessId) {
+                  return;
+                }
                 const next = appointmentsRef.current.filter(
                   (item) => item.id !== row.id
                 );
@@ -243,7 +250,7 @@ export function useMyAppointments(
       document.removeEventListener("visibilitychange", onVisible);
       if (channel) void supabase.removeChannel(channel);
     };
-  }, [userId, applyAppointments, syncAppointments]);
+  }, [userId, businessId, applyAppointments, syncAppointments]);
 
   return { appointments, refresh: syncAppointments };
 }

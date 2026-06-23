@@ -25,16 +25,22 @@ export function MyAppointmentsList({
   userId,
   initialAppointments,
   isBooking,
+  businessId,
   cancelAction,
   notifications = [],
 }: {
   userId: string;
   initialAppointments: CustomerAppointmentItem[];
   isBooking: boolean;
+  businessId?: string;
   cancelAction: (formData: FormData) => Promise<ActionResult>;
   notifications?: Notification[];
 }) {
-  const { appointments } = useMyAppointments(userId, initialAppointments);
+  const { appointments } = useMyAppointments(
+    userId,
+    initialAppointments,
+    businessId
+  );
 
   return (
     <div className={cn("space-y-6", isBooking ? "px-5 pt-6" : "")}>
@@ -81,7 +87,9 @@ export function MyAppointmentsList({
               : "border bg-white text-zinc-500"
           )}
         >
-          No appointments yet. Book using a link shared by a business.
+          {isBooking
+            ? "No appointments at this business yet."
+            : "No appointments yet. Book using a link shared by a business."}
         </div>
       )}
     </div>

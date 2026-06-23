@@ -10,6 +10,9 @@ import {
   playNotificationSound,
   unlockNotificationSound,
 } from "@/lib/notification-sound";
+import {
+  isCustomerNotification,
+} from "@/lib/notifications/constants";
 import type { Notification } from "@/types/database";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
@@ -50,15 +53,31 @@ function collectNewUnread(
 
 export function useNotifications(
   userId: string,
-  initialNotifications: Notification[]
+  initialNotifications: Notification[],
+  options?: { businessId?: string; customerOnly?: boolean }
 ) {
-  const initialSorted = useMemo(
-    () => sortNotifications(initialNotifications).slice(0, MAX_NOTIFICATIONS),
-    [initialNotifications]
+  const businessId = options?.businessId;
+  const customerOnly = options?.customerOnly ?? Boolean(businessId);
+
+  const filterNotification = useCallback(
+    (notification: Notification) => {
+      if (businessId && notification.business_id !== businessId) return false;
+      if (customerOnly && !isCustomerNotification(notification)) return false;
+      return true;
+    },
+    [businessId, customerOnly]
   );
 
-  const itemsRef = useRef<Notification[]>(initialSorted);
-  const [items, setItems] = useState<Notification[]>(initialSorted);
+  const initialFiltered = useMemo(
+    () =>
+      sortNotifications(initialNotifications)
+        .filter(filterNotification)
+        .slice(0, MAX_NOTIFICATIONS),
+    [initialNotifications, filterNotification]
+  );
+
+  const itemsRef = useRef<Notification[]>(initialFiltered);
+  const [items, setItems] = useState<Notification[]>(initialFiltered);
   const wasHiddenRef = useRef(false);
 
   const unreadCount = useMemo(
@@ -110,11 +129,12 @@ export function useNotifications(
 
       if (!data.notifications) return;
 
-      applyList(mergeNotifications(itemsRef.current, data.notifications), true);
+      const scoped = data.notifications.filter(filterNotification);
+      applyList(mergeNotifications(itemsRef.current, scoped), true);
     } catch {
       // Sync should not break the UI.
     }
-  }, [applyList]);
+  }, [applyList, filterNotification]);
 
   useEffect(() => {
     const unlock = () => unlockNotificationSound();
@@ -157,6 +177,7 @@ export function useNotifications(
         .maybeSingle();
 
       if (error || !data || cancelled) return;
+      if (!filterNotification(data as Notification)) return;
 
       applyList(upsertNotification(itemsRef.current, data as Notification), true);
     };
@@ -170,6 +191,7 @@ export function useNotifications(
         .maybeSingle();
 
       if (error || !data || cancelled) return;
+      if (!filterNotification(data as Notification)) return;
 
       const next = upsertNotification(itemsRef.current, data as Notification);
       itemsRef.current = next;
@@ -189,7 +211,7 @@ export function useNotifications(
 
       channel = await subscribePostgresChannel(
         supabase,
-        `notifications:${userId}`,
+        `notifications:${userId}${businessId ? `:${businessId}` : ""}`,
         (next) =>
           next
             .on("broadcast", { event: "new_notification" }, (message) => {
@@ -251,7 +273,7 @@ export function useNotifications(
       document.removeEventListener("visibilitychange", onVisible);
       if (channel) void supabase.removeChannel(channel);
     };
-  }, [userId, applyList, syncNotifications]);
+  }, [userId, businessId, applyList, syncNotifications, filterNotification]);
 
   return {
     notifications: items,

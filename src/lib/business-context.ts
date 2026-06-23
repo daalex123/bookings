@@ -1,4 +1,6 @@
 import { cookies } from "next/headers";
+import { cache } from "react";
+import { getPublicBusiness } from "@/lib/booking-data";
 
 export const BUSINESS_CONTEXT_COOKIE = "bn_active_business";
 
@@ -72,3 +74,42 @@ export async function getActiveBusinessPath(): Promise<string | null> {
   const cookieStore = await cookies();
   return cookieStore.get(BUSINESS_CONTEXT_COOKIE)?.value ?? null;
 }
+
+/** Notification types shown to customers in the booking app (not staff alerts). */
+export { CUSTOMER_NOTIFICATION_TYPES } from "@/lib/notifications/constants";
+
+export function bookingRefFromBusinessPath(path: string): string | null {
+  const slugMatch = path.match(/^\/b\/([^/]+)/);
+  if (slugMatch) return slugMatch[1];
+  const tokenMatch = path.match(/^\/book\/([^/]+)/);
+  if (tokenMatch) return tokenMatch[1];
+  return null;
+}
+
+export type ActiveBusinessContext = {
+  path: string;
+  ref: string;
+  businessId: string;
+  businessName: string;
+};
+
+/** Resolved business from the active-business cookie (booking customer context). */
+export const getActiveBusinessContext = cache(
+  async (): Promise<ActiveBusinessContext | null> => {
+    const path = await getActiveBusinessPath();
+    if (!path) return null;
+
+    const ref = bookingRefFromBusinessPath(path);
+    if (!ref) return null;
+
+    const ctx = await getPublicBusiness(ref);
+    if (!ctx?.business) return null;
+
+    return {
+      path,
+      ref,
+      businessId: ctx.business.id,
+      businessName: ctx.business.name,
+    };
+  }
+);

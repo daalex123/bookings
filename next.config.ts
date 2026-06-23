@@ -8,7 +8,9 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
-  // External/slow drives: polling avoids runaway file-watcher CPU in dev.
+  // Dev-only webpack watchOptions (see `npm run dev` --webpack). Empty turbopack
+  // config acknowledges Next 16 default bundler for production builds.
+  turbopack: {},
   webpack: (config, { dev }) => {
     if (dev) {
       config.watchOptions = {

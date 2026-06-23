@@ -4,6 +4,10 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { ActionForm } from "@/components/action-form";
 import { SubmitButton } from "@/components/ui/submit-button";
+import {
+  bookingInputClass,
+  bookingLabelClass,
+} from "@/components/booking/booking-form-field";
 import type { ActionResult } from "@/lib/action-result";
 
 export function ProfileForm({
@@ -20,15 +24,13 @@ export function ProfileForm({
   email: string;
 }) {
   const inputClass = cn(
-    "w-full rounded-2xl border-0 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-booking-accent/50",
-    isBooking
-      ? "bg-booking-elevated text-white placeholder:text-booking-muted"
-      : "border border-zinc-300 bg-white"
+    bookingInputClass,
+    !isBooking && "border-zinc-300 bg-white text-zinc-900 shadow-none placeholder:text-zinc-400"
   );
 
   const labelClass = cn(
-    "text-sm font-medium",
-    isBooking ? "text-booking-muted" : "text-zinc-700"
+    bookingLabelClass,
+    !isBooking && "text-zinc-700"
   );
 
   const submitClass = cn(

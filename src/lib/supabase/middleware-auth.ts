@@ -1,10 +1,13 @@
 import type { NextRequest } from "next/server";
+import { isBusinessAuthPath } from "@/lib/business-context";
 
 const AUTH_ROUTES = ["/login", "/register"];
 const PROTECTED_ROUTES = ["/dashboard", "/my-appointments", "/account"];
 
 export function isAuthRoute(pathname: string): boolean {
-  return AUTH_ROUTES.some((route) => pathname.startsWith(route));
+  return (
+    AUTH_ROUTES.some((route) => pathname === route) || isBusinessAuthPath(pathname)
+  );
 }
 
 export function isProtectedRoute(pathname: string): boolean {
@@ -23,7 +26,8 @@ export function isPublicAnonymousPath(pathname: string): boolean {
     pathname === "/" ||
     pathname.startsWith("/b/") ||
     pathname.startsWith("/book/") ||
-    isAuthRoute(pathname)
+    isAuthRoute(pathname) ||
+    isBusinessAuthPath(pathname)
   );
 }
 

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils";
 import {
@@ -14,9 +15,14 @@ import {
   adminAppointmentSchema,
 } from "@/lib/validations";
 import { slotToTimestamps } from "@/lib/availability";
-import { safeRedirectPath } from "@/lib/business-context";
+import {
+  authUrl,
+  BUSINESS_CONTEXT_COOKIE,
+  safeRedirectPath,
+} from "@/lib/business-context";
 import { DEFAULT_CURRENCY, DEFAULT_TIMEZONE } from "@/lib/constants";
 import { getPublicBusiness } from "@/lib/booking-data";
+import { bookingPagePathBySlug, bookingFlowUrl } from "@/lib/booking";
 import { sendBookingNotifications } from "@/lib/notifications/send-booking-notifications";
 import { notifyCustomerAppointmentStatus } from "@/lib/notifications/customer-status";
 import { getSiteUrl } from "@/lib/site-url";
@@ -28,7 +34,7 @@ export async function signIn(formData: FormData): Promise<void> {
   });
 
   const redirectTo = safeRedirectPath(formData.get("redirect")?.toString());
-  const loginUrl = `/login?redirect=${encodeURIComponent(redirectTo)}`;
+  const loginUrl = authUrl("login", redirectTo);
 
   if (!parsed.success) {
     redirect(
@@ -52,10 +58,7 @@ export async function signIn(formData: FormData): Promise<void> {
 
 export async function signUp(formData: FormData): Promise<void> {
   const redirectTo = safeRedirectPath(formData.get("redirect")?.toString());
-  const registerBase =
-    redirectTo !== "/"
-      ? `/register?redirect=${encodeURIComponent(redirectTo)}`
-      : "/register";
+  const registerBase = authUrl("register", redirectTo);
 
   const parsed = registerSchema.safeParse({
     fullName: formData.get("fullName"),
@@ -72,7 +75,7 @@ export async function signUp(formData: FormData): Promise<void> {
   }
 
   const siteUrl = await getSiteUrl();
-  const loginAfterRegister = `/login?registered=1&redirect=${encodeURIComponent(redirectTo)}`;
+  const loginAfterRegister = authUrl("login", redirectTo, { registered: "1" });
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
@@ -104,9 +107,7 @@ export async function signUp(formData: FormData): Promise<void> {
 
   // No session = email confirmation required
   if (data.user && !data.session) {
-    redirect(
-      `/login?confirmEmail=1&redirect=${encodeURIComponent(redirectTo)}`
-    );
+    redirect(authUrl("login", redirectTo, { confirmEmail: "1" }));
   }
 
   redirect(loginAfterRegister);
@@ -115,7 +116,9 @@ export async function signUp(formData: FormData): Promise<void> {
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect("/");
+  const cookieStore = await cookies();
+  const activeBusiness = cookieStore.get(BUSINESS_CONTEXT_COOKIE)?.value;
+  redirect(safeRedirectPath(activeBusiness ?? "/"));
 }
 
 export async function updateProfile(formData: FormData) {
@@ -549,10 +552,19 @@ export async function createAppointment(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
 
   const ctx = await getPublicBusiness(bookingToken);
   if (!ctx) return { error: "Invalid booking link" };
+
+  if (!user) {
+    const basePath = bookingPagePathBySlug(ctx.business.slug);
+    redirect(
+      authUrl(
+        "login",
+        bookingFlowUrl(basePath, { serviceId, date: dateStr })
+      )
+    );
+  }
 
   const service = ctx.services.find((s) => s.id === serviceId);
   if (!service) return { error: "Service not found" };

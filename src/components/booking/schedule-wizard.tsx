@@ -8,6 +8,7 @@ import {
 } from "@/lib/availability";
 import { getPublicBookedSlots, getPublicBusiness } from "@/lib/booking-data";
 import { bookingFlowUrl } from "@/lib/booking";
+import { authUrl } from "@/lib/business-context";
 import { getCurrentUser } from "@/lib/supabase/auth";
 import { formatPrice } from "@/lib/utils";
 import { BusinessBrandTheme } from "@/components/booking/business-brand-theme";
@@ -41,12 +42,13 @@ export async function ScheduleWizard({
 
   if (!user) {
     redirect(
-      `/login?redirect=${encodeURIComponent(
+      authUrl(
+        "login",
         bookingFlowUrl(backPath, {
           serviceId: searchParams.service,
           date: searchParams.date,
         })
-      )}`
+      )
     );
   }
 

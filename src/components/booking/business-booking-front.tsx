@@ -16,6 +16,7 @@ import { BookingWelcomeHeader } from "@/components/booking/booking-welcome-heade
 import { BusinessBrandTheme } from "@/components/booking/business-brand-theme";
 import { ServiceList } from "@/components/booking/service-list";
 import { ShareBookingCard } from "@/components/booking/share-booking-card";
+import { businessAuthPath } from "@/lib/business-context";
 
 export async function BusinessBookingFront({
   bookingRef,
@@ -45,7 +46,8 @@ export async function BusinessBookingFront({
     notifications = userNotifications;
   }
 
-  const loginHref = `/login?redirect=${encodeURIComponent(basePath)}`;
+  const loginHref = `${businessAuthPath(basePath, "login")}?redirect=${encodeURIComponent(basePath)}`;
+  const registerHref = `${businessAuthPath(basePath, "register")}?redirect=${encodeURIComponent(basePath)}`;
   const shareUrl = bookingPublicUrl(business.slug, siteUrl);
   const heroStyle = business.cover_image_url
     ? {
@@ -63,6 +65,7 @@ export async function BusinessBookingFront({
           displayName={displayName}
           isGuest={!user}
           loginHref={loginHref}
+          registerHref={registerHref}
           logoUrl={business.logo_url}
           businessName={business.name}
           userId={user?.id}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getActiveBusinessPath } from "@/lib/business-context";
+import { getActiveBusinessPath, businessAuthPath } from "@/lib/business-context";
 import {
   canAccessAdminDashboard,
   getCurrentUser,
@@ -16,9 +16,12 @@ export async function SiteHeader() {
   ]);
 
   const homeHref = activeBusinessPath ?? "/";
-  const authRedirect = activeBusinessPath
-    ? `?redirect=${encodeURIComponent(activeBusinessPath)}`
-    : "";
+  const loginHref = activeBusinessPath
+    ? `${businessAuthPath(activeBusinessPath, "login")}?redirect=${encodeURIComponent(activeBusinessPath)}`
+    : "/login";
+  const registerHref = activeBusinessPath
+    ? `${businessAuthPath(activeBusinessPath, "register")}?redirect=${encodeURIComponent(activeBusinessPath)}`
+    : "/register";
 
   const showDashboard = user ? await canAccessAdminDashboard(user.id) : false;
   const notifications = user ? await getUserNotifications(user.id) : [];
@@ -74,12 +77,12 @@ export async function SiteHeader() {
             </>
           ) : (
             <>
-              <Link href={`/login${authRedirect}`}>
+              <Link href={loginHref}>
                 <Button variant="ghost" size="sm" className="rounded-lg">
                   Sign in
                 </Button>
               </Link>
-              <Link href={`/register${authRedirect}`}>
+              <Link href={registerHref}>
                 <Button size="sm" className="rounded-lg">Register</Button>
               </Link>
             </>

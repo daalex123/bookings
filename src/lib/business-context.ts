@@ -19,6 +19,40 @@ export function safeRedirectPath(
   return path;
 }
 
+export function businessAuthPath(
+  businessPath: string,
+  type: "login" | "register"
+): string {
+  return `${businessPath}/${type}`;
+}
+
+export function isBusinessAuthPath(pathname: string): boolean {
+  return /^\/(?:b\/[^/]+|book\/[^/]+)\/(login|register)$/.test(pathname);
+}
+
+export function authPathForContext(
+  businessPath: string | null | undefined,
+  type: "login" | "register"
+): string {
+  if (businessPath) {
+    return businessAuthPath(businessPath, type);
+  }
+  return `/${type}`;
+}
+
+/** Build login/register URL, preferring business-scoped paths when possible */
+export function authUrl(
+  type: "login" | "register",
+  redirectTo: string,
+  extra?: Record<string, string>
+): string {
+  const pathOnly = redirectTo.split("?")[0];
+  const businessPath = businessPathFromPathname(pathOnly);
+  const base = authPathForContext(businessPath, type);
+  const params = new URLSearchParams({ redirect: redirectTo, ...extra });
+  return `${base}?${params}`;
+}
+
 /** Derive the persisted business path from a request pathname */
 export function businessPathFromPathname(pathname: string): string | null {
   const slugMatch = pathname.match(/^\/b\/([^/]+)(?:\/|$)/);

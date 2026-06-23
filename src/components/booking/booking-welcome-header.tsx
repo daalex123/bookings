@@ -9,6 +9,7 @@ export function BookingWelcomeHeader({
   displayName,
   isGuest,
   loginHref,
+  registerHref,
   logoUrl,
   businessName,
   userId,
@@ -17,6 +18,7 @@ export function BookingWelcomeHeader({
   displayName: string;
   isGuest: boolean;
   loginHref: string;
+  registerHref?: string;
   logoUrl?: string | null;
   businessName?: string;
   userId?: string;
@@ -52,6 +54,15 @@ export function BookingWelcomeHeader({
                 <Link href={loginHref} className="text-booking-accent underline">
                   Sign in
                 </Link>
+                {registerHref ? (
+                  <>
+                    {" "}
+                    ·{" "}
+                    <Link href={registerHref} className="text-booking-accent underline">
+                      Register
+                    </Link>
+                  </>
+                ) : null}
               </>
             ) : (
               `Hey, ${displayName.split(" ")[0]}`

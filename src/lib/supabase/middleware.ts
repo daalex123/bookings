@@ -3,7 +3,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   BUSINESS_CONTEXT_COOKIE,
   BUSINESS_CONTEXT_COOKIE_OPTIONS,
+  businessAuthPath,
   businessPathFromPathname,
+  isBusinessAuthPath,
   safeRedirectPath,
 } from "@/lib/business-context";
 import {
@@ -19,13 +21,6 @@ function applyBusinessContextCookie(
 ): NextResponse {
   const { pathname } = request.nextUrl;
 
-  if (pathname === "/") {
-    if (request.cookies.has(BUSINESS_CONTEXT_COOKIE)) {
-      response.cookies.delete(BUSINESS_CONTEXT_COOKIE);
-    }
-    return response;
-  }
-
   const businessPath = businessPathFromPathname(pathname);
   if (businessPath) {
     response.cookies.set(
@@ -38,9 +33,55 @@ function applyBusinessContextCookie(
   return response;
 }
 
+function activeBusinessPath(request: NextRequest): string | null {
+  return request.cookies.get(BUSINESS_CONTEXT_COOKIE)?.value ?? null;
+}
+
+function redirectToBusinessHome(
+  request: NextRequest,
+  businessPath: string
+): NextResponse {
+  const url = request.nextUrl.clone();
+  url.pathname = safeRedirectPath(businessPath);
+  url.search = "";
+  return withRouteHeaders(request, NextResponse.redirect(url));
+}
+
+function maybeRedirectAwayFromGenericPages(
+  request: NextRequest
+): NextResponse | null {
+  const { pathname } = request.nextUrl;
+  const businessPath = activeBusinessPath(request);
+  if (!businessPath) return null;
+
+  if (pathname === "/") {
+    return redirectToBusinessHome(request, businessPath);
+  }
+
+  if (pathname === "/login" || pathname === "/register") {
+    const url = request.nextUrl.clone();
+    url.pathname = businessAuthPath(
+      businessPath,
+      pathname === "/login" ? "login" : "register"
+    );
+    return withRouteHeaders(request, NextResponse.redirect(url));
+  }
+
+  return null;
+}
+
+function loginPathForRequest(request: NextRequest): string {
+  const businessPath = activeBusinessPath(request);
+  if (businessPath) {
+    return businessAuthPath(businessPath, "login");
+  }
+  return "/login";
+}
+
 function isBookingExperience(request: NextRequest): boolean {
   const { pathname } = request.nextUrl;
   if (pathname.startsWith("/b/") || pathname.startsWith("/book/")) return true;
+  if (isBusinessAuthPath(pathname)) return true;
   if (
     request.cookies.has(BUSINESS_CONTEXT_COOKIE) &&
     (pathname === "/my-appointments" || pathname === "/account")
@@ -77,6 +118,11 @@ function fastResponse(request: NextRequest): NextResponse {
 export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  const businessRedirect = maybeRedirectAwayFromGenericPages(request);
+  if (businessRedirect) {
+    return applyBusinessContextCookie(request, businessRedirect);
+  }
+
   // Anonymous visitors on public pages: skip Supabase entirely (~200–500ms saved).
   if (
     isPublicAnonymousPath(pathname) &&
@@ -84,7 +130,7 @@ export async function updateSession(request: NextRequest) {
   ) {
     if (isProtectedRoute(pathname)) {
       const url = request.nextUrl.clone();
-      url.pathname = "/login";
+      url.pathname = loginPathForRequest(request);
       url.searchParams.set("redirect", pathname);
       return NextResponse.redirect(url);
     }
@@ -132,7 +178,7 @@ export async function updateSession(request: NextRequest) {
 
   if (!user && isProtectedRoute(pathname)) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = loginPathForRequest(request);
     url.searchParams.set("redirect", pathname);
     return NextResponse.redirect(url);
   }

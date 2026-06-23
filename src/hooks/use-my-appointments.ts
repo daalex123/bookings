@@ -148,7 +148,7 @@ export function useMyAppointments(
 
       channel = await subscribePostgresChannel(
         supabase,
-        `customer-appointments:${userId}${businessId ? `:${businessId}` : ""}`,
+        `customer-appointments:${userId}`,
         (next) =>
           next
             .on(

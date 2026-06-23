@@ -166,6 +166,13 @@ export function useNotifications(
 
     document.addEventListener("visibilitychange", onVisible);
 
+    const handleInsertRow = (row: Notification) => {
+      if (!row?.id || cancelled) return;
+      if (itemsRef.current.some((item) => item.id === row.id)) return;
+      if (!filterNotification(row)) return;
+      applyList(upsertNotification(itemsRef.current, row), true);
+    };
+
     const handleInsert = async (notificationId: string) => {
       if (itemsRef.current.some((item) => item.id === notificationId)) return;
 
@@ -177,23 +184,13 @@ export function useNotifications(
         .maybeSingle();
 
       if (error || !data || cancelled) return;
-      if (!filterNotification(data as Notification)) return;
-
-      applyList(upsertNotification(itemsRef.current, data as Notification), true);
+      handleInsertRow(data as Notification);
     };
 
-    const handleUpdate = async (notificationId: string) => {
-      const { data, error } = await supabase
-        .from("notifications")
-        .select("*")
-        .eq("id", notificationId)
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      if (error || !data || cancelled) return;
-      if (!filterNotification(data as Notification)) return;
-
-      const next = upsertNotification(itemsRef.current, data as Notification);
+    const handleUpdateRow = (row: Notification) => {
+      if (!row?.id || cancelled) return;
+      if (!filterNotification(row)) return;
+      const next = upsertNotification(itemsRef.current, row);
       itemsRef.current = next;
       setItems(next);
     };
@@ -211,7 +208,7 @@ export function useNotifications(
 
       channel = await subscribePostgresChannel(
         supabase,
-        `notifications:${userId}${businessId ? `:${businessId}` : ""}`,
+        `notifications:${userId}`,
         (next) =>
           next
             .on("broadcast", { event: "new_notification" }, (message) => {
@@ -227,8 +224,7 @@ export function useNotifications(
                 filter: `user_id=eq.${userId}`,
               },
               (payload) => {
-                const id = (payload.new as { id?: string }).id;
-                if (id) void handleInsert(id);
+                handleInsertRow(payload.new as Notification);
               }
             )
             .on(
@@ -240,8 +236,7 @@ export function useNotifications(
                 filter: `user_id=eq.${userId}`,
               },
               (payload) => {
-                const id = (payload.new as { id?: string }).id;
-                if (id) void handleUpdate(id);
+                handleUpdateRow(payload.new as Notification);
               }
             ),
         (status, err) => {

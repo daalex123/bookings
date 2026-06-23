@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fafafa;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-booking-bg: #0a0a0a;
+  --color-booking-surface: #161616;
+  --color-booking-elevated: #222222;
+  --color-booking-muted: #8a8a8a;
+  --color-booking-accent: #f5c518;
+  --color-booking-accent-fg: #0a0a0a;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.booking-theme {
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.booking-theme ::-webkit-scrollbar {
+  display: none;
+}
+
+.booking-theme * {
+  scrollbar-width: none;
+}
+
+.booking-hero-gradient {
+  background: linear-gradient(
+    135deg,
+    #2a1810 0%,
+    #1a1410 40%,
+    #0f0f0f 100%
+  );
+}
+
+.booking-card-gradient-1 {
+  background: linear-gradient(145deg, #3d2b1f 0%, #1a1410 100%);
+}
+
+.booking-card-gradient-2 {
+  background: linear-gradient(145deg, #2a2a35 0%, #141418 100%);
+}
+
+.booking-card-gradient-3 {
+  background: linear-gradient(145deg, #1f2a1f 0%, #101410 100%);
+}
+
+/* Admin dashboard (BRESS-style) */
+.admin-theme {
+  --admin-bg: #f0f2f5;
+  --admin-surface: #ffffff;
+  --admin-navy: #1e2235;
+  --admin-navy-hover: #2a3048;
+  --admin-muted: #8b92a5;
+  --admin-border: rgba(30, 34, 53, 0.08);
+  --admin-shadow: 0 4px 24px rgba(30, 34, 53, 0.06);
+  --admin-radius: 1.25rem;
+  background: var(--admin-bg);
+  color: var(--admin-navy);
+}
+
+.admin-card {
+  border-radius: var(--admin-radius);
+  background: var(--admin-surface);
+  box-shadow: var(--admin-shadow);
+  border: 1px solid var(--admin-border);
+}
+
+.admin-pill-active {
+  background: var(--admin-navy);
+  color: #ffffff;
+}
+
+.admin-pill-idle {
+  color: var(--admin-muted);
+}
+
+.admin-pill-idle:hover {
+  background: rgba(30, 34, 53, 0.05);
+  color: var(--admin-navy);
+}

@@ -19,7 +19,8 @@ export async function GET() {
       `
       id, start_at, end_at, created_at, status, notes,
       businesses ( name, slug ),
-      services ( name )
+      services ( name ),
+      appointment_addons ( services ( name ) )
     `
     )
     .eq("customer_id", user.id)

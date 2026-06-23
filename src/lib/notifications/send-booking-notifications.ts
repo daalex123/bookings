@@ -54,6 +54,19 @@ export async function sendBookingNotifications(
 
   if (!business || !service) return;
 
+  const { data: addonRows } = await admin
+    .from("appointment_addons")
+    .select("price, services ( name )")
+    .eq("appointment_id", appointmentId);
+
+  const addonNames: string[] = [];
+  let addonTotal = 0;
+  for (const row of addonRows ?? []) {
+    const addonService = asJoined(row.services);
+    if (addonService?.name) addonNames.push(addonService.name);
+    addonTotal += Number(row.price);
+  }
+
   const { data: customerAuth } = await admin.auth.admin.getUserById(
     appointment.customer_id
   );
@@ -68,6 +81,8 @@ export async function sendBookingNotifications(
     currency: business.currency ?? DEFAULT_CURRENCY,
     serviceName: service.name,
     servicePrice: Number(service.price),
+    addonNames,
+    addonTotal,
     durationMinutes: service.duration_minutes,
     startAt: appointment.start_at,
     endAt: appointment.end_at,

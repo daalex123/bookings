@@ -14,6 +14,7 @@ import { BusinessBrandTheme } from "@/components/booking/business-brand-theme";
 import { BookingSuccessSound } from "@/components/booking/booking-success-sound";
 import { HorizontalDatePicker } from "@/components/booking/horizontal-date-picker";
 import { TimeSlotPicker } from "@/components/booking/time-slot-picker";
+import { AddonPicker } from "@/components/booking/addon-picker";
 import { cn } from "@/lib/utils";
 
 export async function ScheduleWizard({
@@ -51,7 +52,7 @@ export async function ScheduleWizard({
 
   if (!ctx) notFound();
 
-  const { business, services, hours } = ctx;
+  const { business, services, addons, hours } = ctx;
   const timezone = business.timezone;
   const currency = business.currency;
 
@@ -207,6 +208,13 @@ export async function ScheduleWizard({
             />
 
             <TimeSlotPicker slots={slots} defaultTime={preservedTime} />
+
+            <AddonPicker
+              addons={addons}
+              serviceId={selectedService.id}
+              basePrice={selectedService.price}
+              currency={currency}
+            />
 
             <div className="mt-6">
               <label

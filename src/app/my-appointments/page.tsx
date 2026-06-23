@@ -1,11 +1,9 @@
-import Link from "next/link";
-import { getActiveBusinessPath } from "@/lib/business-context";
 import { cancelMyAppointment } from "@/lib/actions";
-import { asJoined } from "@/lib/utils";
+import { getActiveBusinessPath } from "@/lib/business-context";
 import { getCurrentUser } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 import { MyAppointmentsList } from "@/components/booking/my-appointments-list";
-import type { CustomerAppointmentItem } from "@/lib/customer-appointments";
+import { mapCustomerAppointment } from "@/lib/customer-appointments-client";
 import { getUserNotifications } from "@/lib/notifications/queries";
 
 export default async function MyAppointmentsPage() {
@@ -23,7 +21,8 @@ export default async function MyAppointmentsPage() {
         `
       id, start_at, end_at, created_at, status, notes,
       businesses ( name, slug ),
-      services ( name )
+      services ( name ),
+      appointment_addons ( services ( name ) )
     `
       )
       .eq("customer_id", user.id)
@@ -31,22 +30,8 @@ export default async function MyAppointmentsPage() {
     getUserNotifications(user.id),
   ]);
 
-  const initialAppointments: CustomerAppointmentItem[] = (appointments ?? []).map(
-    (appt) => {
-      const business = asJoined(appt.businesses);
-      const service = asJoined(appt.services);
-      return {
-        id: appt.id,
-        start_at: appt.start_at,
-        end_at: appt.end_at,
-        created_at: appt.created_at,
-        status: appt.status,
-        notes: appt.notes,
-        business_name: business?.name ?? "Business",
-        business_slug: business?.slug ?? "",
-        service_name: service?.name ?? "Appointment",
-      };
-    }
+  const initialAppointments = (appointments ?? []).map((appt) =>
+    mapCustomerAppointment(appt)
   );
 
   async function cancelAppointment(formData: FormData) {

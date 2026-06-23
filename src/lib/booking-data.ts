@@ -22,6 +22,7 @@ async function fetchPublicBusiness(
   return {
     business: ctx.business,
     services: ctx.services ?? [],
+    addons: ctx.addons ?? [],
     hours: ctx.hours ?? [],
   };
 }

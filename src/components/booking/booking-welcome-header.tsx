@@ -30,7 +30,7 @@ export function BookingWelcomeHeader({
     .toUpperCase();
 
   return (
-    <header className="flex items-center justify-between px-5 pt-6">
+    <header className="booking-header-pad flex items-center justify-between px-5">
       <div className="flex items-center gap-3">
         {logoUrl ? (
           <div className="relative h-12 w-12 overflow-hidden rounded-full bg-booking-elevated">

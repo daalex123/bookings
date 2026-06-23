@@ -10,6 +10,7 @@ import {
   profileSchema,
   registerSchema,
   serviceSchema,
+  serviceAddonSchema,
   adminAppointmentSchema,
 } from "@/lib/validations";
 import { slotToTimestamps } from "@/lib/availability";
@@ -241,8 +242,10 @@ export async function regenerateBookingToken(businessId: string) {
 export async function upsertService(businessId: string, formData: FormData) {
   const durationRaw = formData.get("duration_minutes");
   const intervalRaw = formData.get("slot_interval_minutes");
+  const parentServiceId = formData.get("parent_service_id")?.toString() || "";
 
-  const parsed = serviceSchema.safeParse({
+  const schema = parentServiceId ? serviceAddonSchema : serviceSchema;
+  const parsed = schema.safeParse({
     name: formData.get("name"),
     description: formData.get("description") || undefined,
     duration_minutes: durationRaw,
@@ -253,6 +256,7 @@ export async function upsertService(businessId: string, formData: FormData) {
     price: formData.get("price"),
     image_url: formData.get("image_url")?.toString() || "",
     is_active: formData.get("is_active") === "on",
+    parent_service_id: parentServiceId || undefined,
   });
 
   if (!parsed.success) {
@@ -262,11 +266,40 @@ export async function upsertService(businessId: string, formData: FormData) {
   const supabase = await createClient();
   const serviceId = formData.get("id")?.toString();
 
+  let durationMinutes = "duration_minutes" in parsed.data
+    ? parsed.data.duration_minutes
+    : undefined;
+  let slotIntervalMinutes = "slot_interval_minutes" in parsed.data
+    ? parsed.data.slot_interval_minutes
+    : undefined;
+
+  if (parentServiceId) {
+    const { data: parent } = await supabase
+      .from("services")
+      .select("duration_minutes, slot_interval_minutes")
+      .eq("id", parentServiceId)
+      .eq("business_id", businessId)
+      .is("parent_service_id", null)
+      .single();
+
+    if (!parent) {
+      return { error: { form: ["Primary service not found"] } };
+    }
+
+    durationMinutes = parent.duration_minutes;
+    slotIntervalMinutes = parent.slot_interval_minutes;
+  }
+
   const payload = {
-    ...parsed.data,
-    slot_interval_minutes:
-      parsed.data.slot_interval_minutes ?? parsed.data.duration_minutes,
+    name: parsed.data.name,
+    description: parsed.data.description ?? null,
+    price: parsed.data.price,
     image_url: parsed.data.image_url || null,
+    is_active: parsed.data.is_active ?? true,
+    duration_minutes: durationMinutes!,
+    slot_interval_minutes:
+      slotIntervalMinutes ?? durationMinutes!,
+    parent_service_id: parentServiceId || null,
   };
 
   if (serviceId) {
@@ -276,10 +309,45 @@ export async function upsertService(businessId: string, formData: FormData) {
       .eq("id", serviceId)
       .eq("business_id", businessId);
     if (error) return { error: { form: [error.message] } };
+
+    if (!parentServiceId) {
+      await supabase
+        .from("services")
+        .update({
+          duration_minutes: payload.duration_minutes,
+          slot_interval_minutes: payload.slot_interval_minutes,
+        })
+        .eq("business_id", businessId)
+        .eq("parent_service_id", serviceId);
+    }
   } else {
+    let sortOrder = 0;
+    if (parentServiceId) {
+      const { data: maxOrder } = await supabase
+        .from("services")
+        .select("sort_order")
+        .eq("business_id", businessId)
+        .eq("parent_service_id", parentServiceId)
+        .order("sort_order", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      sortOrder = (maxOrder?.sort_order ?? -1) + 1;
+    } else {
+      const { data: primaryMax } = await supabase
+        .from("services")
+        .select("sort_order")
+        .eq("business_id", businessId)
+        .is("parent_service_id", null)
+        .order("sort_order", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      sortOrder = (primaryMax?.sort_order ?? -1) + 1;
+    }
+
     const { error } = await supabase.from("services").insert({
       ...payload,
       business_id: businessId,
+      sort_order: sortOrder,
     });
     if (error) return { error: { form: [error.message] } };
   }
@@ -297,6 +365,135 @@ export async function deleteService(businessId: string, serviceId: string) {
     .eq("business_id", businessId);
 
   if (error) return { error: error.message };
+
+  revalidatePath(`/dashboard/${businessId}/services`);
+  return { success: true };
+}
+
+export async function reorderServices(businessId: string, formData: FormData) {
+  const orderedIds = formData.getAll("orderedIds").map((id) => id.toString());
+  if (orderedIds.length === 0) return { error: "No services to reorder" };
+
+  const supabase = await createClient();
+
+  for (let index = 0; index < orderedIds.length; index++) {
+    const { error } = await supabase
+      .from("services")
+      .update({ sort_order: index })
+      .eq("id", orderedIds[index])
+      .eq("business_id", businessId)
+      .is("parent_service_id", null);
+
+    if (error) return { error: error.message };
+  }
+
+  revalidatePath(`/dashboard/${businessId}/services`);
+  return { success: true };
+}
+
+export async function linkServiceExtra(businessId: string, formData: FormData) {
+  const parentServiceId = formData.get("parentServiceId")?.toString();
+  const childServiceId = formData.get("childServiceId")?.toString();
+
+  if (!parentServiceId || !childServiceId) {
+    return { error: "Missing service link details" };
+  }
+
+  if (parentServiceId === childServiceId) {
+    return { error: "A service cannot be linked to itself" };
+  }
+
+  const supabase = await createClient();
+
+  const { data: services } = await supabase
+    .from("services")
+    .select("id, parent_service_id")
+    .eq("business_id", businessId)
+    .in("id", [parentServiceId, childServiceId]);
+
+  const parent = services?.find((s) => s.id === parentServiceId);
+  const child = services?.find((s) => s.id === childServiceId);
+
+  if (!parent?.id || parent.parent_service_id) {
+    return { error: "Primary service not found" };
+  }
+  if (!child?.id || child.parent_service_id) {
+    return { error: "Only standalone services can be linked as extras" };
+  }
+
+  const { count } = await supabase
+    .from("service_extra_links")
+    .select("*", { count: "exact", head: true })
+    .eq("parent_service_id", parentServiceId);
+
+  const { error } = await supabase.from("service_extra_links").insert({
+    parent_service_id: parentServiceId,
+    child_service_id: childServiceId,
+    sort_order: count ?? 0,
+  });
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/dashboard/${businessId}/services`);
+  return { success: true };
+}
+
+export async function unlinkServiceExtra(businessId: string, formData: FormData) {
+  const parentServiceId = formData.get("parentServiceId")?.toString();
+  const childServiceId = formData.get("childServiceId")?.toString();
+
+  if (!parentServiceId || !childServiceId) {
+    return { error: "Missing service link details" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("service_extra_links")
+    .delete()
+    .eq("parent_service_id", parentServiceId)
+    .eq("child_service_id", childServiceId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/dashboard/${businessId}/services`);
+  return { success: true };
+}
+
+export async function reorderServiceExtras(
+  businessId: string,
+  formData: FormData
+) {
+  const parentServiceId = formData.get("parentServiceId")?.toString();
+  const orderedIds = formData.getAll("orderedIds").map((id) => id.toString());
+  const orderedKinds = formData.getAll("orderedKinds").map((k) => k.toString());
+
+  if (!parentServiceId || orderedIds.length === 0) {
+    return { error: "Missing reorder details" };
+  }
+
+  const supabase = await createClient();
+
+  for (let index = 0; index < orderedIds.length; index++) {
+    const id = orderedIds[index];
+    const kind = orderedKinds[index] ?? "addon";
+
+    if (kind === "linked") {
+      const { error } = await supabase
+        .from("service_extra_links")
+        .update({ sort_order: index })
+        .eq("parent_service_id", parentServiceId)
+        .eq("child_service_id", id);
+      if (error) return { error: error.message };
+    } else {
+      const { error } = await supabase
+        .from("services")
+        .update({ sort_order: index })
+        .eq("id", id)
+        .eq("business_id", businessId)
+        .eq("parent_service_id", parentServiceId);
+      if (error) return { error: error.message };
+    }
+  }
 
   revalidatePath(`/dashboard/${businessId}/services`);
   return { success: true };
@@ -339,6 +536,10 @@ export async function createAppointment(
   const dateStr = formData.get("date")?.toString();
   const time = formData.get("time")?.toString();
   const notes = formData.get("notes")?.toString();
+  const addonServiceIds = formData
+    .getAll("addonServiceIds")
+    .map((value) => value.toString())
+    .filter(Boolean);
 
   if (!serviceId || !dateStr || !time) {
     return { error: "Missing booking details" };
@@ -369,6 +570,7 @@ export async function createAppointment(
     p_start_at: start_at,
     p_end_at: end_at,
     p_notes: notes || null,
+    p_addon_service_ids: addonServiceIds,
   });
 
   if (error) return { error: error.message };

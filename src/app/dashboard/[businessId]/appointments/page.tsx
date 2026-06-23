@@ -6,6 +6,7 @@ import {
 import { AppointmentsPanel } from "@/components/dashboard/appointments-panel";
 import { createClient } from "@/lib/supabase/server";
 import { asJoined, utcToLocalParts } from "@/lib/utils";
+import { mapAddonNames } from "@/lib/appointment-addons";
 import { DEFAULT_TIMEZONE } from "@/lib/constants";
 
 export default async function AppointmentsPage({
@@ -27,7 +28,8 @@ export default async function AppointmentsPage({
       .select(
         `id, start_at, end_at, created_at, status, notes, service_id, customer_id,
          services ( name ),
-         profiles ( full_name, phone )`
+         profiles ( full_name, phone ),
+         appointment_addons ( services ( name ) )`
       )
       .eq("business_id", businessId)
       .order("created_at", { ascending: false }),
@@ -35,6 +37,7 @@ export default async function AppointmentsPage({
       .from("services")
       .select("id, name, duration_minutes, is_active")
       .eq("business_id", businessId)
+      .is("parent_service_id", null)
       .order("name"),
     supabase
       .from("businesses")
@@ -89,6 +92,11 @@ export default async function AppointmentsPage({
         notes: appt.notes,
         service_id: appt.service_id,
         service_name: service?.name ?? "Service",
+        addon_names: mapAddonNames(
+          appt.appointment_addons as
+            | { services: { name: string } | { name: string }[] | null }[]
+            | null
+        ),
         customer_name: customerName,
         customer_phone: profile?.phone ?? null,
         customer_label: profile?.phone

@@ -1,4 +1,5 @@
 import { asJoined } from "@/lib/utils";
+import { mapAddonNames } from "@/lib/appointment-addons";
 import type { CustomerAppointmentItem } from "@/lib/customer-appointments";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -11,6 +12,9 @@ type AppointmentJoinRow = {
   notes: string | null;
   businesses: { name: string; slug: string } | { name: string; slug: string }[] | null;
   services: { name: string } | { name: string }[] | null;
+  appointment_addons?:
+    | { services: { name: string } | { name: string }[] | null }[]
+    | null;
 };
 
 export function mapCustomerAppointment(
@@ -29,6 +33,7 @@ export function mapCustomerAppointment(
     business_name: business?.name ?? "Business",
     business_slug: business?.slug ?? "",
     service_name: service?.name ?? "Appointment",
+    addon_names: mapAddonNames(row.appointment_addons),
   };
 }
 
@@ -42,7 +47,8 @@ export async function fetchCustomerAppointment(
       `
       id, start_at, end_at, created_at, status, notes,
       businesses ( name, slug ),
-      services ( name )
+      services ( name ),
+      appointment_addons ( services ( name ) )
     `
     )
     .eq("id", appointmentId)

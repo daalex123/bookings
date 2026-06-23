@@ -10,10 +10,12 @@ export function DeleteServiceButton({
   action,
   serviceId,
   serviceName,
+  iconOnly = false,
 }: {
   action: (formData: FormData) => Promise<ActionResult>;
   serviceId: string;
   serviceName: string;
+  iconOnly?: boolean;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const { wrapFormAction } = useActionToast();
@@ -33,9 +35,13 @@ export function DeleteServiceButton({
       <input type="hidden" name="id" value={serviceId} />
       <Button
         type="button"
-        variant="outline"
+        variant={iconOnly ? "ghost" : "outline"}
         size="sm"
-        className="rounded-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+        className={
+          iconOnly
+            ? "text-red-600 hover:bg-red-50 hover:text-red-700"
+            : "rounded-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+        }
         onClick={() => {
           const confirmed = window.confirm(
             `Delete "${serviceName}"? This cannot be undone.`
@@ -44,7 +50,7 @@ export function DeleteServiceButton({
         }}
       >
         <Trash2 className="h-3.5 w-3.5" />
-        Delete
+        {!iconOnly && "Delete"}
       </Button>
     </form>
   );

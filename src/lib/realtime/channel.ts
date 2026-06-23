@@ -21,6 +21,13 @@ export async function ensureRealtimeAuth(
   supabase: SupabaseClient
 ): Promise<boolean> {
   const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) return false;
+
+  const {
     data: { session },
   } = await supabase.auth.getSession();
 
@@ -38,7 +45,11 @@ export async function subscribePostgresChannel(
 ): Promise<RealtimeChannel> {
   await removeRealtimeChannel(supabase, channelName);
 
-  const channel = configure(supabase.channel(channelName));
+  const channel = configure(
+    supabase.channel(channelName, {
+      config: { private: true },
+    })
+  );
   channel.subscribe((status, err) => {
     onStatus?.(status, err);
   });

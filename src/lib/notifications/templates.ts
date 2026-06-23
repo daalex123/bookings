@@ -11,6 +11,8 @@ export type BookingDetails = {
   currency: string;
   serviceName: string;
   servicePrice: number;
+  addonNames: string[];
+  addonTotal: number;
   durationMinutes: number;
   startAt: string;
   endAt: string;
@@ -19,6 +21,16 @@ export type BookingDetails = {
   customerEmail: string | null;
   customerPhone: string | null;
 };
+
+function formatServiceLine(details: BookingDetails): string {
+  const base = `${details.serviceName} (${details.durationMinutes} min)`;
+  if (details.addonNames.length === 0) return base;
+  return `${base} + ${details.addonNames.join(", ")}`;
+}
+
+function formatTotalPrice(details: BookingDetails): string {
+  return formatPrice(details.servicePrice + details.addonTotal, details.currency);
+}
 
 export function formatBookingDateTime(
   iso: string,
@@ -45,7 +57,8 @@ export function customerConfirmationEmail(details: BookingDetails): {
   text: string;
 } {
   const when = formatBookingTimeRange(details);
-  const price = formatPrice(details.servicePrice, details.currency);
+  const price = formatTotalPrice(details);
+  const serviceLine = formatServiceLine(details);
   const subject = `Booking confirmed at ${details.businessName}`;
 
   const text = [
@@ -54,7 +67,7 @@ export function customerConfirmationEmail(details: BookingDetails): {
     `Your appointment is confirmed.`,
     "",
     `Business: ${details.businessName}`,
-    `Service: ${details.serviceName} (${details.durationMinutes} min)`,
+    `Service: ${serviceLine}`,
     `When: ${when}`,
     `Price: ${price}`,
     details.notes ? `Notes: ${details.notes}` : null,
@@ -70,7 +83,7 @@ export function customerConfirmationEmail(details: BookingDetails): {
       <p>Hi ${escapeHtml(details.customerName)},</p>
       <p>Your appointment at <strong>${escapeHtml(details.businessName)}</strong> is confirmed.</p>
       <table style="width:100%;border-collapse:collapse;margin:20px 0">
-        <tr><td style="padding:8px 0;color:#8b92a5">Service</td><td style="padding:8px 0"><strong>${escapeHtml(details.serviceName)}</strong> (${details.durationMinutes} min)</td></tr>
+        <tr><td style="padding:8px 0;color:#8b92a5">Service</td><td style="padding:8px 0"><strong>${escapeHtml(details.serviceName)}</strong> (${details.durationMinutes} min)${details.addonNames.length ? `<br><span style="color:#8b92a5;font-size:14px">+ ${escapeHtml(details.addonNames.join(", "))}</span>` : ""}</td></tr>
         <tr><td style="padding:8px 0;color:#8b92a5">When</td><td style="padding:8px 0">${escapeHtml(when)}</td></tr>
         <tr><td style="padding:8px 0;color:#8b92a5">Price</td><td style="padding:8px 0">${escapeHtml(price)}</td></tr>
         ${details.notes ? `<tr><td style="padding:8px 0;color:#8b92a5">Notes</td><td style="padding:8px 0">${escapeHtml(details.notes)}</td></tr>` : ""}
@@ -88,7 +101,8 @@ export function businessBookingEmail(details: BookingDetails): {
   text: string;
 } {
   const when = formatBookingTimeRange(details);
-  const price = formatPrice(details.servicePrice, details.currency);
+  const price = formatTotalPrice(details);
+  const serviceLine = formatServiceLine(details);
   const subject = `New booking: ${details.serviceName} — ${details.customerName}`;
 
   const text = [
@@ -97,7 +111,7 @@ export function businessBookingEmail(details: BookingDetails): {
     `Customer: ${details.customerName}`,
     details.customerEmail ? `Email: ${details.customerEmail}` : null,
     details.customerPhone ? `Phone: ${details.customerPhone}` : null,
-    `Service: ${details.serviceName} (${details.durationMinutes} min)`,
+    `Service: ${serviceLine}`,
     `When: ${when}`,
     `Price: ${price}`,
     details.notes ? `Notes: ${details.notes}` : null,
@@ -113,7 +127,7 @@ export function businessBookingEmail(details: BookingDetails): {
         <tr><td style="padding:8px 0;color:#8b92a5">Customer</td><td style="padding:8px 0"><strong>${escapeHtml(details.customerName)}</strong></td></tr>
         ${details.customerEmail ? `<tr><td style="padding:8px 0;color:#8b92a5">Email</td><td style="padding:8px 0">${escapeHtml(details.customerEmail)}</td></tr>` : ""}
         ${details.customerPhone ? `<tr><td style="padding:8px 0;color:#8b92a5">Phone</td><td style="padding:8px 0">${escapeHtml(details.customerPhone)}</td></tr>` : ""}
-        <tr><td style="padding:8px 0;color:#8b92a5">Service</td><td style="padding:8px 0">${escapeHtml(details.serviceName)} (${details.durationMinutes} min)</td></tr>
+        <tr><td style="padding:8px 0;color:#8b92a5">Service</td><td style="padding:8px 0">${escapeHtml(details.serviceName)} (${details.durationMinutes} min)${details.addonNames.length ? `<br><span style="color:#8b92a5;font-size:14px">+ ${escapeHtml(details.addonNames.join(", "))}</span>` : ""}</td></tr>
         <tr><td style="padding:8px 0;color:#8b92a5">When</td><td style="padding:8px 0">${escapeHtml(when)}</td></tr>
         <tr><td style="padding:8px 0;color:#8b92a5">Price</td><td style="padding:8px 0">${escapeHtml(price)}</td></tr>
         ${details.notes ? `<tr><td style="padding:8px 0;color:#8b92a5">Notes</td><td style="padding:8px 0">${escapeHtml(details.notes)}</td></tr>` : ""}

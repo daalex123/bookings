@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import {
   ChevronDown,
   Clock,
+  GripVertical,
   Pencil,
   Plus,
   Scissors,
@@ -14,6 +15,10 @@ import {
 import { DeleteServiceButton } from "@/components/dashboard/delete-service-button";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { ServiceForm, type ServiceFormValues } from "@/components/dashboard/service-form";
+import type {
+  LinkableService,
+  ServiceExtraItem,
+} from "@/components/dashboard/service-extras-editor";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { useActionToast } from "@/hooks/use-action-toast";
 import { hasActionError, type ActionResult } from "@/lib/action-result";
@@ -21,28 +26,64 @@ import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
-type Service = ServiceFormValues & { id: string };
+type Service = ServiceFormValues & { id: string; sort_order: number };
 
 type Filter = "all" | "active" | "inactive";
 
 export function ServicesPanel({
   services,
+  extrasByParent,
+  linkableServices,
   currency,
   businessId,
   saveAction,
   deleteAction,
+  reorderAction,
+  linkExtraAction,
+  unlinkExtraAction,
+  reorderExtrasAction,
 }: {
   services: Service[];
+  extrasByParent: ServiceExtraItem[];
+  linkableServices: LinkableService[];
   currency: string;
   businessId: string;
   saveAction: (formData: FormData) => Promise<ActionResult>;
   deleteAction: (formData: FormData) => Promise<ActionResult>;
+  reorderAction: (formData: FormData) => Promise<ActionResult>;
+  linkExtraAction: (formData: FormData) => Promise<ActionResult>;
+  unlinkExtraAction: (formData: FormData) => Promise<ActionResult>;
+  reorderExtrasAction: (formData: FormData) => Promise<ActionResult>;
 }) {
+  const [orderedServices, setOrderedServices] = useState(services);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [reordering, setReordering] = useState(false);
   const { wrapFormAction } = useActionToast();
+
+  useEffect(() => {
+    setOrderedServices(services);
+  }, [services]);
+
+  const handleSaveExtra = useMemo(
+    () =>
+      wrapFormAction(
+        async (formData) => {
+          const result = await saveAction(formData);
+          if (hasActionError(result)) return result;
+          return { success: true, message: "Extra saved" };
+        },
+        {
+          loading: "Saving extra…",
+          success: "Extra saved",
+          error: "Could not save extra",
+        }
+      ),
+    [saveAction, wrapFormAction]
+  );
 
   const handleSave = useMemo(
     () =>
@@ -69,11 +110,22 @@ export function ServicesPanel({
     [saveAction, wrapFormAction]
   );
 
+  const extrasForParent = useMemo(() => {
+    const map = new Map<string, ServiceExtraItem[]>();
+    for (const extra of extrasByParent) {
+      const list = map.get(extra.parent_service_id) ?? [];
+      list.push(extra);
+      map.set(extra.parent_service_id, list);
+    }
+    return map;
+  }, [extrasByParent]);
+
   const activeCount = services.filter((s) => s.is_active).length;
+  const extraCount = extrasByParent.length;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return services.filter((service) => {
+    return orderedServices.filter((service) => {
       if (filter === "active" && !service.is_active) return false;
       if (filter === "inactive" && service.is_active) return false;
       if (!q) return true;
@@ -82,7 +134,36 @@ export function ServicesPanel({
         (service.description?.toLowerCase().includes(q) ?? false)
       );
     });
-  }, [services, query, filter]);
+  }, [orderedServices, query, filter]);
+
+  async function persistServiceOrder(next: Service[]) {
+    const formData = new FormData();
+    next.forEach((service) => formData.append("orderedIds", service.id));
+    setReordering(true);
+    const result = await reorderAction(formData);
+    setReordering(false);
+    if (result && "error" in result && result.error) {
+      setOrderedServices(services);
+      return;
+    }
+    setOrderedServices(next.map((service, index) => ({ ...service, sort_order: index })));
+  }
+
+  function handleServiceDrop(targetId: string) {
+    if (!canReorder) return;
+    if (!dragId || dragId === targetId) return;
+    const current = [...orderedServices];
+    const from = current.findIndex((s) => s.id === dragId);
+    const to = current.findIndex((s) => s.id === targetId);
+    if (from < 0 || to < 0) return;
+    const [moved] = current.splice(from, 1);
+    current.splice(to, 0, moved);
+    setOrderedServices(current);
+    void persistServiceOrder(current);
+    setDragId(null);
+  }
+
+  const canReorder = filter === "all" && !query.trim();
 
   const filters: { id: Filter; label: string }[] = [
     { id: "all", label: "All" },
@@ -94,7 +175,7 @@ export function ServicesPanel({
     <div className="space-y-6">
       <PageHeader
         title="Services"
-        description="Manage what customers can book — duration and slot interval control available times"
+        description="Drag to set booking page order · edit a service to manage extras"
         action={
           <Button
             type="button"
@@ -110,8 +191,9 @@ export function ServicesPanel({
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <StatCard label="Total services" value={services.length} icon={Scissors} />
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard label="Primary services" value={services.length} icon={Scissors} />
+        <StatCard label="Additional services" value={extraCount} icon={Timer} />
         <StatCard label="Active on booking page" value={activeCount} icon={Timer} />
       </div>
 
@@ -142,6 +224,7 @@ export function ServicesPanel({
               <h2 className="text-lg font-bold text-[#1e2235]">Your services</h2>
               <p className="mt-1 text-sm text-[#8b92a5]">
                 {filtered.length} of {services.length} shown
+                {reordering ? " · saving order…" : ""}
               </p>
             </div>
             <div className="relative w-full max-w-sm">
@@ -181,11 +264,33 @@ export function ServicesPanel({
               const isEditing = editingId === service.id;
               const interval =
                 service.slot_interval_minutes ?? service.duration_minutes;
+              const serviceExtras = extrasForParent.get(service.id) ?? [];
 
               return (
-                <div key={service.id} className="px-4 py-5 sm:px-6">
+                <div
+                  key={service.id}
+                  draggable={canReorder && !isEditing && !reordering}
+                  onDragStart={() => setDragId(service.id)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => handleServiceDrop(service.id)}
+                  className={cn(
+                    "px-4 py-5 sm:px-6",
+                    dragId === service.id && "opacity-50"
+                  )}
+                >
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="flex min-w-0 flex-1 gap-4">
+                      <button
+                        type="button"
+                        className={cn(
+                          "mt-1 hidden shrink-0 text-[#8b92a5] sm:block",
+                          canReorder ? "cursor-grab active:cursor-grabbing" : "cursor-default opacity-30"
+                        )}
+                        aria-label="Drag to reorder"
+                      >
+                        <GripVertical className="h-5 w-5" />
+                      </button>
+
                       <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-[#f0f2f5]">
                         {service.image_url ? (
                           <Image
@@ -217,6 +322,12 @@ export function ServicesPanel({
                           >
                             {service.is_active ? "Active" : "Hidden"}
                           </span>
+                          {serviceExtras.length > 0 && (
+                            <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                              {serviceExtras.length} extra
+                              {serviceExtras.length === 1 ? "" : "s"}
+                            </span>
+                          )}
                         </div>
 
                         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#8b92a5]">
@@ -287,6 +398,13 @@ export function ServicesPanel({
                         values={service}
                         submitLabel="Save changes"
                         onCancel={() => setEditingId(null)}
+                        extras={serviceExtras}
+                        linkableServices={linkableServices}
+                        saveExtraAction={handleSaveExtra}
+                        deleteExtraAction={deleteAction}
+                        linkExtraAction={linkExtraAction}
+                        unlinkExtraAction={unlinkExtraAction}
+                        reorderExtrasAction={reorderExtrasAction}
                       />
                     </div>
                   )}

@@ -22,6 +22,15 @@ export type PublicService = {
   image_url: string | null;
 };
 
+export type PublicServiceAddon = {
+  id: string;
+  parent_service_id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  image_url: string | null;
+};
+
 export type PublicBusinessHour = {
   day_of_week: number;
   open_time: string;
@@ -32,6 +41,7 @@ export type PublicBusinessHour = {
 export type PublicBusinessContext = {
   business: PublicBusiness;
   services: PublicService[];
+  addons: PublicServiceAddon[];
   hours: PublicBusinessHour[];
 };
 

@@ -114,11 +114,9 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // getSession reads the cookie locally; getUser hits the Auth API every time.
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const user = session?.user ?? null;
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (user && isAuthRoute(pathname)) {
     const url = request.nextUrl.clone();

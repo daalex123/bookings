@@ -14,8 +14,8 @@
   --color-booking-muted: #8a8a8a;
   --color-booking-accent: #f5c518;
   --color-booking-accent-fg: #0a0a0a;
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", "Segoe UI Mono", monospace;
 }
 
 body {
@@ -37,6 +37,25 @@ body {
 
 .booking-theme * {
   scrollbar-width: none;
+}
+
+.booking-bottom-nav {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 50;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+  background: var(--color-booking-surface);
+  padding: 0.75rem 1.5rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+.booking-main-pad {
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+}
+
+.booking-header-pad {
+  padding-top: max(1.5rem, env(safe-area-inset-top, 0px));
 }
 
 .booking-hero-gradient {

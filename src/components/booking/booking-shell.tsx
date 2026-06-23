@@ -5,8 +5,10 @@ export async function BookingShell({ children }: { children: React.ReactNode }) 
   const homePath = (await getActiveBusinessPath()) ?? "/";
 
   return (
-    <div className="booking-theme min-h-screen">
-      <div className="mx-auto min-h-screen max-w-lg pb-24">{children}</div>
+    <div className="booking-theme min-h-dvh">
+      <div className="mx-auto min-h-dvh max-w-lg booking-main-pad">
+        {children}
+      </div>
       <BookingBottomNav homePath={homePath} />
     </div>
   );

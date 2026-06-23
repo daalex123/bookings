@@ -1,11 +1,17 @@
 "use client";
 
 import { ImageUploadField } from "@/components/dashboard/image-upload-field";
+import {
+  ServiceExtrasEditor,
+  type LinkableService,
+  type ServiceExtraItem,
+} from "@/components/dashboard/service-extras-editor";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import type { ActionResult } from "@/lib/action-result";
 
 export type ServiceFormValues = {
   id?: string;
@@ -26,6 +32,13 @@ export function ServiceForm({
   submitLabel,
   onCancel,
   className,
+  extras,
+  linkableServices,
+  saveExtraAction,
+  deleteExtraAction,
+  linkExtraAction,
+  unlinkExtraAction,
+  reorderExtrasAction,
 }: {
   action: (formData: FormData) => void | Promise<void>;
   businessId: string;
@@ -34,6 +47,13 @@ export function ServiceForm({
   submitLabel: string;
   onCancel?: () => void;
   className?: string;
+  extras?: ServiceExtraItem[];
+  linkableServices?: LinkableService[];
+  saveExtraAction?: (formData: FormData) => Promise<ActionResult>;
+  deleteExtraAction?: (formData: FormData) => Promise<ActionResult>;
+  linkExtraAction?: (formData: FormData) => Promise<ActionResult>;
+  unlinkExtraAction?: (formData: FormData) => Promise<ActionResult>;
+  reorderExtrasAction?: (formData: FormData) => Promise<ActionResult>;
 }) {
   const duration = values?.duration_minutes ?? 30;
   const interval = values?.slot_interval_minutes ?? duration;
@@ -138,6 +158,29 @@ export function ServiceForm({
           Active — visible on booking page
         </span>
       </label>
+
+      {values?.id &&
+        extras &&
+        linkableServices &&
+        saveExtraAction &&
+        deleteExtraAction &&
+        linkExtraAction &&
+        unlinkExtraAction &&
+        reorderExtrasAction && (
+          <ServiceExtrasEditor
+            parentServiceId={values.id}
+            parentServiceName={values.name ?? "Service"}
+            businessId={businessId}
+            currency={currency}
+            extras={extras}
+            linkableServices={linkableServices}
+            saveAction={saveExtraAction}
+            deleteAction={deleteExtraAction}
+            linkAction={linkExtraAction}
+            unlinkAction={unlinkExtraAction}
+            reorderAction={reorderExtrasAction}
+          />
+        )}
 
       <div className="flex flex-wrap gap-2 sm:col-span-2">
         <SubmitButton

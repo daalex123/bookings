@@ -58,6 +58,16 @@ export const serviceSchema = z.object({
   price: z.coerce.number().min(0),
   image_url: optionalUrl,
   is_active: z.boolean().optional(),
+  parent_service_id: z.string().uuid().optional().or(z.literal("")),
+});
+
+export const serviceAddonSchema = z.object({
+  name: z.string().min(2, "Name is required"),
+  description: z.string().optional(),
+  price: z.coerce.number().min(0),
+  image_url: optionalUrl,
+  is_active: z.boolean().optional(),
+  parent_service_id: z.string().uuid("Select a primary service"),
 });
 
 export const profileSchema = z.object({

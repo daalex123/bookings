@@ -8,6 +8,17 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
+  // External/slow drives: polling avoids runaway file-watcher CPU in dev.
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.watchOptions = {
+        poll: 2000,
+        aggregateTimeout: 500,
+        ignored: ["**/node_modules/**", "**/.git/**"],
+      };
+    }
+    return config;
+  },
   images: {
     remotePatterns: [
       {

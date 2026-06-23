@@ -34,6 +34,7 @@ export type AppointmentRow = {
   notes: string | null;
   service_id: string;
   service_name: string;
+  addon_names: string[];
   customer_name: string;
   customer_phone: string | null;
   customer_label: string;
@@ -282,6 +283,11 @@ export function AppointmentsPanel({
                         <h3 className="font-semibold text-[#1e2235]">
                           {appt.service_name}
                         </h3>
+                        {appt.addon_names.length > 0 && (
+                          <span className="text-sm text-[#8b92a5]">
+                            + {appt.addon_names.join(", ")}
+                          </span>
+                        )}
                         <span
                           className={cn(
                             "rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",

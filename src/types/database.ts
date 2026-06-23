@@ -197,6 +197,7 @@ export interface Database {
         Row: {
           id: string;
           business_id: string;
+          parent_service_id: string | null;
           name: string;
           description: string | null;
           duration_minutes: number;
@@ -204,12 +205,14 @@ export interface Database {
           price: number;
           image_url: string | null;
           is_active: boolean;
+          sort_order: number;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
           business_id: string;
+          parent_service_id?: string | null;
           name: string;
           description?: string | null;
           duration_minutes: number;
@@ -217,12 +220,14 @@ export interface Database {
           price?: number;
           image_url?: string | null;
           is_active?: boolean;
+          sort_order?: number;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
           business_id?: string;
+          parent_service_id?: string | null;
           name?: string;
           description?: string | null;
           duration_minutes?: number;
@@ -230,8 +235,52 @@ export interface Database {
           price?: number;
           image_url?: string | null;
           is_active?: boolean;
+          sort_order?: number;
           created_at?: string;
           updated_at?: string;
+        };
+      };
+      service_extra_links: {
+        Row: {
+          parent_service_id: string;
+          child_service_id: string;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          parent_service_id: string;
+          child_service_id: string;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          parent_service_id?: string;
+          child_service_id?: string;
+          sort_order?: number;
+          created_at?: string;
+        };
+      };
+      appointment_addons: {
+        Row: {
+          id: string;
+          appointment_id: string;
+          service_id: string;
+          price: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          appointment_id: string;
+          service_id: string;
+          price: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          appointment_id?: string;
+          service_id?: string;
+          price?: number;
+          created_at?: string;
         };
       };
       business_hours: {

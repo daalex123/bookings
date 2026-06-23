@@ -118,6 +118,16 @@ function AppointmentCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="font-semibold">{appt.service_name}</h2>
+          {appt.addon_names.length > 0 && (
+            <p
+              className={cn(
+                "mt-1 text-sm",
+                isBooking ? "text-booking-muted" : "text-zinc-500"
+              )}
+            >
+              + {appt.addon_names.join(", ")}
+            </p>
+          )}
           <p
             className={cn(
               "mt-1 text-sm",

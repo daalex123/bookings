@@ -18,7 +18,7 @@ export function BookingBottomNav({ homePath }: { homePath: string }) {
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-booking-surface/95 px-6 py-3 backdrop-blur-lg">
+    <nav className="booking-bottom-nav">
       <div className="mx-auto flex max-w-lg items-center justify-around">
         {items.map(({ href, label, icon: Icon, match }) => {
           const active = match(pathname);
@@ -26,13 +26,23 @@ export function BookingBottomNav({ homePath }: { homePath: string }) {
             <Link
               key={href}
               href={href}
-              className={cn(
-                "flex flex-col items-center gap-1 text-xs transition-colors",
-                active ? "text-booking-accent" : "text-booking-muted"
-              )}
+              className="flex min-w-0 flex-col items-center gap-1 text-xs transition-colors"
             >
-              <Icon className={cn("h-5 w-5", active && "fill-booking-accent/20")} />
-              <span>{label}</span>
+              <Icon
+                aria-hidden
+                className={cn(
+                  "h-5 w-5 shrink-0",
+                  active ? "text-booking-accent" : "text-booking-muted"
+                )}
+                strokeWidth={active ? 2.25 : 2}
+              />
+              <span
+                className={cn(
+                  active ? "text-booking-accent" : "text-booking-muted"
+                )}
+              >
+                {label}
+              </span>
             </Link>
           );
         })}

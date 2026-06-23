@@ -7,16 +7,8 @@ import {
   bookingPublicUrl,
 } from "@/lib/booking";
 import { getSiteUrl } from "@/lib/site-url";
-import {
-  getCurrentUser,
-  getProfileName,
-} from "@/lib/supabase/auth";
-import { getUserNotifications } from "@/lib/notifications/queries";
-import { BookingWelcomeHeader } from "@/components/booking/booking-welcome-header";
-import { BusinessBrandTheme } from "@/components/booking/business-brand-theme";
 import { ServiceList } from "@/components/booking/service-list";
 import { ShareBookingCard } from "@/components/booking/share-booking-card";
-import { businessAuthPath } from "@/lib/business-context";
 
 export async function BusinessBookingFront({
   bookingRef,
@@ -25,9 +17,8 @@ export async function BusinessBookingFront({
   bookingRef: string;
   basePath: string;
 }) {
-  const [ctx, user, siteUrl] = await Promise.all([
+  const [ctx, siteUrl] = await Promise.all([
     getPublicBusiness(bookingRef),
-    getCurrentUser(),
     getSiteUrl(),
   ]);
 
@@ -35,19 +26,6 @@ export async function BusinessBookingFront({
 
   const { business, services } = ctx;
 
-  let displayName = "Guest";
-  let notifications: Awaited<ReturnType<typeof getUserNotifications>> = [];
-  if (user) {
-    const [fullName, userNotifications] = await Promise.all([
-      getProfileName(user.id),
-      getUserNotifications(user.id),
-    ]);
-    displayName = fullName || user.email?.split("@")[0] || "there";
-    notifications = userNotifications;
-  }
-
-  const loginHref = `${businessAuthPath(basePath, "login")}?redirect=${encodeURIComponent(basePath)}`;
-  const registerHref = `${businessAuthPath(basePath, "register")}?redirect=${encodeURIComponent(basePath)}`;
   const shareUrl = bookingPublicUrl(business.slug, siteUrl);
   const heroStyle = business.cover_image_url
     ? {
@@ -58,20 +36,7 @@ export async function BusinessBookingFront({
     : undefined;
 
   return (
-    <>
-      <BusinessBrandTheme business={business} />
-      <div className="pb-6">
-        <BookingWelcomeHeader
-          displayName={displayName}
-          isGuest={!user}
-          loginHref={loginHref}
-          registerHref={registerHref}
-          logoUrl={business.logo_url}
-          businessName={business.name}
-          userId={user?.id}
-          notifications={notifications}
-        />
-
+    <div className="pb-6">
         <section
           className="relative mx-5 mt-6 overflow-hidden rounded-3xl booking-hero-gradient p-6 min-h-[200px]"
           style={heroStyle}
@@ -131,6 +96,5 @@ export async function BusinessBookingFront({
           />
         </div>
       </div>
-    </>
   );
 }

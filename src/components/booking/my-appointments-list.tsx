@@ -52,11 +52,13 @@ export function MyAppointmentsList({
             View and manage your bookings
           </p>
         </div>
-        <NotificationBell
-          userId={userId}
-          initialNotifications={notifications}
-          variant={isBooking ? "booking" : "admin"}
-        />
+        {!isBooking ? (
+          <NotificationBell
+            userId={userId}
+            initialNotifications={notifications}
+            variant="admin"
+          />
+        ) : null}
       </div>
 
       {appointments.length > 0 ? (

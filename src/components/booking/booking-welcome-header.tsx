@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { NotificationBell } from "@/components/dashboard/notification-bell";
+import { BookingSignOutButton } from "@/components/booking/booking-sign-out-button";
 import type { Notification } from "@/types/database";
 
 export function BookingWelcomeHeader({
@@ -32,7 +33,7 @@ export function BookingWelcomeHeader({
     .toUpperCase();
 
   return (
-    <header className="booking-header-pad flex items-center justify-between px-5">
+    <header className="booking-header-pad flex items-center justify-between gap-3 px-5 pb-2">
       <div className="flex items-center gap-3">
         {logoUrl ? (
           <div className="relative h-12 w-12 overflow-hidden rounded-full bg-booking-elevated">
@@ -70,17 +71,18 @@ export function BookingWelcomeHeader({
           </p>
         </div>
       </div>
-      {!isGuest && userId ? (
-        <NotificationBell
-          userId={userId}
-          initialNotifications={notifications}
-          variant="booking"
-        />
-      ) : (
-        <div className="rounded-2xl bg-booking-elevated p-3 opacity-40" aria-hidden>
-          <span className="block h-5 w-5" />
+      {!isGuest ? (
+        <div className="flex shrink-0 items-center gap-0.5">
+          {userId ? (
+            <NotificationBell
+              userId={userId}
+              initialNotifications={notifications}
+              variant="booking"
+            />
+          ) : null}
+          <BookingSignOutButton variant="compact" />
         </div>
-      )}
+      ) : null}
     </header>
   );
 }

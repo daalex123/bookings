@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
@@ -21,7 +21,7 @@ import {
   safeRedirectPath,
 } from "@/lib/business-context";
 import { DEFAULT_CURRENCY, DEFAULT_TIMEZONE } from "@/lib/constants";
-import { getPublicBusiness } from "@/lib/booking-data";
+import { getPublicBusiness, publicBusinessCacheTag } from "@/lib/booking-data";
 import { bookingPagePathBySlug, bookingFlowUrl } from "@/lib/booking";
 import { sendBookingNotifications } from "@/lib/notifications/send-booking-notifications";
 import { notifyCustomerAppointmentStatus } from "@/lib/notifications/customer-status";
@@ -224,9 +224,19 @@ export async function updateBusiness(businessId: string, formData: FormData) {
 
   if (error) return { error: { form: [error.message] } };
 
+  const { data: refs } = await supabase
+    .from("businesses")
+    .select("slug, booking_token")
+    .eq("id", businessId)
+    .single();
+
   revalidatePath(`/dashboard/${businessId}/settings`);
   revalidatePath(`/b/${parsed.data.slug}`);
   revalidatePath(`/b/${parsed.data.slug}/book`);
+  if (refs?.slug) revalidateTag(publicBusinessCacheTag(refs.slug), "max");
+  if (refs?.booking_token) {
+    revalidateTag(publicBusinessCacheTag(refs.booking_token), "max");
+  }
   return { success: true };
 }
 

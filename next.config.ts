@@ -8,15 +8,19 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
-  // Dev-only webpack watchOptions (see `npm run dev` --webpack). Empty turbopack
-  // config acknowledges Next 16 default bundler for production builds.
+  // Production builds use Turbopack. Local dev defaults to webpack + polling (see `npm run dev`)
+  // because this repo lives on a separate disk partition and Turbopack's watcher spikes CPU/RAM.
   turbopack: {},
   webpack: (config, { dev }) => {
-    if (dev) {
+    if (dev && process.env.WATCHPACK_POLLING === "true") {
       config.watchOptions = {
-        poll: 2000,
-        aggregateTimeout: 500,
-        ignored: ["**/node_modules/**", "**/.git/**"],
+        poll: 3000,
+        aggregateTimeout: 600,
+        ignored: [
+          "**/node_modules/**",
+          "**/.git/**",
+          "**/.next/**",
+        ],
       };
     }
     return config;

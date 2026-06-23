@@ -12,11 +12,14 @@
   --color-booking-surface: #161616;
   --color-booking-elevated: #222222;
   --color-booking-muted: #8a8a8a;
-  /* Overridden per business via BusinessBrandTheme on .booking-theme */
-  --color-booking-accent: #f5c518;
-  --color-booking-accent-fg: #0a0a0a;
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, "Cascadia Code", "Segoe UI Mono", monospace;
+}
+
+/* Non-inline so utilities use var() and BusinessBrandTheme can override per business */
+@theme {
+  --color-booking-accent: #f5c518;
+  --color-booking-accent-fg: #0a0a0a;
 }
 
 body {
@@ -28,6 +31,8 @@ body {
 .booking-theme {
   --background: #0a0a0a;
   --foreground: #fafafa;
+  --color-booking-accent: #f5c518;
+  --color-booking-accent-fg: #0a0a0a;
   background: var(--background);
   color: var(--foreground);
 }

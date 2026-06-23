@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "WATCHPACK_POLLING=true CHOKIDAR_USEPOLLING=true NODE_OPTIONS=--max-old-space-size=2048 next dev --webpack",
+    "dev": "NODE_OPTIONS=--max-old-space-size=1536 next dev --webpack",
+    "dev:polling": "WATCHPACK_POLLING=true CHOKIDAR_USEPOLLING=true NODE_OPTIONS=--max-old-space-size=1536 next dev --webpack",
+    "dev:turbo": "NODE_OPTIONS=--max-old-space-size=1536 next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

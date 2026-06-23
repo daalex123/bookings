@@ -31,17 +31,8 @@ export function isPublicAnonymousPath(pathname: string): boolean {
   );
 }
 
+/** Only protected and auth routes need middleware session handling. */
 export function middlewareNeedsAuth(request: NextRequest): boolean {
   const { pathname } = request.nextUrl;
-
-  if (isProtectedRoute(pathname) || isAuthRoute(pathname)) {
-    return true;
-  }
-
-  // Logged-in visitors on public booking pages: light session read only.
-  if (hasSupabaseAuthCookie(request) && isPublicAnonymousPath(pathname)) {
-    return true;
-  }
-
-  return false;
+  return isProtectedRoute(pathname) || isAuthRoute(pathname);
 }

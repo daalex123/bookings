@@ -12,7 +12,7 @@ import {
   hasSupabaseAuthCookie,
   isAuthRoute,
   isProtectedRoute,
-  isPublicAnonymousPath,
+  middlewareNeedsAuth,
 } from "@/lib/supabase/middleware-auth";
 
 function applyBusinessContextCookie(
@@ -99,6 +99,7 @@ function withRouteHeaders(
   request: NextRequest,
   response: NextResponse
 ): NextResponse {
+  response.headers.set("x-pathname", request.nextUrl.pathname);
   if (isBookingExperience(request)) {
     response.headers.set("x-booking-route", "1");
   }
@@ -115,29 +116,11 @@ function fastResponse(request: NextRequest): NextResponse {
   );
 }
 
-export async function updateSession(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  const businessRedirect = maybeRedirectAwayFromGenericPages(request);
-  if (businessRedirect) {
-    return applyBusinessContextCookie(request, businessRedirect);
-  }
-
-  // Anonymous visitors on public pages: skip Supabase entirely (~200–500ms saved).
-  if (
-    isPublicAnonymousPath(pathname) &&
-    !hasSupabaseAuthCookie(request)
-  ) {
-    if (isProtectedRoute(pathname)) {
-      const url = request.nextUrl.clone();
-      url.pathname = loginPathForRequest(request);
-      url.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(url);
-    }
-    return fastResponse(request);
-  }
-
-  let supabaseResponse = NextResponse.next({ request });
+function createMiddlewareSupabase(
+  request: NextRequest,
+  response: NextResponse
+) {
+  let supabaseResponse = response;
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -160,11 +143,37 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  return { supabase, getResponse: () => supabaseResponse };
+}
 
-  if (user && isAuthRoute(pathname)) {
+export async function updateSession(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  const businessRedirect = maybeRedirectAwayFromGenericPages(request);
+  if (businessRedirect) {
+    return applyBusinessContextCookie(request, businessRedirect);
+  }
+
+  // Public booking pages: no Supabase round-trip (saves ~200–400ms per navigation).
+  if (!middlewareNeedsAuth(request)) {
+    if (isProtectedRoute(pathname) && !hasSupabaseAuthCookie(request)) {
+      const url = request.nextUrl.clone();
+      url.pathname = loginPathForRequest(request);
+      url.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(url);
+    }
+    return fastResponse(request);
+  }
+
+  const initial = NextResponse.next({ request });
+  const { supabase, getResponse } = createMiddlewareSupabase(request, initial);
+
+  // Refresh session cookies locally; authorization uses getUser() in Server Components.
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session?.user && isAuthRoute(pathname)) {
     const url = request.nextUrl.clone();
     const redirectParam = url.searchParams.get("redirect");
     const activeBusiness = request.cookies.get(BUSINESS_CONTEXT_COOKIE)?.value;
@@ -176,7 +185,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (!user && isProtectedRoute(pathname)) {
+  if (!session?.user && isProtectedRoute(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = loginPathForRequest(request);
     url.searchParams.set("redirect", pathname);
@@ -185,6 +194,6 @@ export async function updateSession(request: NextRequest) {
 
   return withRouteHeaders(
     request,
-    applyBusinessContextCookie(request, supabaseResponse)
+    applyBusinessContextCookie(request, getResponse())
   );
 }

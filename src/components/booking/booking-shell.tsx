@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { getActiveBusinessPath } from "@/lib/business-context";
 import { getPublicBusiness } from "@/lib/booking-data";
 import { BookingBottomNav } from "@/components/booking/booking-bottom-nav";
@@ -12,8 +13,11 @@ function bookingRefFromPath(path: string): string | null {
 }
 
 export async function BookingShell({ children }: { children: React.ReactNode }) {
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") ?? "";
   const homePath = (await getActiveBusinessPath()) ?? "/";
-  const bookingRef = bookingRefFromPath(homePath);
+  const bookingRef =
+    bookingRefFromPath(pathname) ?? bookingRefFromPath(homePath);
   const ctx = bookingRef ? await getPublicBusiness(bookingRef) : null;
 
   return (

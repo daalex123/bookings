@@ -4,10 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 /** Deduped per-request user fetch (avoids repeated network calls in layout + page). */
 export const getCurrentUser = cache(async () => {
   const supabase = await createClient();
+  // getSession reads the auth cookie locally; getUser hits the Auth API every time.
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+    data: { session },
+  } = await supabase.auth.getSession();
+  return session?.user ?? null;
 });
 
 export const isSuperAdmin = cache(async () => {

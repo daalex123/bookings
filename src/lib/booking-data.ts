@@ -6,6 +6,10 @@ import type {
   PublicBusinessContext,
 } from "@/lib/booking";
 
+export function publicBusinessCacheTag(ref: string): string {
+  return `public-business-${ref}`;
+}
+
 async function fetchPublicBusiness(
   ref: string
 ): Promise<PublicBusinessContext | null> {
@@ -31,7 +35,7 @@ const getCachedPublicBusiness = (ref: string) =>
   unstable_cache(
     () => fetchPublicBusiness(ref),
     ["public-business", ref],
-    { revalidate: 30 }
+    { revalidate: 30, tags: [publicBusinessCacheTag(ref)] }
   )();
 
 /** Load booking page data by slug or secure token (cached per ref for 30s). */

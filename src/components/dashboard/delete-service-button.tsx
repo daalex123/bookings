@@ -4,6 +4,7 @@ import { useMemo, useRef } from "react";
 import { Trash2 } from "@/lib/admin-icons";
 import { useActionToast } from "@/hooks/use-action-toast";
 import type { ActionResult } from "@/lib/action-result";
+import { FormPendingOverlay } from "@/components/ui/form-pending-overlay";
 import { Button } from "@/components/ui/button";
 
 export function DeleteServiceButton({
@@ -32,6 +33,7 @@ export function DeleteServiceButton({
 
   return (
     <form ref={formRef} action={wrappedAction}>
+      <FormPendingOverlay message="Deleting service…" />
       <input type="hidden" name="id" value={serviceId} />
       <Button
         type="button"

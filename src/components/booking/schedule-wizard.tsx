@@ -13,7 +13,9 @@ import { getCurrentUser } from "@/lib/supabase/auth";
 import { formatPrice } from "@/lib/utils";
 import { BusinessBrandTheme } from "@/components/booking/business-brand-theme";
 import { BookingSuccessSound } from "@/components/booking/booking-success-sound";
+import { BookingSubmitForm } from "@/components/booking/booking-submit-form";
 import { HorizontalDatePicker } from "@/components/booking/horizontal-date-picker";
+import { ServiceTabPicker } from "@/components/booking/service-tab-picker";
 import { TimeSlotPicker } from "@/components/booking/time-slot-picker";
 import { AddonPicker } from "@/components/booking/addon-picker";
 import { cn } from "@/lib/utils";
@@ -167,22 +169,12 @@ export async function ScheduleWizard({
         </div>
 
         {services.length > 1 && (
-          <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
-            {services.map((s) => (
-              <Link
-                key={s.id}
-                href={`${flowPath}?service=${s.id}&date=${dateStr}`}
-                className={cn(
-                  "shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                  s.id === selectedServiceId
-                    ? "bg-booking-accent text-booking-accent-fg"
-                    : "bg-booking-elevated text-white"
-                )}
-              >
-                {s.name}
-              </Link>
-            ))}
-          </div>
+          <ServiceTabPicker
+            services={services}
+            flowPath={flowPath}
+            selectedServiceId={selectedServiceId ?? ""}
+            dateStr={dateStr}
+          />
         )}
 
         {searchParams.error && (
@@ -192,10 +184,9 @@ export async function ScheduleWizard({
         )}
 
         {selectedService && (
-          <form
-            method="POST"
-            action="/api/booking/submit"
+          <BookingSubmitForm
             className="relative z-10 mt-2"
+            slotsAvailable={slots.length > 0}
           >
             <input type="hidden" name="bookingRef" value={bookingRef} />
             <input type="hidden" name="flowPath" value={flowPath} />
@@ -233,17 +224,7 @@ export async function ScheduleWizard({
                 className="w-full resize-none rounded-2xl border-0 bg-booking-elevated px-4 py-3 text-base text-white placeholder:text-booking-muted focus:outline-none focus:ring-2 focus:ring-booking-accent/50"
               />
             </div>
-
-            <div className="sticky bottom-20 z-30 mt-8 pb-4">
-              <button
-                type="submit"
-                disabled={slots.length === 0}
-                className="flex w-full items-center justify-center gap-3 rounded-2xl bg-booking-accent px-4 py-4 text-base font-semibold text-booking-accent-fg shadow-lg shadow-black/30 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Book Now
-              </button>
-            </div>
-          </form>
+          </BookingSubmitForm>
         )}
       </div>
     </div>

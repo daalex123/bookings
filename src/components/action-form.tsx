@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { FormPendingOverlay } from "@/components/ui/form-pending-overlay";
 import { useActionToast, type ToastMessages } from "@/hooks/use-action-toast";
 import type { ActionResult } from "@/lib/action-result";
 
@@ -22,6 +23,7 @@ export function ActionForm({
 
   return (
     <form action={wrapped} className={className}>
+      <FormPendingOverlay message={messages.loading} />
       {children}
     </form>
   );

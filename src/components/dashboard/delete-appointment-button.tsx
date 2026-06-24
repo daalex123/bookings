@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { FormPendingOverlay } from "@/components/ui/form-pending-overlay";
 import { SubmitButton } from "@/components/ui/submit-button";
 
 export function DeleteAppointmentButton({
@@ -57,6 +58,7 @@ export function DeleteAppointmentButton({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <form action={wrappedAction}>
+            <FormPendingOverlay message="Deleting appointment…" />
             <DialogHeader>
               <DialogTitle>Delete appointment?</DialogTitle>
               <DialogDescription>

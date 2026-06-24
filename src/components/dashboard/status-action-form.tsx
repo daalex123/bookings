@@ -1,5 +1,6 @@
 "use client";
 
+import { FormPendingOverlay } from "@/components/ui/form-pending-overlay";
 import { useActionToast } from "@/hooks/use-action-toast";
 import type { ActionResult } from "@/lib/action-result";
 import { SubmitButton } from "@/components/ui/submit-button";
@@ -49,6 +50,7 @@ export function StatusActionForm({
 
   return (
     <form action={wrapped}>
+      <FormPendingOverlay message={messages.loading} />
       <input type="hidden" name="id" value={appointmentId} />
       <input type="hidden" name="status" value={status} />
       <SubmitButton size="sm" className="rounded-full" pendingLabel="Updating…" {...buttonProps}>

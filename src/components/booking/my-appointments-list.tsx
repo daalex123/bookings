@@ -8,6 +8,7 @@ import { useMyAppointments } from "@/hooks/use-my-appointments";
 import { useActionToast } from "@/hooks/use-action-toast";
 import type { ActionResult } from "@/lib/action-result";
 import { NotificationBell } from "@/components/dashboard/notification-bell";
+import { FormPendingOverlay } from "@/components/ui/form-pending-overlay";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { cn } from "@/lib/utils";
 import type { CustomerAppointmentItem } from "@/lib/customer-appointments";
@@ -174,6 +175,7 @@ function AppointmentCard({
           appt.status !== "completed" &&
           new Date(appt.start_at) > new Date() && (
             <form action={wrappedCancel}>
+              <FormPendingOverlay message="Cancelling appointment…" />
               <input type="hidden" name="id" value={appt.id} />
               <SubmitButton
                 className={cn(

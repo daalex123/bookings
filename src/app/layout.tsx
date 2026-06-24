@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { SiteHeader } from "@/components/site-header";
 import { BookingShell } from "@/components/booking/booking-shell";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
+import { ActionLoadingProvider } from "@/providers/action-loading-provider";
 import { Toaster } from "@/components/ui/sonner";
 import {
   PWA_DESCRIPTION,
@@ -56,6 +57,7 @@ export default async function RootLayout({
           isBooking && "bg-booking-bg text-white"
         )}
       >
+        <ActionLoadingProvider>
         {isBooking ? (
           <BookingShell>{children}</BookingShell>
         ) : isDashboard ? (
@@ -68,6 +70,7 @@ export default async function RootLayout({
         )}
         <ServiceWorkerRegister />
         <Toaster />
+        </ActionLoadingProvider>
       </body>
     </html>
   );

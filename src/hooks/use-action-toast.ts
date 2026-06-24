@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useActionLoading } from "@/providers/action-loading-provider";
 import {
   formatActionError,
   hasActionError,
@@ -30,6 +31,7 @@ function resolveSuccessMessage(
 
 export function useActionToast() {
   const router = useRouter();
+  const { show: showLoader, hide: hideLoader } = useActionLoading();
 
   const runWithToast = useCallback(
     async (
@@ -37,20 +39,16 @@ export function useActionToast() {
       messages: ToastMessages,
       onSuccess?: () => void
     ) => {
-      const toastId = toast.loading(messages.loading);
+      showLoader(messages.loading);
       try {
         const result = await action();
 
         if (hasActionError(result)) {
-          toast.error(formatActionError(result.error, messages.error), {
-            id: toastId,
-          });
+          toast.error(formatActionError(result.error, messages.error));
           return { success: false as const };
         }
 
-        toast.success(resolveSuccessMessage(result, messages.success), {
-          id: toastId,
-        });
+        toast.success(resolveSuccessMessage(result, messages.success));
         onSuccess?.();
         router.refresh();
         return { success: true as const, result };
@@ -58,13 +56,14 @@ export function useActionToast() {
         toast.error(
           err instanceof Error
             ? err.message
-            : messages.error ?? "Something went wrong",
-          { id: toastId }
+            : messages.error ?? "Something went wrong"
         );
         return { success: false as const };
+      } finally {
+        hideLoader();
       }
     },
-    [router]
+    [router, showLoader, hideLoader]
   );
 
   const wrapFormAction = useCallback(

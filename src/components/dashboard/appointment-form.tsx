@@ -1,6 +1,7 @@
 "use client";
 
 import { AdminSelect } from "@/components/dashboard/admin-select";
+import { FormPendingOverlay } from "@/components/ui/form-pending-overlay";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,6 +50,7 @@ export function AppointmentForm({
   submitLabel,
   onCancel,
   className,
+  loadingMessage = "Saving appointment…",
 }: {
   action: (formData: FormData) => void | Promise<void>;
   services: ServiceOption[];
@@ -57,11 +59,13 @@ export function AppointmentForm({
   submitLabel: string;
   onCancel?: () => void;
   className?: string;
+  loadingMessage?: string;
 }) {
   const isEdit = Boolean(values?.id);
 
   return (
     <form action={action} className={cn("grid gap-5 sm:grid-cols-2", className)}>
+      <FormPendingOverlay message={loadingMessage} />
       {values?.id && <input type="hidden" name="id" value={values.id} />}
 
       {!isEdit && (

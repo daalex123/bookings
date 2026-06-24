@@ -35,7 +35,27 @@ function getMetaConfig(): MetaWhatsAppConfig {
 
 export function isWhatsAppConfigured(): boolean {
   const { token, phoneNumberId } = getMetaConfig();
-  return Boolean(token && phoneNumberId);
+  if (!token || !phoneNumberId) return false;
+  if (isLikelyPhoneNumberNotId(phoneNumberId)) {
+    console.error(
+      "[notifications] WHATSAPP_PHONE_NUMBER_ID looks like a phone number (" +
+        phoneNumberId +
+        "). Use the numeric Phone number ID from Meta → WhatsApp → API Setup " +
+        "(e.g. 7794189252778687), not the +1 display number."
+    );
+    return false;
+  }
+  return true;
+}
+
+/** Meta Phone number ID is a long numeric string, not E.164. */
+function isLikelyPhoneNumberNotId(value: string): boolean {
+  const trimmed = value.trim();
+  if (trimmed.startsWith("+")) return true;
+  if (/^0\d{7,14}$/.test(trimmed)) return true;
+  // Display numbers are short; real IDs are typically 15+ digits
+  if (/^\d{10,14}$/.test(trimmed)) return true;
+  return false;
 }
 
 function toRecipient(phone: string): string | null {
@@ -54,6 +74,14 @@ async function postMessage(payload: Record<string, unknown>): Promise<boolean> {
   const { token, phoneNumberId, apiVersion } = getMetaConfig();
   if (!token || !phoneNumberId) {
     console.warn("[notifications] Meta WhatsApp not configured — skipping");
+    return false;
+  }
+
+  if (isLikelyPhoneNumberNotId(phoneNumberId)) {
+    console.error(
+      "[notifications] WHATSAPP_PHONE_NUMBER_ID must be the numeric ID from " +
+        "Meta API Setup, not the WhatsApp phone number. See README → Meta WhatsApp setup."
+    );
     return false;
   }
 

@@ -10,7 +10,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:push": "npx supabase db push",
-    "db:types": "npx supabase gen types typescript --linked -o src/types/database.ts"
+    "db:types": "npx supabase gen types typescript --linked -o src/types/database.ts",
+    "whatsapp:test": "node scripts/test-whatsapp.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

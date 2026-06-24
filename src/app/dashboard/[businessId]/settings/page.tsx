@@ -51,6 +51,7 @@ export default async function SettingsPage({
     getSiteUrl(),
   ]);
 
+  const platformWhatsApp = process.env.WHATSAPP_PLATFORM_NUMBER;
   const hoursByDay = new Map(hours?.map((h) => [h.day_of_week, h]) ?? []);
 
   async function saveBusiness(formData: FormData) {
@@ -155,9 +156,24 @@ export default async function SettingsPage({
                 placeholder="0771234567 or +94771234567"
               />
               <p className="text-xs text-zinc-500">
-                Receive WhatsApp alerts for new bookings, cancellations, and
-                confirmations via the Meta WhatsApp Cloud API. Configure your
-                Meta app credentials on the server.
+                WhatsApp sends Meta&apos;s pre-approved <code>hello_world</code>{" "}
+                template on each booking event — no 24-hour window required.
+                {process.env.WHATSAPP_HELLO_WORLD_SEND_DETAILS !== "false" ? (
+                  <>
+                    {" "}
+                    A second plain-text message with full booking details is also
+                    sent; that one follows Meta&apos;s 24-hour rule
+                    {platformWhatsApp ? (
+                      <>
+                        {" "}
+                        (message <strong>{platformWhatsApp}</strong> first)
+                      </>
+                    ) : null}
+                    .
+                  </>
+                ) : (
+                  " Open your dashboard for booking details."
+                )}
               </p>
             </div>
             <input type="hidden" name="name" value={business?.name ?? ""} />

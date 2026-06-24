@@ -123,7 +123,17 @@ WHATSAPP_TEMPLATE_LANGUAGE=en_US
 
 ### 2. Message templates
 
-Create these **Utility** templates in [Meta Business Manager → WhatsApp Manager → Message templates](https://business.facebook.com/wa/manage/message-templates/). Names must match the env vars (or use the defaults below).
+**Recommended first (one variable, full booking text):** create `booknow_alert` — easiest to approve and delivers reliably.
+
+| Name | Language | Body |
+|------|----------|------|
+| `booknow_alert` | English (US) | You have a new notification from BookNow.\n\n{{1}}\n\nOpen your dashboard for more details. |
+
+Sample for `{{1}}`: paste a multi-line booking summary (customer, service, time, price).
+
+Until `booknow_alert` is approved, the app falls back to Meta’s built-in `hello_world` template (you get a ping, details only in dashboard).
+
+**Optional structured templates** (`WHATSAPP_DELIVERY_MODE=structured`):
 
 | Default name | Body text (paste into Meta — static text at start and end) |
 |--------------|-------------------------------------------------------------|
@@ -143,9 +153,11 @@ WHATSAPP_TEMPLATE_BOOKING_CONFIRMED=booknow_booking_confirmed
 
 Each business enters their WhatsApp mobile under **Dashboard → Settings → Business WhatsApp** (e.g. `0771234567` or `+94771234567`).
 
-### Development shortcut
+### Development / no templates
 
-For quick testing inside Meta’s 24-hour messaging window, set `WHATSAPP_USE_TEXT_MESSAGES=true` to send plain text instead of templates. Production should use approved templates.
+Default delivery is **plain text** (`WHATSAPP_DELIVERY_MODE=text`) with full booking details. Meta only delivers these if the business owner has **messaged your platform WhatsApp number within the last 24 hours**. Set `WHATSAPP_PLATFORM_NUMBER` (e.g. `+15556532084`) so owners see which number to message in **Dashboard → Settings**.
+
+When Meta approves templates later, switch to `WHATSAPP_DELIVERY_MODE=alert` or `structured`.
 
 ## Deploy
 

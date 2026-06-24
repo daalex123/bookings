@@ -88,7 +88,19 @@ export async function sendBookingNotifications(
       sendBusinessWhatsApp(details.businessContactWhatsApp, {
         type: "new_booking",
         details,
+      }).then((ok) => {
+        if (!ok) {
+          console.warn(
+            "[notifications] WhatsApp not delivered to",
+            details.businessContactWhatsApp
+          );
+        }
+        return ok;
       })
+    );
+  } else {
+    console.warn(
+      "[notifications] No business WhatsApp number — set Dashboard → Settings → Business WhatsApp"
     );
   }
 

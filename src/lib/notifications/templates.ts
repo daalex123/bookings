@@ -204,7 +204,13 @@ export function businessCancellationWhatsAppTemplateParams(
 
 export function businessConfirmedWhatsApp(details: BookingDetails): string {
   const when = formatBookingDateTime(details.startAt, details.timezone);
-  return `✅ *Booking confirmed* — ${details.customerName}, ${details.serviceName}, ${when}.`;
+  return [
+    `✅ *Booking confirmed* — ${details.businessName}`,
+    "",
+    `Customer: ${details.customerName}`,
+    `Service: ${details.serviceName}`,
+    `When: ${when}`,
+  ].join("\n");
 }
 
 /** Body parameters for Meta template `booknow_booking_confirmed` ({{1}}…{{3}}). */

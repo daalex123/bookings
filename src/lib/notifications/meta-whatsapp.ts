@@ -17,8 +17,8 @@ function getMetaConfig(): MetaWhatsAppConfig {
   return {
     token: process.env.WHATSAPP_ACCESS_TOKEN,
     phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID,
-    apiVersion: process.env.WHATSAPP_API_VERSION ?? "v22.0",
-    language: process.env.WHATSAPP_TEMPLATE_LANGUAGE ?? "en",
+    apiVersion: process.env.WHATSAPP_API_VERSION ?? "v25.0",
+    language: process.env.WHATSAPP_TEMPLATE_LANGUAGE ?? "en_US",
     useText: process.env.WHATSAPP_USE_TEXT_MESSAGES === "true",
     templates: {
       newBooking:
@@ -48,12 +48,12 @@ export function isWhatsAppConfigured(): boolean {
   return true;
 }
 
-/** Meta Phone number ID is a long numeric string, not E.164. */
+/** Meta Phone number ID is a long numeric string, not E.164 or an access token. */
 function isLikelyPhoneNumberNotId(value: string): boolean {
   const trimmed = value.trim();
   if (trimmed.startsWith("+")) return true;
+  if (trimmed.startsWith("EAA") || trimmed.startsWith("EAAG")) return true;
   if (/^0\d{7,14}$/.test(trimmed)) return true;
-  // Display numbers are short; real IDs are typically 15+ digits
   if (/^\d{10,14}$/.test(trimmed)) return true;
   return false;
 }
@@ -102,7 +102,10 @@ async function postMessage(payload: Record<string, unknown>): Promise<boolean> {
     console.error(
       "[notifications] Meta WhatsApp failed:",
       response.status,
-      errorBody
+      errorBody,
+      payload.type === "template"
+        ? `(template: ${(payload.template as { name?: string })?.name})`
+        : ""
     );
     return false;
   }

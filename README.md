@@ -118,18 +118,18 @@ Business booking alerts use the [WhatsApp Cloud API](https://developers.facebook
 ```env
 WHATSAPP_ACCESS_TOKEN=your_permanent_token
 WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
-WHATSAPP_TEMPLATE_LANGUAGE=en
+WHATSAPP_TEMPLATE_LANGUAGE=en_US
 ```
 
 ### 2. Message templates
 
 Create these **Utility** templates in [Meta Business Manager → WhatsApp Manager → Message templates](https://business.facebook.com/wa/manage/message-templates/). Names must match the env vars (or use the defaults below).
 
-| Default name | Body text |
-|--------------|-----------|
-| `booknow_new_booking` | New booking at {{1}}\n\nCustomer: {{2}}\nPhone: {{3}}\nService: {{4}}\nWhen: {{5}}\nPrice: {{6}} |
-| `booknow_booking_cancelled` | Booking cancelled at {{1}}\n\nCustomer: {{2}}\nService: {{3}}\nWas scheduled: {{4}} |
-| `booknow_booking_confirmed` | Booking confirmed at {{1}}\n\nCustomer: {{2}}\nService: {{3}}\nWhen: {{4}} |
+| Default name | Body text (paste into Meta — static text at start and end) |
+|--------------|-------------------------------------------------------------|
+| `booknow_new_booking` | You have received a new booking request for your business.\n\nLocation: {{1}}\nCustomer: {{2}}\nAppointment details: {{3}}\n\nPlease check your dashboard for full information. Sent via BookNow. |
+| `booknow_booking_cancelled` | A customer has cancelled an appointment with your business.\n\nLocation: {{1}}\nCustomer: {{2}}\nCancelled appointment: {{3}}\n\nPlease check your dashboard for updates. Sent via BookNow. |
+| `booknow_booking_confirmed` | An appointment with your business has been confirmed.\n\nLocation: {{1}}\nCustomer: {{2}}\nConfirmed appointment: {{3}}\n\nPlease check your dashboard for details. Sent via BookNow. |
 
 Override names if needed:
 

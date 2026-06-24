@@ -168,22 +168,19 @@ export function businessBookingWhatsApp(details: BookingDetails): string {
   return lines.join("\n");
 }
 
-/** Body parameters for Meta template `booknow_new_booking` ({{1}}…{{6}}). */
+/** Body parameters for Meta template `booknow_new_booking` ({{1}}…{{3}}). */
 export function businessBookingWhatsAppTemplateParams(
   details: BookingDetails
 ): string[] {
   const service = details.notes
     ? `${formatServiceLine(details)} (Note: ${details.notes})`
     : formatServiceLine(details);
+  const customerLine = details.customerPhone
+    ? `${details.customerName} — ${details.customerPhone}`
+    : details.customerName;
+  const appointmentLine = `${service}, ${formatBookingTimeRange(details)}, ${formatTotalPrice(details)}`;
 
-  return [
-    details.businessName,
-    details.customerName,
-    details.customerPhone ?? "—",
-    service,
-    formatBookingTimeRange(details),
-    formatTotalPrice(details),
-  ];
+  return [details.businessName, customerLine, appointmentLine];
 }
 
 export function businessCancellationWhatsApp(details: BookingDetails): string {
@@ -197,16 +194,12 @@ export function businessCancellationWhatsApp(details: BookingDetails): string {
   ].join("\n");
 }
 
-/** Body parameters for Meta template `booknow_booking_cancelled` ({{1}}…{{4}}). */
+/** Body parameters for Meta template `booknow_booking_cancelled` ({{1}}…{{3}}). */
 export function businessCancellationWhatsAppTemplateParams(
   details: BookingDetails
 ): string[] {
-  return [
-    details.businessName,
-    details.customerName,
-    details.serviceName,
-    formatBookingTimeRange(details),
-  ];
+  const appointmentLine = `${details.serviceName} — was scheduled ${formatBookingTimeRange(details)}`;
+  return [details.businessName, details.customerName, appointmentLine];
 }
 
 export function businessConfirmedWhatsApp(details: BookingDetails): string {
@@ -214,16 +207,12 @@ export function businessConfirmedWhatsApp(details: BookingDetails): string {
   return `✅ *Booking confirmed* — ${details.customerName}, ${details.serviceName}, ${when}.`;
 }
 
-/** Body parameters for Meta template `booknow_booking_confirmed` ({{1}}…{{4}}). */
+/** Body parameters for Meta template `booknow_booking_confirmed` ({{1}}…{{3}}). */
 export function businessConfirmedWhatsAppTemplateParams(
   details: BookingDetails
 ): string[] {
-  return [
-    details.businessName,
-    details.customerName,
-    details.serviceName,
-    formatBookingDateTime(details.startAt, details.timezone),
-  ];
+  const appointmentLine = `${details.serviceName} — ${formatBookingDateTime(details.startAt, details.timezone)}`;
+  return [details.businessName, details.customerName, appointmentLine];
 }
 
 function escapeHtml(value: string): string {

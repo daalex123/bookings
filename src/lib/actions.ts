@@ -547,7 +547,8 @@ export async function updateBusinessHours(
 
 export async function createAppointment(
   bookingToken: string,
-  formData: FormData
+  formData: FormData,
+  options?: { skipNotifications?: boolean }
 ) {
   const serviceId = formData.get("serviceId")?.toString();
   const dateStr = formData.get("date")?.toString();
@@ -604,7 +605,7 @@ export async function createAppointment(
   const result = data as { success?: boolean; error?: string; id?: string } | null;
   if (result?.error) return { error: result.error };
 
-  if (result?.id) {
+  if (result?.id && !options?.skipNotifications) {
     try {
       await sendBookingNotifications(result.id);
     } catch (err) {
@@ -614,7 +615,7 @@ export async function createAppointment(
 
   revalidatePath("/my-appointments");
   revalidatePath("/dashboard");
-  return { success: true };
+  return { success: true, appointmentId: result?.id };
 }
 
 export async function updateAppointmentStatus(
@@ -725,9 +726,11 @@ export async function upsertAdminAppointment(
     if (result?.error) return { error: result.error };
 
     if (result?.id) {
-      void sendBookingNotifications(result.id).catch((err) => {
+      try {
+        await sendBookingNotifications(result.id);
+      } catch (err) {
         console.error("[notifications] Failed to send booking notifications", err);
-      });
+      }
     }
   }
 

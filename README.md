@@ -161,5 +161,24 @@ When Meta approves templates later, switch to `WHATSAPP_DELIVERY_MODE=alert` or 
 
 ## Deploy
 
-Deploy to Vercel (or any Node host) with the same two env vars. Admin and customer areas share the same domain — no separate deployments.
+Deploy to Vercel (or any Node host) with the same env vars as `.env.local`. **Vercel does not read `.env.local`** — add each variable under **Project → Settings → Environment Variables** for **Production** (and Preview if needed).
+
+### Required on Vercel for WhatsApp booking alerts
+
+| Variable | Required |
+|----------|----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes (without this, **no** notifications run) |
+| `WHATSAPP_ACCESS_TOKEN` | Yes (permanent system user token) |
+| `WHATSAPP_PHONE_NUMBER_ID` | Yes |
+| `WHATSAPP_DELIVERY_MODE` | `hello_world` |
+| `RESEND_API_KEY` | For email alerts |
+| `EMAIL_FROM` | For email alerts |
+
+After deploy, open `https://your-app.vercel.app/api/health/notifications` — you want `"ready": true`.
+
+Redeploy after changing env vars (or use **Redeploy** from the Vercel dashboard).
+
+Admin and customer areas share the same domain — no separate deployments.
 # bookings

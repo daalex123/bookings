@@ -1,5 +1,9 @@
+import { after } from "next/server";
 import { NextResponse } from "next/server";
 import { createAppointment } from "@/lib/actions";
+import { sendBookingNotifications } from "@/lib/notifications/send-booking-notifications";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   const formData = await request.formData();
@@ -10,7 +14,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid booking request" }, { status: 400 });
   }
 
-  const result = await createAppointment(bookingRef, formData);
+  const result = await createAppointment(bookingRef, formData, {
+    skipNotifications: true,
+  });
 
   if (result?.error) {
     const url = new URL(flowPath, request.url);
@@ -25,6 +31,17 @@ export async function POST(request: Request) {
     if (date) url.searchParams.set("date", date);
     if (time) url.searchParams.set("time", time);
     return NextResponse.redirect(url, 303);
+  }
+
+  const appointmentId = result.appointmentId;
+  if (appointmentId) {
+    after(async () => {
+      try {
+        await sendBookingNotifications(appointmentId);
+      } catch (err) {
+        console.error("[notifications] Failed after booking redirect", err);
+      }
+    });
   }
 
   const successUrl = new URL(flowPath, request.url);

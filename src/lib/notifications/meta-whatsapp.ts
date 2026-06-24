@@ -15,7 +15,7 @@ type MetaWhatsAppConfig = {
 };
 
 function getDeliveryMode(): MetaWhatsAppConfig["deliveryMode"] {
-  const mode = process.env.WHATSAPP_DELIVERY_MODE;
+  const mode = process.env.WHATSAPP_DELIVERY_MODE?.trim();
   if (
     mode === "structured" ||
     mode === "alert" ||
@@ -29,8 +29,8 @@ function getDeliveryMode(): MetaWhatsAppConfig["deliveryMode"] {
 
 function getMetaConfig(): MetaWhatsAppConfig {
   return {
-    token: process.env.WHATSAPP_ACCESS_TOKEN,
-    phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID,
+    token: process.env.WHATSAPP_ACCESS_TOKEN?.trim(),
+    phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID?.trim(),
     apiVersion: process.env.WHATSAPP_API_VERSION ?? "v25.0",
     language: process.env.WHATSAPP_TEMPLATE_LANGUAGE ?? "en_US",
     deliveryMode: getDeliveryMode(),

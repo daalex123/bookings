@@ -2,7 +2,7 @@ import { sendEmail } from "@/lib/notifications/email";
 import { createBusinessNotifications } from "@/lib/notifications/in-app";
 import { createCustomerBookingNotification } from "@/lib/notifications/customer-in-app";
 import { sendSms } from "@/lib/notifications/sms";
-import { sendBusinessWhatsApp } from "@/lib/notifications/whatsapp";
+import { sendBusinessWhatsApp, isWhatsAppConfigured } from "@/lib/notifications/whatsapp";
 import {
   businessBookingEmail,
   businessBookingSms,
@@ -22,9 +22,17 @@ export async function sendBookingNotifications(
 ): Promise<void> {
   if (!hasAdminClient()) {
     console.warn(
-      "[notifications] SUPABASE_SERVICE_ROLE_KEY missing — skipping notifications"
+      "[notifications] SUPABASE_SERVICE_ROLE_KEY missing on server — skipping notifications. " +
+        "Add it in Vercel → Project → Settings → Environment Variables."
     );
     return;
+  }
+
+  if (!isWhatsAppConfigured()) {
+    console.warn(
+      "[notifications] WhatsApp not configured on server — email/in-app may still work. " +
+        "Set WHATSAPP_ACCESS_TOKEN and WHATSAPP_PHONE_NUMBER_ID on Vercel."
+    );
   }
 
   const details = await loadBookingDetails(appointmentId);

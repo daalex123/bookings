@@ -58,6 +58,7 @@ export interface Database {
           cover_image_url: string | null;
           brand_color: string;
           contact_email: string | null;
+          contact_whatsapp: string | null;
           booking_token: string;
           created_at: string;
           updated_at: string;
@@ -74,6 +75,7 @@ export interface Database {
           cover_image_url?: string | null;
           brand_color?: string;
           contact_email?: string | null;
+          contact_whatsapp?: string | null;
           booking_token?: string;
           created_at?: string;
           updated_at?: string;
@@ -90,6 +92,7 @@ export interface Database {
           cover_image_url?: string | null;
           brand_color?: string;
           contact_email?: string | null;
+          contact_whatsapp?: string | null;
           booking_token?: string;
           created_at?: string;
           updated_at?: string;

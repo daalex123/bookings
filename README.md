@@ -15,7 +15,7 @@ Built with Next.js, Supabase (Auth + Postgres + RLS), and Tailwind CSS. **No Doc
 - **Service images** — upload photos per service
 - **Currency & timezone** — defaults to LKR and IST (`Asia/Kolkata`); configurable per business
 - **Image storage** — Supabase Storage (any host) or Vercel Blob when `BLOB_READ_WRITE_TOKEN` is set
-- **Booking notifications** — email + SMS confirmations for customers; email, SMS, and in-app alerts for business staff
+- **Booking notifications** — email + SMS confirmations for customers; email, SMS, Meta WhatsApp, and in-app alerts for business staff
 
 ## Setup
 
@@ -64,6 +64,8 @@ EMAIL_FROM=BookNow <notifications@yourdomain.com>
 
 Optional for SMS (Twilio): `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`, `SMS_DEFAULT_COUNTRY_CODE=94`
 
+Optional for business WhatsApp alerts (Meta Cloud API): `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`. Each business sets their receiving number under **Dashboard → Settings → Business WhatsApp**. See [Meta WhatsApp setup](#meta-whatsapp-setup) below.
+
 Booking links, QR codes, and sign-up email redirects use the **current request URL** automatically (`localhost`, your LAN IP like `192.168.x.x`, or your production domain). Add your dev and production URLs to Supabase **Authentication → URL Configuration** redirect allowlist.
 
 Optionally set `NEXT_PUBLIC_SITE_URL` in production if you need a fixed canonical URL (e.g. always `https://booknow.com` even when accessed via alternate domains).
@@ -102,6 +104,48 @@ SELECT id FROM auth.users WHERE email = 'you@example.com';
 ```
 
 Regular users only see businesses they belong to. Super admins get full admin rights (RLS + storage) on all tenants.
+
+## Meta WhatsApp setup
+
+Business booking alerts use the [WhatsApp Cloud API](https://developers.facebook.com/docs/whatsapp/cloud-api). Proactive notifications require **approved message templates** in Meta Business Manager.
+
+### 1. Meta app credentials
+
+1. Create an app at [developers.facebook.com](https://developers.facebook.com) and add the **WhatsApp** product.
+2. Under **WhatsApp → API Setup**, copy the **Phone number ID** and generate a **permanent access token** (system user).
+3. Add to `.env.local`:
+
+```env
+WHATSAPP_ACCESS_TOKEN=your_permanent_token
+WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id
+WHATSAPP_TEMPLATE_LANGUAGE=en
+```
+
+### 2. Message templates
+
+Create these **Utility** templates in [Meta Business Manager → WhatsApp Manager → Message templates](https://business.facebook.com/wa/manage/message-templates/). Names must match the env vars (or use the defaults below).
+
+| Default name | Body text |
+|--------------|-----------|
+| `booknow_new_booking` | New booking at {{1}}\n\nCustomer: {{2}}\nPhone: {{3}}\nService: {{4}}\nWhen: {{5}}\nPrice: {{6}} |
+| `booknow_booking_cancelled` | Booking cancelled at {{1}}\n\nCustomer: {{2}}\nService: {{3}}\nWas scheduled: {{4}} |
+| `booknow_booking_confirmed` | Booking confirmed at {{1}}\n\nCustomer: {{2}}\nService: {{3}}\nWhen: {{4}} |
+
+Override names if needed:
+
+```env
+WHATSAPP_TEMPLATE_NEW_BOOKING=booknow_new_booking
+WHATSAPP_TEMPLATE_BOOKING_CANCELLED=booknow_booking_cancelled
+WHATSAPP_TEMPLATE_BOOKING_CONFIRMED=booknow_booking_confirmed
+```
+
+### 3. Business receiving number
+
+Each business enters their WhatsApp mobile under **Dashboard → Settings → Business WhatsApp** (e.g. `0771234567` or `+94771234567`).
+
+### Development shortcut
+
+For quick testing inside Meta’s 24-hour messaging window, set `WHATSAPP_USE_TEXT_MESSAGES=true` to send plain text instead of templates. Production should use approved templates.
 
 ## Deploy
 

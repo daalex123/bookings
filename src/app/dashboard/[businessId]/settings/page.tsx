@@ -124,9 +124,9 @@ export default async function SettingsPage({
           <ActionForm
             action={saveBusiness}
             messages={{
-              loading: "Saving contact email…",
-              success: "Contact email saved",
-              error: "Could not save contact email",
+              loading: "Saving notification settings…",
+              success: "Notification settings saved",
+              error: "Could not save notification settings",
             }}
             className="space-y-4 max-w-lg"
           >
@@ -143,6 +143,21 @@ export default async function SettingsPage({
               <p className="text-xs text-zinc-500">
                 Main inbox for new booking alerts and customer communication.
                 In-app notifications still go to your team dashboard.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="contact_whatsapp">Business WhatsApp</Label>
+              <Input
+                id="contact_whatsapp"
+                name="contact_whatsapp"
+                type="tel"
+                defaultValue={business?.contact_whatsapp ?? ""}
+                placeholder="0771234567 or +94771234567"
+              />
+              <p className="text-xs text-zinc-500">
+                Receive WhatsApp alerts for new bookings, cancellations, and
+                confirmations via the Meta WhatsApp Cloud API. Configure your
+                Meta app credentials on the server.
               </p>
             </div>
             <input type="hidden" name="name" value={business?.name ?? ""} />
@@ -182,7 +197,9 @@ export default async function SettingsPage({
               name="brand_color"
               value={business?.brand_color ?? "#f5c518"}
             />
-            <SubmitButton pendingLabel="Saving…">Save contact email</SubmitButton>
+            <SubmitButton pendingLabel="Saving…">
+              Save notification settings
+            </SubmitButton>
           </ActionForm>
         </CardContent>
       </Card>
@@ -222,6 +239,11 @@ export default async function SettingsPage({
               type="hidden"
               name="contact_email"
               value={business?.contact_email ?? ""}
+            />
+            <input
+              type="hidden"
+              name="contact_whatsapp"
+              value={business?.contact_whatsapp ?? ""}
             />
 
             <ImageUploadField
@@ -374,6 +396,11 @@ export default async function SettingsPage({
               type="hidden"
               name="contact_email"
               value={business?.contact_email ?? ""}
+            />
+            <input
+              type="hidden"
+              name="contact_whatsapp"
+              value={business?.contact_whatsapp ?? ""}
             />
             <SubmitButton pendingLabel="Saving…">Save profile</SubmitButton>
           </ActionForm>

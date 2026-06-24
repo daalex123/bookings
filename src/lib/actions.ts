@@ -26,7 +26,7 @@ import { DEFAULT_CURRENCY, DEFAULT_TIMEZONE } from "@/lib/constants";
 import { getPublicBusiness, publicBusinessCacheTag } from "@/lib/booking-data";
 import { bookingPagePathBySlug, bookingFlowUrl } from "@/lib/booking";
 import { sendBookingNotifications } from "@/lib/notifications/send-booking-notifications";
-import { notifyCustomerAppointmentStatus } from "@/lib/notifications/customer-status";
+import { notifyAppointmentStatus } from "@/lib/notifications/send-status-notifications";
 import { getSiteUrl } from "@/lib/site-url";
 
 export async function signIn(formData: FormData): Promise<void> {
@@ -201,6 +201,7 @@ export async function updateBusiness(businessId: string, formData: FormData) {
     cover_image_url: formData.get("cover_image_url")?.toString() || "",
     brand_color: formData.get("brand_color")?.toString() || "#f5c518",
     contact_email: formData.get("contact_email")?.toString() || "",
+    contact_whatsapp: formData.get("contact_whatsapp")?.toString() || "",
   });
 
   if (!parsed.success) {
@@ -221,6 +222,7 @@ export async function updateBusiness(businessId: string, formData: FormData) {
       cover_image_url: parsed.data.cover_image_url || null,
       brand_color: parsed.data.brand_color ?? "#f5c518",
       contact_email: parsed.data.contact_email ?? null,
+      contact_whatsapp: parsed.data.contact_whatsapp ?? null,
     })
     .eq("id", businessId);
 
@@ -629,7 +631,7 @@ export async function updateAppointmentStatus(
   if (error) return { error: error.message };
 
   try {
-    await notifyCustomerAppointmentStatus(appointmentId, status);
+    await notifyAppointmentStatus(appointmentId, status);
   } catch (err) {
     console.error("[notifications] Customer status notification failed", err);
   }
@@ -776,6 +778,12 @@ export async function cancelMyAppointment(appointmentId: string) {
 
   if (error) return { error: error.message };
   if (!data?.length) return { error: "Appointment not found" };
+
+  try {
+    await notifyAppointmentStatus(appointmentId, "cancelled");
+  } catch (err) {
+    console.error("[notifications] Cancellation notification failed", err);
+  }
 
   revalidatePath("/my-appointments");
   return { success: true };

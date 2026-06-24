@@ -48,6 +48,19 @@ export const businessSchema = z.object({
     .or(z.literal(""))
     .optional()
     .transform((value) => (value === "" ? undefined : value)),
+  contact_whatsapp: z
+    .string()
+    .trim()
+    .optional()
+    .transform((value) => {
+      if (!value) return undefined;
+      const normalized = normalizePhone(value);
+      return normalized === "" ? undefined : normalized;
+    })
+    .refine(
+      (value) => !value || /^\+?[0-9]{8,15}$/.test(value),
+      "Enter a valid WhatsApp number (8–15 digits)"
+    ),
 });
 
 export const serviceSchema = z.object({

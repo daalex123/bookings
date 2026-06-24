@@ -29,3 +29,35 @@ export async function createBusinessNotifications(
     console.error("[notifications] In-app insert failed:", error.message);
   }
 }
+
+export async function createBusinessStatusNotifications(
+  details: BookingDetails,
+  memberUserIds: string[],
+  status: "confirmed" | "cancelled"
+): Promise<void> {
+  if (memberUserIds.length === 0) return;
+
+  const admin = createAdminClient();
+  const title =
+    status === "cancelled"
+      ? `Booking cancelled: ${details.serviceName}`
+      : `Booking confirmed: ${details.serviceName}`;
+  const body =
+    status === "cancelled"
+      ? `${details.customerName} cancelled ${details.serviceName}.`
+      : `${details.customerName}'s ${details.serviceName} appointment was confirmed.`;
+
+  const rows: NotificationInsert[] = memberUserIds.map((userId) => ({
+    user_id: userId,
+    business_id: details.businessId,
+    appointment_id: details.appointmentId,
+    type: status === "cancelled" ? "booking_cancelled" : "booking_confirmed",
+    title,
+    body,
+  }));
+
+  const { error } = await admin.from("notifications").insert(rows);
+  if (error) {
+    console.error("[notifications] In-app status insert failed:", error.message);
+  }
+}

@@ -60,6 +60,12 @@ body {
   padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
 }
 
+@media (display-mode: standalone) {
+  .booking-theme {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 .booking-header-pad {
   padding-top: max(1.5rem, env(safe-area-inset-top, 0px));
 }

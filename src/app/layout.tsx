@@ -2,7 +2,13 @@ import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { SiteHeader } from "@/components/site-header";
 import { BookingShell } from "@/components/booking/booking-shell";
+import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { Toaster } from "@/components/ui/sonner";
+import {
+  PWA_DESCRIPTION,
+  PWA_NAME,
+  PWA_THEME_COLOR,
+} from "@/lib/pwa/constants";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 
@@ -10,17 +16,26 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  userScalable: false,
   viewportFit: "cover",
-  themeColor: "#0a0a0a",
+  themeColor: PWA_THEME_COLOR,
 };
 
 export const metadata: Metadata = {
-  title: "BookNow — Appointment Booking",
-  description: "Book appointments with local businesses",
+  title: `${PWA_NAME} — Appointment Booking`,
+  description: PWA_DESCRIPTION,
+  applicationName: PWA_NAME,
+  manifest: "/manifest.webmanifest",
+  formatDetection: {
+    telephone: false,
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "BookNow",
+    title: PWA_NAME,
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
   },
 };
 
@@ -51,6 +66,7 @@ export default async function RootLayout({
             <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
           </>
         )}
+        <ServiceWorkerRegister />
         <Toaster />
       </body>
     </html>

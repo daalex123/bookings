@@ -1,28 +1,9 @@
 import { ImageResponse } from "next/og";
+import { appIconElement } from "@/lib/pwa/app-icon";
 
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 
 export default function Icon() {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          fontSize: 20,
-          fontWeight: 700,
-          background: "#0a0a0a",
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#f5c518",
-          borderRadius: 6,
-        }}
-      >
-        B
-      </div>
-    ),
-    { ...size }
-  );
+  return new ImageResponse(appIconElement({ fontSize: 20 }), { ...size });
 }

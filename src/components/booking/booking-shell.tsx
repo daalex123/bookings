@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { getActiveBusinessPath } from "@/lib/business-context";
 import { getPublicBusiness } from "@/lib/booking-data";
+import { InstallAppBanner } from "@/components/pwa/install-app-banner";
 import { BookingAppHeader } from "@/components/booking/booking-app-header";
 import { BookingBottomNav } from "@/components/booking/booking-bottom-nav";
 import { BusinessBrandTheme } from "@/components/booking/business-brand-theme";
@@ -29,6 +30,7 @@ export async function BookingShell({ children }: { children: React.ReactNode }) 
         {children}
       </div>
       <BookingBottomNav homePath={homePath} />
+      <InstallAppBanner />
     </div>
   );
 }

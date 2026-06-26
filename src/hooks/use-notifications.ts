@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   ensureRealtimeAuth,
@@ -12,60 +12,55 @@ import {
 } from "@/lib/notification-sound";
 import {
   isCustomerNotification,
+  isStaffNotification,
+  resolveNotificationAudience,
 } from "@/lib/notifications/constants";
-import type { Notification } from "@/types/database";
+import {
+  countUnread,
+  createNotificationStore,
+  mergeNotifications,
+  sortNotifications,
+  type NotificationStore,
+} from "@/lib/notifications/notification-store";
+import type { Notification, NotificationAudience } from "@/types/database";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 const MAX_NOTIFICATIONS = 15;
 
-function sortNotifications(items: Notification[]): Notification[] {
-  return [...items].sort(
-    (a, b) =>
-      new Date(b.created_at).getTime() - new Date(b.created_at).getTime()
-  );
-}
-
-function upsertNotification(
-  items: Notification[],
-  next: Notification
-): Notification[] {
-  const without = items.filter((item) => item.id !== next.id);
-  return sortNotifications([next, ...without]).slice(0, MAX_NOTIFICATIONS);
-}
-
-function mergeNotifications(
-  current: Notification[],
-  incoming: Notification[]
-): Notification[] {
-  const map = new Map<string, Notification>();
-  for (const item of current) map.set(item.id, item);
-  for (const item of incoming) map.set(item.id, item);
-  return sortNotifications([...map.values()]).slice(0, MAX_NOTIFICATIONS);
-}
-
-function collectNewUnread(
-  previous: Notification[],
-  next: Notification[]
-): Notification[] {
-  const previousIds = new Set(previous.map((item) => item.id));
-  return next.filter((item) => !previousIds.has(item.id) && !item.read_at);
-}
-
 export function useNotifications(
   userId: string,
   initialNotifications: Notification[],
-  options?: { businessId?: string; customerOnly?: boolean }
+  options?: {
+    businessId?: string;
+    audience?: NotificationAudience;
+    /** @deprecated Use `audience: "customer"` instead. */
+    customerOnly?: boolean;
+    enabled?: boolean;
+  }
 ) {
   const businessId = options?.businessId;
-  const customerOnly = options?.customerOnly ?? Boolean(businessId);
+  const audience: NotificationAudience =
+    options?.audience ??
+    (options?.customerOnly ? "customer" : "staff");
+  const enabled = options?.enabled ?? true;
 
   const filterNotification = useCallback(
     (notification: Notification) => {
       if (businessId && notification.business_id !== businessId) return false;
-      if (customerOnly && !isCustomerNotification(notification)) return false;
-      return true;
+      if (audience === "customer") {
+        return isCustomerNotification(notification);
+      }
+      return isStaffNotification(notification);
     },
-    [businessId, customerOnly]
+    [businessId, audience]
+  );
+
+  const needsAudienceRefetch = useCallback(
+    (notification: Partial<Notification>) => {
+      if (resolveNotificationAudience(notification)) return false;
+      return Boolean(notification.id);
+    },
+    []
   );
 
   const initialFiltered = useMemo(
@@ -76,49 +71,65 @@ export function useNotifications(
     [initialNotifications, filterNotification]
   );
 
-  const itemsRef = useRef<Notification[]>(initialFiltered);
-  const [items, setItems] = useState<Notification[]>(initialFiltered);
+  const storeRef = useRef<{ userId: string; store: NotificationStore } | null>(
+    null
+  );
+  if (!storeRef.current || storeRef.current.userId !== userId) {
+    storeRef.current = {
+      userId,
+      store: createNotificationStore(initialFiltered),
+    };
+  }
+
+  const store = storeRef.current.store;
   const wasHiddenRef = useRef(false);
 
-  const unreadCount = useMemo(
-    () => items.filter((item) => !item.read_at).length,
-    [items]
+  const subscribe = useCallback(
+    (listener: () => void) => store.subscribe(listener),
+    [store]
+  );
+  const getSnapshot = useCallback(() => store.getSnapshot(), [store]);
+
+  const notifications = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  const unreadCount = useMemo(() => countUnread(notifications), [notifications]);
+
+  const applyList = useCallback(
+    (next: Notification[], playSound: boolean) => {
+      const { freshUnread } = store.replace(next);
+      if (playSound && freshUnread.length > 0) {
+        playNotificationSound();
+      }
+    },
+    [store]
   );
 
-  const applyList = useCallback((next: Notification[], playSound: boolean) => {
-    const sorted = sortNotifications(next).slice(0, MAX_NOTIFICATIONS);
-    const previous = itemsRef.current;
-    const freshUnread = collectNewUnread(previous, sorted);
+  const applyNotification = useCallback(
+    (notification: Notification, playSound: boolean) => {
+      const { freshUnread } = store.upsert(notification);
+      if (playSound && freshUnread.length > 0) {
+        playNotificationSound();
+      }
+    },
+    [store]
+  );
 
-    itemsRef.current = sorted;
-    setItems(sorted);
-
-    if (playSound && freshUnread.length > 0) {
-      playNotificationSound();
-    }
-  }, []);
-
-  const markReadLocal = useCallback((notificationId: string) => {
-    const readAt = new Date().toISOString();
-    const next = itemsRef.current.map((item) =>
-      item.id === notificationId ? { ...item, read_at: readAt } : item
-    );
-    itemsRef.current = next;
-    setItems(next);
-  }, []);
+  const markReadLocal = useCallback(
+    (notificationId: string) => {
+      store.markRead(notificationId);
+    },
+    [store]
+  );
 
   const markAllReadLocal = useCallback(() => {
-    const readAt = new Date().toISOString();
-    const next = itemsRef.current.map((item) =>
-      item.read_at ? item : { ...item, read_at: readAt }
-    );
-    itemsRef.current = next;
-    setItems(next);
-  }, []);
+    store.markAllRead();
+  }, [store]);
 
   const syncNotifications = useCallback(async () => {
     try {
-      const response = await fetch("/api/notifications", {
+      const params = new URLSearchParams({ audience });
+      if (businessId) params.set("businessId", businessId);
+
+      const response = await fetch(`/api/notifications?${params.toString()}`, {
         cache: "no-store",
       });
       if (!response.ok) return;
@@ -130,11 +141,11 @@ export function useNotifications(
       if (!data.notifications) return;
 
       const scoped = data.notifications.filter(filterNotification);
-      applyList(mergeNotifications(itemsRef.current, scoped), true);
+      applyList(mergeNotifications(store.getSnapshot(), scoped), true);
     } catch {
       // Sync should not break the UI.
     }
-  }, [applyList, filterNotification]);
+  }, [applyList, filterNotification, audience, businessId, store]);
 
   useEffect(() => {
     const unlock = () => unlockNotificationSound();
@@ -148,6 +159,8 @@ export function useNotifications(
   }, []);
 
   useEffect(() => {
+    if (!enabled) return;
+
     const supabase = createClient();
     let channel: RealtimeChannel | null = null;
     let cancelled = false;
@@ -168,13 +181,19 @@ export function useNotifications(
 
     const handleInsertRow = (row: Notification) => {
       if (!row?.id || cancelled) return;
-      if (itemsRef.current.some((item) => item.id === row.id)) return;
+      if (store.getSnapshot().some((item) => item.id === row.id)) return;
+
+      if (needsAudienceRefetch(row)) {
+        void handleInsert(row.id);
+        return;
+      }
+
       if (!filterNotification(row)) return;
-      applyList(upsertNotification(itemsRef.current, row), true);
+      applyNotification(row, true);
     };
 
     const handleInsert = async (notificationId: string) => {
-      if (itemsRef.current.some((item) => item.id === notificationId)) return;
+      if (store.getSnapshot().some((item) => item.id === notificationId)) return;
 
       const { data, error } = await supabase
         .from("notifications")
@@ -189,10 +208,14 @@ export function useNotifications(
 
     const handleUpdateRow = (row: Notification) => {
       if (!row?.id || cancelled) return;
+
+      if (needsAudienceRefetch(row)) {
+        void handleInsert(row.id);
+        return;
+      }
+
       if (!filterNotification(row)) return;
-      const next = upsertNotification(itemsRef.current, row);
-      itemsRef.current = next;
-      setItems(next);
+      applyNotification(row, false);
     };
 
     const connect = async () => {
@@ -268,10 +291,18 @@ export function useNotifications(
       document.removeEventListener("visibilitychange", onVisible);
       if (channel) void supabase.removeChannel(channel);
     };
-  }, [userId, businessId, applyList, syncNotifications, filterNotification]);
+  }, [
+    userId,
+    applyNotification,
+    syncNotifications,
+    filterNotification,
+    needsAudienceRefetch,
+    enabled,
+    store,
+  ]);
 
   return {
-    notifications: items,
+    notifications,
     unreadCount,
     markReadLocal,
     markAllReadLocal,

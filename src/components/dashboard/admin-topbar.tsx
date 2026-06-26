@@ -1,14 +1,16 @@
 import { format } from "date-fns";
 import { Search } from "@/lib/admin-icons";
-import { NotificationBell } from "@/components/dashboard/notification-bell";
+import { ConnectedNotificationBell } from "@/components/dashboard/notification-bell";
 import type { Notification } from "@/types/database";
 
 export function AdminTopbar({
-  userId,
-  notifications,
+  notifications: _notifications,
+  userId: _userId,
+  businessId,
 }: {
   userId: string;
   notifications: Notification[];
+  businessId?: string;
 }) {
   const today = format(new Date(), "EEEE, do MMMM");
 
@@ -28,10 +30,7 @@ export function AdminTopbar({
         <p className="hidden text-sm font-medium text-[#8b92a5] sm:block">
           {today}
         </p>
-        <NotificationBell
-          userId={userId}
-          initialNotifications={notifications}
-        />
+        <ConnectedNotificationBell appearance="admin" businessId={businessId} />
       </div>
     </header>
   );

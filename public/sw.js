@@ -1,5 +1,5 @@
 /* BookNow PWA service worker — enables install + basic offline fallback */
-const CACHE = "booknow-shell-v2";
+const CACHE = "booknow-shell-v3";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

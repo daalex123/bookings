@@ -19,6 +19,8 @@ export type NotificationType =
   | "booking_confirmed"
   | "booking_cancelled";
 
+export type NotificationAudience = "staff" | "customer";
+
 export interface Database {
   public: {
     Tables: {
@@ -119,6 +121,7 @@ export interface Database {
           business_id: string;
           appointment_id: string | null;
           type: NotificationType;
+          audience: NotificationAudience;
           title: string;
           body: string;
           read_at: string | null;
@@ -130,6 +133,7 @@ export interface Database {
           business_id: string;
           appointment_id?: string | null;
           type?: NotificationType;
+          audience?: NotificationAudience;
           title: string;
           body: string;
           read_at?: string | null;
@@ -141,6 +145,7 @@ export interface Database {
           business_id?: string;
           appointment_id?: string | null;
           type?: NotificationType;
+          audience?: NotificationAudience;
           title?: string;
           body?: string;
           read_at?: string | null;

@@ -1,14 +1,25 @@
-import type { NotificationType } from "@/types/database";
+import type { NotificationAudience, NotificationType } from "@/types/database";
 
-export const CUSTOMER_NOTIFICATION_TYPES: NotificationType[] = [
-  "booking_confirmed",
-  "booking_cancelled",
-];
+export const STAFF_NOTIFICATION_AUDIENCE: NotificationAudience = "staff";
+export const CUSTOMER_NOTIFICATION_AUDIENCE: NotificationAudience = "customer";
+
+/** Resolve audience from row; realtime payloads may omit `audience` on first event. */
+export function resolveNotificationAudience(
+  notification: Partial<Pick<{ audience: NotificationAudience; type: NotificationType }, "audience" | "type">>
+): NotificationAudience | null {
+  if (notification.audience) return notification.audience;
+  if (notification.type === "booking_created") return STAFF_NOTIFICATION_AUDIENCE;
+  return null;
+}
+
+export function isStaffNotification(
+  notification: Partial<Pick<{ audience: NotificationAudience; type: NotificationType }, "audience" | "type">>
+): boolean {
+  return resolveNotificationAudience(notification) === STAFF_NOTIFICATION_AUDIENCE;
+}
 
 export function isCustomerNotification(
-  notification: Pick<{ type: string }, "type">
+  notification: Partial<Pick<{ audience: NotificationAudience; type: NotificationType }, "audience" | "type">>
 ): boolean {
-  return CUSTOMER_NOTIFICATION_TYPES.includes(
-    notification.type as NotificationType
-  );
+  return resolveNotificationAudience(notification) === CUSTOMER_NOTIFICATION_AUDIENCE;
 }

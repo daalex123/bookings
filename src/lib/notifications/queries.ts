@@ -1,19 +1,32 @@
 import { createClient } from "@/lib/supabase/server";
-import { CUSTOMER_NOTIFICATION_TYPES } from "@/lib/notifications/constants";
-import type { Notification } from "@/types/database";
+import {
+  CUSTOMER_NOTIFICATION_AUDIENCE,
+  STAFF_NOTIFICATION_AUDIENCE,
+} from "@/lib/notifications/constants";
+import type { Notification, NotificationAudience } from "@/types/database";
 
 export type NotificationQueryOptions = {
   businessId?: string;
-  /** When true, only customer-facing types (excludes staff booking_created). */
+  audience?: NotificationAudience;
+  /** @deprecated Use `audience: "customer"` instead. */
   customerOnly?: boolean;
   limit?: number;
 };
+
+function resolveAudience(
+  options: NotificationQueryOptions
+): NotificationAudience | undefined {
+  if (options.audience) return options.audience;
+  if (options.customerOnly) return CUSTOMER_NOTIFICATION_AUDIENCE;
+  return undefined;
+}
 
 export async function getUserNotifications(
   userId: string,
   options: NotificationQueryOptions = {}
 ): Promise<Notification[]> {
-  const { businessId, customerOnly = false, limit = 15 } = options;
+  const { businessId, limit = 15 } = options;
+  const audience = resolveAudience(options);
   const supabase = await createClient();
 
   let query = supabase
@@ -27,8 +40,8 @@ export async function getUserNotifications(
     query = query.eq("business_id", businessId);
   }
 
-  if (customerOnly) {
-    query = query.in("type", CUSTOMER_NOTIFICATION_TYPES);
+  if (audience) {
+    query = query.eq("audience", audience);
   }
 
   const { data } = await query;
@@ -39,7 +52,8 @@ export async function getUnreadNotificationCount(
   userId: string,
   options: Omit<NotificationQueryOptions, "limit"> = {}
 ): Promise<number> {
-  const { businessId, customerOnly = false } = options;
+  const { businessId } = options;
+  const audience = resolveAudience(options);
   const supabase = await createClient();
 
   let query = supabase
@@ -52,10 +66,12 @@ export async function getUnreadNotificationCount(
     query = query.eq("business_id", businessId);
   }
 
-  if (customerOnly) {
-    query = query.in("type", CUSTOMER_NOTIFICATION_TYPES);
+  if (audience) {
+    query = query.eq("audience", audience);
   }
 
   const { count } = await query;
   return count ?? 0;
 }
+
+export { STAFF_NOTIFICATION_AUDIENCE, CUSTOMER_NOTIFICATION_AUDIENCE };

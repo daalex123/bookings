@@ -7,7 +7,7 @@ import {
 } from "@/lib/business-context";
 import type { PublicBusiness } from "@/lib/booking";
 import { getCurrentUser, getProfileName } from "@/lib/supabase/auth";
-import { getUserNotifications } from "@/lib/notifications/queries";
+import { getUserNotifications, CUSTOMER_NOTIFICATION_AUDIENCE } from "@/lib/notifications/queries";
 import { BookingWelcomeHeader } from "@/components/booking/booking-welcome-header";
 
 function isAuthPage(pathname: string): boolean {
@@ -38,7 +38,7 @@ export async function BookingAppHeader({
       getProfileName(user.id),
       getUserNotifications(user.id, {
         businessId: business?.id,
-        customerOnly: Boolean(business),
+        audience: CUSTOMER_NOTIFICATION_AUDIENCE,
       }),
     ]);
     displayName = fullName || user.email?.split("@")[0] || "there";

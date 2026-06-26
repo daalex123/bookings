@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
 import { MyAppointmentsList } from "@/components/booking/my-appointments-list";
 import { mapCustomerAppointment } from "@/lib/customer-appointments-client";
-import { getUserNotifications } from "@/lib/notifications/queries";
+import { getUserNotifications, CUSTOMER_NOTIFICATION_AUDIENCE } from "@/lib/notifications/queries";
 
 export default async function MyAppointmentsPage() {
   const user = await getCurrentUser();
@@ -38,7 +38,7 @@ export default async function MyAppointmentsPage() {
     appointmentsQuery,
     getUserNotifications(user.id, {
       businessId: activeBusiness?.businessId,
-      customerOnly: Boolean(activeBusiness),
+      audience: CUSTOMER_NOTIFICATION_AUDIENCE,
     }),
   ]);
 

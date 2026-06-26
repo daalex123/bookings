@@ -1,6 +1,7 @@
-import { sendEmail } from "@/lib/notifications/email";
 import { createBusinessNotifications } from "@/lib/notifications/in-app";
 import { createCustomerBookingNotification } from "@/lib/notifications/customer-in-app";
+import { excludeUserIds } from "@/lib/notifications/recipients";
+import { sendEmail } from "@/lib/notifications/email";
 import { sendSms } from "@/lib/notifications/sms";
 import { sendBusinessWhatsApp, isWhatsAppConfigured } from "@/lib/notifications/whatsapp";
 import {
@@ -17,8 +18,14 @@ import {
   loadOwnerAdminUserIds,
 } from "@/lib/notifications/appointment-details";
 
+export type BookingNotificationOptions = {
+  /** User who performed the booking action — excluded from staff alerts. */
+  actorUserId?: string;
+};
+
 export async function sendBookingNotifications(
-  appointmentId: string
+  appointmentId: string,
+  options: BookingNotificationOptions = {}
 ): Promise<void> {
   if (!hasAdminClient()) {
     console.warn(
@@ -38,7 +45,12 @@ export async function sendBookingNotifications(
   const details = await loadBookingDetails(appointmentId);
   if (!details) return;
 
-  const memberUserIds = await loadBusinessMemberUserIds(details.businessId);
+  const memberUserIds = excludeUserIds(
+    await loadBusinessMemberUserIds(details.businessId),
+    details.customerId,
+    options.actorUserId
+  );
+
   await Promise.all([
     createBusinessNotifications(details, memberUserIds),
     createCustomerBookingNotification(details, details.customerId),

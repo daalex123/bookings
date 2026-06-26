@@ -1,5 +1,6 @@
 import type { Database } from "@/types/database";
 import type { BookingDetails } from "@/lib/notifications/templates";
+import { STAFF_NOTIFICATION_AUDIENCE } from "@/lib/notifications/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type NotificationInsert =
@@ -20,6 +21,7 @@ export async function createBusinessNotifications(
     business_id: details.businessId,
     appointment_id: details.appointmentId,
     type: "booking_created",
+    audience: STAFF_NOTIFICATION_AUDIENCE,
     title,
     body,
   }));
@@ -52,6 +54,7 @@ export async function createBusinessStatusNotifications(
     business_id: details.businessId,
     appointment_id: details.appointmentId,
     type: status === "cancelled" ? "booking_cancelled" : "booking_confirmed",
+    audience: STAFF_NOTIFICATION_AUDIENCE,
     title,
     body,
   }));

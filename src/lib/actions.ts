@@ -21,7 +21,10 @@ import {
   getActiveBusinessContext,
   safeRedirectPath,
 } from "@/lib/business-context";
-import { CUSTOMER_NOTIFICATION_TYPES } from "@/lib/notifications/constants";
+import {
+  CUSTOMER_NOTIFICATION_AUDIENCE,
+  STAFF_NOTIFICATION_AUDIENCE,
+} from "@/lib/notifications/constants";
 import { DEFAULT_CURRENCY, DEFAULT_TIMEZONE } from "@/lib/constants";
 import { getPublicBusiness, publicBusinessCacheTag } from "@/lib/booking-data";
 import { bookingPagePathBySlug, bookingFlowUrl } from "@/lib/booking";
@@ -607,7 +610,7 @@ export async function createAppointment(
 
   if (result?.id && !options?.skipNotifications) {
     try {
-      await sendBookingNotifications(result.id);
+      await sendBookingNotifications(result.id, { actorUserId: user.id });
     } catch (err) {
       console.error("[notifications] Failed to send booking notifications", err);
     }
@@ -624,6 +627,10 @@ export async function updateAppointmentStatus(
   businessId: string
 ) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { error } = await supabase
     .from("appointments")
     .update({ status: status as "pending" | "confirmed" | "cancelled" | "completed" | "no_show" })
@@ -632,7 +639,9 @@ export async function updateAppointmentStatus(
   if (error) return { error: error.message };
 
   try {
-    await notifyAppointmentStatus(appointmentId, status);
+    await notifyAppointmentStatus(appointmentId, status, {
+      actorUserId: user?.id,
+    });
   } catch (err) {
     console.error("[notifications] Customer status notification failed", err);
   }
@@ -666,6 +675,9 @@ export async function upsertAdminAppointment(
   }
 
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const [{ data: service }, { data: business }] = await Promise.all([
     supabase
@@ -727,7 +739,7 @@ export async function upsertAdminAppointment(
 
     if (result?.id) {
       try {
-        await sendBookingNotifications(result.id);
+        await sendBookingNotifications(result.id, { actorUserId: user?.id });
       } catch (err) {
         console.error("[notifications] Failed to send booking notifications", err);
       }
@@ -783,7 +795,9 @@ export async function cancelMyAppointment(appointmentId: string) {
   if (!data?.length) return { error: "Appointment not found" };
 
   try {
-    await notifyAppointmentStatus(appointmentId, "cancelled");
+    await notifyAppointmentStatus(appointmentId, "cancelled", {
+      actorUserId: user.id,
+    });
   } catch (err) {
     console.error("[notifications] Cancellation notification failed", err);
   }
@@ -808,7 +822,10 @@ export async function markNotificationRead(notificationId: string) {
   revalidatePath("/dashboard");
 }
 
-export async function markAllNotificationsRead(businessId?: string) {
+export async function markAllNotificationsRead(
+  businessId?: string,
+  options?: { customerOnly?: boolean }
+) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -822,10 +839,15 @@ export async function markAllNotificationsRead(businessId?: string) {
     .is("read_at", null);
 
   if (businessId) {
-    query = query
-      .eq("business_id", businessId)
-      .in("type", CUSTOMER_NOTIFICATION_TYPES);
+    query = query.eq("business_id", businessId);
   }
+
+  query = query.eq(
+    "audience",
+    options?.customerOnly
+      ? CUSTOMER_NOTIFICATION_AUDIENCE
+      : STAFF_NOTIFICATION_AUDIENCE
+  );
 
   await query;
 

@@ -1,6 +1,7 @@
 import { after } from "next/server";
 import { NextResponse } from "next/server";
 import { createAppointment } from "@/lib/actions";
+import { loadBookingDetails } from "@/lib/notifications/appointment-details";
 import { sendBookingNotifications } from "@/lib/notifications/send-booking-notifications";
 
 export const dynamic = "force-dynamic";
@@ -37,7 +38,10 @@ export async function POST(request: Request) {
   if (appointmentId) {
     after(async () => {
       try {
-        await sendBookingNotifications(appointmentId);
+        const details = await loadBookingDetails(appointmentId);
+        await sendBookingNotifications(appointmentId, {
+          actorUserId: details?.customerId,
+        });
       } catch (err) {
         console.error("[notifications] Failed after booking redirect", err);
       }

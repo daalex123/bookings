@@ -1,22 +1,17 @@
 import Image from "next/image";
-import { NotificationBell } from "@/components/dashboard/notification-bell";
+import { ConnectedNotificationBell } from "@/components/dashboard/notification-bell";
 import { BookingSignOutButton } from "@/components/booking/booking-sign-out-button";
-import type { Notification } from "@/types/database";
 
 export function AdminMobileHeader({
   displayName,
   logoUrl,
   businessName,
   businessId,
-  userId,
-  notifications = [],
 }: {
   displayName: string;
   logoUrl?: string | null;
   businessName?: string | null;
   businessId?: string;
-  userId: string;
-  notifications?: Notification[];
 }) {
   const heading = businessName ?? "BookNow Admin";
   const initials = heading
@@ -54,12 +49,7 @@ export function AdminMobileHeader({
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-0.5">
-        <NotificationBell
-          userId={userId}
-          initialNotifications={notifications}
-          variant="booking"
-          businessId={businessId}
-        />
+        <ConnectedNotificationBell appearance="booking" businessId={businessId} />
         <BookingSignOutButton variant="compact" />
       </div>
     </header>

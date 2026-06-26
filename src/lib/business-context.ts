@@ -75,8 +75,8 @@ export async function getActiveBusinessPath(): Promise<string | null> {
   return cookieStore.get(BUSINESS_CONTEXT_COOKIE)?.value ?? null;
 }
 
-/** Notification types shown to customers in the booking app (not staff alerts). */
-export { CUSTOMER_NOTIFICATION_TYPES } from "@/lib/notifications/constants";
+/** Customer notification audience for the booking app (not staff alerts). */
+export { CUSTOMER_NOTIFICATION_AUDIENCE } from "@/lib/notifications/constants";
 
 export function bookingRefFromBusinessPath(path: string): string | null {
   const slugMatch = path.match(/^\/b\/([^/]+)/);

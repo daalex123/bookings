@@ -9,41 +9,51 @@ import {
   markNotificationRead,
 } from "@/lib/actions";
 import { useNotifications } from "@/hooks/use-notifications";
+import {
+  useNotificationsContext,
+  useOptionalNotificationsContext,
+} from "@/providers/notifications-provider";
 import { cn } from "@/lib/utils";
-import type { Notification } from "@/types/database";
+import type { Notification, NotificationAudience } from "@/types/database";
 
 function getNotificationHref(notification: Notification, variant: "admin" | "booking") {
   if (
     notification.type === "booking_confirmed" ||
     notification.type === "booking_cancelled"
   ) {
-    return "/my-appointments";
+    if (variant === "booking") return "/my-appointments";
+    if (notification.audience === "customer") return "/my-appointments";
   }
   if (variant === "booking") return "/my-appointments";
   return `/dashboard/${notification.business_id}/appointments`;
 }
 
-export function NotificationBell({
-  userId,
-  initialNotifications,
-  variant = "admin",
+type NotificationBellState = {
+  notifications: Notification[];
+  unreadCount: number;
+  markReadLocal: (notificationId: string) => void;
+  markAllReadLocal: () => void;
+};
+
+function NotificationBellView({
+  notifications,
+  unreadCount,
+  markReadLocal,
+  markAllReadLocal,
+  variant,
+  appearance,
   businessId,
-}: {
-  userId: string;
-  initialNotifications: Notification[];
-  variant?: "admin" | "booking";
+}: NotificationBellState & {
+  variant: "admin" | "booking";
+  appearance: "admin" | "booking";
   businessId?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const panelRef = useRef<HTMLDivElement>(null);
+  const isBookingVisual = appearance === "booking";
   const isBooking = variant === "booking";
-
-  const { notifications, unreadCount, markReadLocal, markAllReadLocal } =
-    useNotifications(userId, initialNotifications, {
-      businessId: isBooking ? businessId : undefined,
-      customerOnly: isBooking,
-    });
+  const badgeCount = unreadCount;
 
   useEffect(() => {
     if (!open) return;
@@ -72,34 +82,35 @@ export function NotificationBell({
   function handleMarkAllRead() {
     markAllReadLocal();
     startTransition(async () => {
-      await markAllNotificationsRead(isBooking ? businessId : undefined);
+      await markAllNotificationsRead(businessId, { customerOnly: isBooking });
     });
   }
 
   return (
-    <div className="relative" ref={panelRef}>
+    <div className="relative overflow-visible" ref={panelRef}>
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
         className={cn(
           "relative flex items-center justify-center transition",
-          isBooking
+          isBookingVisual
             ? "rounded-2xl bg-booking-elevated p-3 text-booking-muted"
             : "h-11 w-11 rounded-full bg-white text-[#1e2235] shadow-sm hover:bg-[#fafbfc]"
         )}
         aria-label="Notifications"
       >
         <Bell className="h-5 w-5" strokeWidth={1.75} />
-        {unreadCount > 0 && (
+        {badgeCount > 0 && (
           <span
             className={cn(
-              "absolute flex min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold",
-              isBooking
+              "absolute z-10 flex min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold",
+              isBookingVisual
                 ? "-right-1 -top-1 h-5 bg-booking-accent text-booking-accent-fg"
                 : "-right-0.5 -top-0.5 h-5 bg-[#1e2235] text-white"
             )}
+            data-testid="notification-unread-badge"
           >
-            {unreadCount > 9 ? "9+" : unreadCount}
+            {badgeCount > 9 ? "9+" : badgeCount}
           </span>
         )}
       </button>
@@ -108,7 +119,7 @@ export function NotificationBell({
         <div
           className={cn(
             "absolute right-0 top-full z-50 mt-2 w-[min(100vw-2rem,360px)] overflow-hidden rounded-2xl shadow-xl",
-            isBooking
+            isBookingVisual
               ? "border border-white/10 bg-[#161616]"
               : "border border-[#1e2235]/10 bg-white"
           )}
@@ -116,25 +127,25 @@ export function NotificationBell({
           <div
             className={cn(
               "flex items-center justify-between border-b px-4 py-3",
-              isBooking ? "border-white/10" : "border-[#1e2235]/8"
+              isBookingVisual ? "border-white/10" : "border-[#1e2235]/8"
             )}
           >
             <p
               className={cn(
                 "text-sm font-semibold",
-                isBooking ? "text-white" : "text-[#1e2235]"
+                isBookingVisual ? "text-white" : "text-[#1e2235]"
               )}
             >
               Notifications
             </p>
-            {unreadCount > 0 && (
+            {badgeCount > 0 && (
               <button
                 type="button"
                 onClick={handleMarkAllRead}
                 disabled={pending}
                 className={cn(
                   "text-xs font-medium disabled:opacity-50",
-                  isBooking
+                  isBookingVisual
                     ? "text-booking-muted hover:text-white"
                     : "text-[#8b92a5] hover:text-[#1e2235]"
                 )}
@@ -160,11 +171,11 @@ export function NotificationBell({
                     }}
                     className={cn(
                       "block border-b px-4 py-3 transition",
-                      isBooking
+                      isBookingVisual
                         ? "border-white/8 hover:bg-white/5"
                         : "border-[#1e2235]/6 hover:bg-[#f8f9fb]",
                       unread &&
-                        (isBooking ? "bg-white/5" : "bg-[#f0f2f5]/60")
+                        (isBookingVisual ? "bg-white/5" : "bg-[#f0f2f5]/60")
                     )}
                   >
                     <div className="flex items-start gap-2">
@@ -172,7 +183,7 @@ export function NotificationBell({
                         <span
                           className={cn(
                             "mt-1.5 h-2 w-2 shrink-0 rounded-full",
-                            isBooking ? "bg-booking-accent" : "bg-[#1e2235]"
+                            isBookingVisual ? "bg-booking-accent" : "bg-[#1e2235]"
                           )}
                         />
                       )}
@@ -180,7 +191,7 @@ export function NotificationBell({
                         <p
                           className={cn(
                             "text-sm font-semibold",
-                            isBooking ? "text-white" : "text-[#1e2235]"
+                            isBookingVisual ? "text-white" : "text-[#1e2235]"
                           )}
                         >
                           {notification.title}
@@ -188,7 +199,7 @@ export function NotificationBell({
                         <p
                           className={cn(
                             "mt-0.5 text-sm",
-                            isBooking ? "text-booking-muted" : "text-[#8b92a5]"
+                            isBookingVisual ? "text-booking-muted" : "text-[#8b92a5]"
                           )}
                         >
                           {notification.body}
@@ -196,7 +207,7 @@ export function NotificationBell({
                         <p
                           className={cn(
                             "mt-1 text-xs",
-                            isBooking ? "text-booking-muted" : "text-[#8b92a5]"
+                            isBookingVisual ? "text-booking-muted" : "text-[#8b92a5]"
                           )}
                         >
                           {formatDistanceToNow(
@@ -213,7 +224,7 @@ export function NotificationBell({
               <p
                 className={cn(
                   "px-4 py-8 text-center text-sm",
-                  isBooking ? "text-booking-muted" : "text-[#8b92a5]"
+                  isBookingVisual ? "text-booking-muted" : "text-[#8b92a5]"
                 )}
               >
                 No notifications yet.
@@ -223,5 +234,67 @@ export function NotificationBell({
         </div>
       )}
     </div>
+  );
+}
+
+/** Admin bell that shares one realtime subscription via NotificationsProvider. */
+export function ConnectedNotificationBell({
+  appearance = "admin",
+  businessId,
+}: {
+  appearance?: "admin" | "booking";
+  businessId?: string;
+}) {
+  const { notifications, unreadCount, markReadLocal, markAllReadLocal } =
+    useNotificationsContext();
+
+  return (
+    <NotificationBellView
+      notifications={notifications}
+      unreadCount={unreadCount}
+      markReadLocal={markReadLocal}
+      markAllReadLocal={markAllReadLocal}
+      variant="admin"
+      appearance={appearance}
+      businessId={businessId}
+    />
+  );
+}
+
+export function NotificationBell({
+  userId,
+  initialNotifications,
+  variant = "admin",
+  appearance,
+  businessId,
+}: {
+  userId: string;
+  initialNotifications: Notification[];
+  variant?: "admin" | "booking";
+  appearance?: "admin" | "booking";
+  businessId?: string;
+}) {
+  const shared = useOptionalNotificationsContext();
+  const visual = appearance ?? variant;
+  const isBooking = variant === "booking";
+
+  const localState = useNotifications(userId, initialNotifications, {
+    businessId,
+    audience: (isBooking ? "customer" : "staff") satisfies NotificationAudience,
+    enabled: !shared,
+  });
+
+  const state = shared ?? localState;
+
+  return (
+    <NotificationBellView
+      notifications={state.notifications}
+      unreadCount={state.unreadCount}
+      markReadLocal={state.markReadLocal}
+      markAllReadLocal={state.markAllReadLocal}
+      variant={variant}
+      appearance={visual}
+      businessId={businessId}
+    />
   );
 }

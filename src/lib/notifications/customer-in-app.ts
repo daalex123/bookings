@@ -2,6 +2,7 @@ import type { BookingDetails } from "@/lib/notifications/templates";
 import { formatBookingTimeRange } from "@/lib/notifications/templates";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { NotificationType } from "@/types/database";
+import { CUSTOMER_NOTIFICATION_AUDIENCE } from "@/lib/notifications/constants";
 
 export async function createUserNotifications(
   rows: {
@@ -9,6 +10,7 @@ export async function createUserNotifications(
     business_id: string;
     appointment_id: string;
     type: NotificationType;
+    audience: typeof CUSTOMER_NOTIFICATION_AUDIENCE;
     title: string;
     body: string;
   }[]
@@ -33,6 +35,7 @@ export async function createCustomerBookingNotification(
       business_id: details.businessId,
       appointment_id: details.appointmentId,
       type: "booking_confirmed",
+      audience: CUSTOMER_NOTIFICATION_AUDIENCE,
       title: `Booking confirmed at ${details.businessName}`,
       body: `${details.serviceName} · ${when}`,
     },
@@ -79,6 +82,7 @@ export async function createCustomerStatusNotification(
       business_id: businessId,
       appointment_id: appointmentId,
       type: message.type,
+      audience: CUSTOMER_NOTIFICATION_AUDIENCE,
       title: message.title,
       body: message.body,
     },

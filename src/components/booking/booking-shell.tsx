@@ -4,6 +4,7 @@ import { getPublicBusiness } from "@/lib/booking-data";
 import { InstallAppBanner } from "@/components/pwa/install-app-banner";
 import { BookingAppHeader } from "@/components/booking/booking-app-header";
 import { BookingBottomNav } from "@/components/booking/booking-bottom-nav";
+import { BookingAiAgentHost } from "@/components/booking/booking-ai-agent-host";
 import { BusinessBrandTheme } from "@/components/booking/business-brand-theme";
 
 function bookingRefFromPath(path: string): string | null {
@@ -30,6 +31,7 @@ export async function BookingShell({ children }: { children: React.ReactNode }) 
         {children}
       </div>
       <BookingBottomNav homePath={homePath} />
+      <BookingAiAgentHost />
       <InstallAppBanner />
     </div>
   );

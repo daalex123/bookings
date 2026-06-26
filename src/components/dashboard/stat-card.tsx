@@ -13,15 +13,15 @@ export function StatCard({
   className?: string;
 }) {
   return (
-    <div className={cn("admin-card p-6", className)}>
+    <div className={cn("admin-card bg-booking-elevated p-6 lg:bg-[var(--admin-surface)]", className)}>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-[#8b92a5]">{label}</p>
-          <p className="mt-3 text-4xl font-bold tracking-tight text-[#1e2235]">
+          <p className="text-sm font-medium text-booking-muted lg:text-[#8b92a5]">{label}</p>
+          <p className="mt-3 text-4xl font-bold tracking-tight text-white lg:text-[#1e2235]">
             {value}
           </p>
         </div>
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#f0f2f5] text-[#1e2235]">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-booking-surface text-booking-accent lg:bg-[#f0f2f5] lg:text-[#1e2235]">
           <Icon className="h-5 w-5" strokeWidth={1.75} />
         </div>
       </div>

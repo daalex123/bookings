@@ -1,10 +1,17 @@
 /* BookNow PWA service worker — enables install + basic offline fallback */
-const CACHE = "booknow-shell-v1";
+const CACHE = "booknow-shell-v2";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE).then((cache) =>
-      cache.addAll(["/", "/manifest.webmanifest", "/icon-192", "/icon-512"])
+      cache.addAll([
+        "/",
+        "/dashboard",
+        "/manifest.webmanifest",
+        "/admin-manifest",
+        "/icon-192",
+        "/icon-512",
+      ])
     )
   );
   self.skipWaiting();
@@ -38,6 +45,8 @@ self.addEventListener("fetch", (event) => {
         const cached = await caches.match(event.request);
         if (cached) return cached;
         if (event.request.mode === "navigate") {
+          const dashboardFallback = await caches.match("/dashboard");
+          if (dashboardFallback) return dashboardFallback;
           return caches.match("/");
         }
         throw new Error("Offline");

@@ -1,5 +1,6 @@
 import { format, startOfDay, endOfDay } from "date-fns";
 import { Calendar, Package } from "@/lib/admin-icons";
+import { adminDashboardUrl } from "@/lib/admin-url";
 import { asJoined } from "@/lib/utils";
 import { bookingPublicUrl } from "@/lib/booking";
 import { getSiteUrl } from "@/lib/site-url";
@@ -34,6 +35,7 @@ export default async function BusinessOverviewPage({
   ]);
 
   const shareUrl = business?.slug ? bookingPublicUrl(business.slug, siteUrl) : "";
+  const adminAppUrl = adminDashboardUrl(businessId, siteUrl);
 
   const todayStart = startOfDay(new Date()).toISOString();
   const todayEnd = endOfDay(new Date()).toISOString();
@@ -96,12 +98,20 @@ export default async function BusinessOverviewPage({
         />
       </div>
 
+      <ShareBookingCard
+        url={adminAppUrl}
+        title="Admin mobile app"
+        description="Staff can scan this QR code to open the full business dashboard on their phone. Sign in once, then add to home screen for app-like access."
+        downloadFileName="admin-app-qr.png"
+        variant="dark"
+      />
+
       {shareUrl && (
         <ShareBookingCard
           url={shareUrl}
           title="Share your booking page"
           description="Customers can scan this QR code to book appointments at your business."
-          variant="light"
+          variant="dark"
         />
       )}
 

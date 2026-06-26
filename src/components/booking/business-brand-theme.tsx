@@ -19,7 +19,11 @@ export function accentForeground(hex: string): string {
 }
 
 /** Applies per-business accent color on the booking experience */
-export function BusinessBrandTheme({ business }: { business: PublicBusiness }) {
+export function BusinessBrandTheme({
+  business,
+}: {
+  business: Pick<PublicBusiness, "brand_color">;
+}) {
   const accent = business.brand_color || "#f5c518";
   const accentFg = accentForeground(accent);
 

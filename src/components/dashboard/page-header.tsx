@@ -19,11 +19,13 @@ export function PageHeader({
       )}
     >
       <div className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight text-[#1e2235] sm:text-[1.75rem]">
+        <h1 className="text-2xl font-bold tracking-tight text-white lg:text-[#1e2235] sm:text-[1.75rem]">
           {title}
         </h1>
         {description && (
-          <p className="max-w-2xl text-sm text-[#8b92a5]">{description}</p>
+          <p className="max-w-2xl text-sm text-booking-muted lg:text-[#8b92a5]">
+            {description}
+          </p>
         )}
       </div>
       {action}

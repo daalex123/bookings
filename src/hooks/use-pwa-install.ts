@@ -8,6 +8,10 @@ type BeforeInstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
+type UsePwaInstallOptions = {
+  dismissKey?: string;
+};
+
 function isStandaloneDisplay(): boolean {
   if (typeof window === "undefined") return false;
   return (
@@ -25,7 +29,8 @@ function isIosSafari(): boolean {
   return isIos && isSafari;
 }
 
-export function usePwaInstall() {
+export function usePwaInstall(options: UsePwaInstallOptions = {}) {
+  const dismissKey = options.dismissKey ?? PWA_INSTALL_DISMISS_KEY;
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [isStandalone, setIsStandalone] = useState(true);
@@ -35,9 +40,7 @@ export function usePwaInstall() {
   useEffect(() => {
     setIsStandalone(isStandaloneDisplay());
     setIsIos(isIosSafari());
-    setDismissed(
-      window.localStorage.getItem(PWA_INSTALL_DISMISS_KEY) === "1"
-    );
+    setDismissed(window.localStorage.getItem(dismissKey) === "1");
 
     const onBeforeInstall = (event: Event) => {
       event.preventDefault();
@@ -56,12 +59,12 @@ export function usePwaInstall() {
       window.removeEventListener("beforeinstallprompt", onBeforeInstall);
       window.removeEventListener("appinstalled", onInstalled);
     };
-  }, []);
+  }, [dismissKey]);
 
   const dismiss = useCallback(() => {
-    window.localStorage.setItem(PWA_INSTALL_DISMISS_KEY, "1");
+    window.localStorage.setItem(dismissKey, "1");
     setDismissed(true);
-  }, []);
+  }, [dismissKey]);
 
   const promptInstall = useCallback(async () => {
     if (!deferredPrompt) return false;

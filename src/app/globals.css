@@ -125,3 +125,141 @@ body {
   background: rgba(30, 34, 53, 0.05);
   color: var(--admin-navy);
 }
+
+/* Admin mobile app — matches booking client UI on small screens */
+.admin-app-shell {
+  background: var(--color-booking-bg);
+  color: #fafafa;
+}
+
+.admin-app-shell ::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-app-shell * {
+  scrollbar-width: none;
+}
+
+@media (min-width: 1024px) {
+  .admin-app-shell {
+    background: var(--admin-bg);
+    color: var(--admin-navy);
+  }
+
+  .admin-app-shell ::-webkit-scrollbar {
+    display: initial;
+  }
+
+  .admin-app-shell * {
+    scrollbar-width: auto;
+  }
+}
+
+@media (max-width: 1023px) {
+  .admin-app-shell .admin-card {
+    background: var(--color-booking-elevated);
+    border-color: rgb(255 255 255 / 0.08);
+    box-shadow: none;
+  }
+
+  .admin-app-shell .admin-card [class*="border-[#1e2235]"] {
+    border-color: rgb(255 255 255 / 0.08) !important;
+  }
+
+  .admin-app-shell .admin-card [class*="divide-[#1e2235]"] > * + * {
+    border-color: rgb(255 255 255 / 0.08) !important;
+  }
+
+  .admin-app-shell main [class*="text-[#1e2235]"],
+  .admin-app-shell .admin-card [class*="text-[#1e2235]"] {
+    color: #fafafa !important;
+  }
+
+  .admin-app-shell main [class*="text-[#8b92a5]"],
+  .admin-app-shell .admin-card [class*="text-[#8b92a5]"] {
+    color: var(--color-booking-muted) !important;
+  }
+
+  .admin-app-shell main [class*="bg-[#f0f2f5]"] {
+    background: rgb(255 255 255 / 0.08) !important;
+    color: var(--color-booking-muted) !important;
+  }
+
+  .admin-app-shell [class*="bg-teal-50"] {
+    background: rgb(20 184 166 / 0.18) !important;
+    color: #5eead4 !important;
+  }
+
+  .admin-app-shell [class*="bg-emerald-50"] {
+    background: rgb(16 185 129 / 0.18) !important;
+    color: #6ee7b7 !important;
+  }
+
+  .admin-app-shell [class*="bg-red-50"] {
+    background: rgb(239 68 68 / 0.18) !important;
+    color: #fca5a5 !important;
+  }
+
+  .admin-app-shell [class*="bg-white"] {
+    background: var(--color-booking-elevated) !important;
+  }
+
+  .admin-app-shell input[type="search"],
+  .admin-app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  .admin-app-shell textarea,
+  .admin-app-shell select {
+    background: var(--color-booking-elevated) !important;
+    border-color: rgb(255 255 255 / 0.1) !important;
+    color: #fafafa !important;
+  }
+
+  .admin-app-shell input::placeholder,
+  .admin-app-shell textarea::placeholder {
+    color: var(--color-booking-muted) !important;
+  }
+
+  .admin-app-shell [class*="border-zinc"] {
+    border-color: rgb(255 255 255 / 0.1) !important;
+  }
+
+  .admin-app-shell [class*="bg-zinc-50"] {
+    background: rgb(255 255 255 / 0.05) !important;
+  }
+
+  .admin-app-shell [class*="text-zinc-"] {
+    color: #fafafa !important;
+  }
+
+  .admin-app-shell [class*="text-zinc-5"],
+  .admin-app-shell [class*="text-zinc-6"] {
+    color: var(--color-booking-muted) !important;
+  }
+
+  .admin-app-shell .rounded-\[1\.25rem\] {
+    background: var(--color-booking-elevated) !important;
+    border-color: rgb(255 255 255 / 0.08) !important;
+    color: #fafafa !important;
+    box-shadow: none !important;
+  }
+
+  .admin-app-shell button.rounded-full[class*="bg-[#1e2235]"]:not([class*="/10"]) {
+    background: var(--color-booking-accent) !important;
+    color: var(--color-booking-accent-fg) !important;
+  }
+
+  .admin-app-shell button.rounded-full[class*="bg-[#f0f2f5]"] {
+    background: var(--color-booking-elevated) !important;
+    color: var(--color-booking-muted) !important;
+  }
+
+  .admin-app-shell button.rounded-full[class*="bg-[#1e2235]/10"] {
+    background: rgb(255 255 255 / 0.12) !important;
+    color: var(--color-booking-accent) !important;
+  }
+}
+
+@media (display-mode: standalone) {
+  .admin-app-shell {
+    -webkit-tap-highlight-color: transparent;
+  }
+}

@@ -10,11 +10,13 @@ export function ShareBookingCard({
   title = "Share booking page",
   description = "Scan the QR code or copy the link to share with customers.",
   variant = "light",
+  downloadFileName = "booking-qr.png",
 }: {
   url: string;
   title?: string;
   description?: string;
   variant?: "light" | "dark";
+  downloadFileName?: string;
 }) {
   const [copied, setCopied] = useState(false);
   const qrRef = useRef<HTMLDivElement>(null);
@@ -44,13 +46,13 @@ export function ShareBookingCard({
       ctx.fillRect(0, 0, size, size);
       ctx.drawImage(img, 0, 0, size, size);
       const link = document.createElement("a");
-      link.download = "booking-qr.png";
+      link.download = downloadFileName;
       link.href = canvas.toDataURL("image/png");
       link.click();
     };
 
     img.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgData)))}`;
-  }, []);
+  }, [downloadFileName]);
 
   const isDark = variant === "dark";
 

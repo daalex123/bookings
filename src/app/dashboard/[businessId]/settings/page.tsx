@@ -1,4 +1,5 @@
 import { regenerateBookingToken, updateBusiness, updateBusinessHours } from "@/lib/actions";
+import { adminDashboardUrl } from "@/lib/admin-url";
 import { DAY_NAMES } from "@/lib/availability";
 import {
   bookingPagePathByToken,
@@ -73,6 +74,7 @@ export default async function SettingsPage({
   const secureUrl = business?.booking_token
     ? absoluteUrl(siteUrl, bookingPagePathByToken(business.booking_token))
     : "";
+  const adminAppUrl = adminDashboardUrl(businessId, siteUrl);
 
   return (
     <div className="space-y-6 lg:space-y-8">
@@ -81,12 +83,20 @@ export default async function SettingsPage({
         description="Business profile, branding, and working hours"
       />
 
+      <ShareBookingCard
+        url={adminAppUrl}
+        title="Admin mobile app QR code"
+        description="Print or share this QR so team members can open the admin dashboard on mobile. All features — appointments, services, customers, and settings — are available."
+        downloadFileName="admin-app-qr.png"
+        variant="dark"
+      />
+
       {slugUrl && (
         <ShareBookingCard
           url={slugUrl}
           title="Customer booking QR code"
           description="Print this QR code or share it so customers can open your booking page instantly."
-          variant="light"
+          variant="dark"
         />
       )}
 

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { format, startOfDay, endOfDay } from "date-fns";
 import { Calendar, Package } from "@/lib/admin-icons";
 import { adminDashboardUrl } from "@/lib/admin-url";
@@ -63,7 +64,7 @@ export default async function BusinessOverviewPage({
         .gte("start_at", todayStart)
         .lte("start_at", todayEnd)
         .not("status", "eq", "cancelled")
-        .order("created_at", { ascending: false }),
+        .order("start_at", { ascending: true }),
     ]);
 
   return (
@@ -90,6 +91,7 @@ export default async function BusinessOverviewPage({
           label="Appointments today"
           value={todayCount ?? 0}
           icon={Calendar}
+          href={`/dashboard/${businessId}/appointments?time=today`}
         />
         <StatCard
           label="Active services"
@@ -116,8 +118,14 @@ export default async function BusinessOverviewPage({
       )}
 
       <div className="admin-card overflow-hidden">
-        <div className="border-b border-[#1e2235]/8 px-6 py-5">
+        <div className="flex items-center justify-between gap-3 border-b border-[#1e2235]/8 px-6 py-5">
           <h2 className="text-lg font-bold text-[#1e2235]">Today&apos;s schedule</h2>
+          <Link
+            href={`/dashboard/${businessId}/appointments?time=today`}
+            className="text-sm font-medium text-booking-accent hover:underline lg:text-[#1e2235]"
+          >
+            View all
+          </Link>
         </div>
         <div className="divide-y divide-[#1e2235]/6">
           {todayAppts && todayAppts.length > 0 ? (
@@ -125,9 +133,10 @@ export default async function BusinessOverviewPage({
               const service = asJoined(appt.services);
               const profile = asJoined(appt.profiles);
               return (
-                <div
+                <Link
                   key={appt.id}
-                  className="flex flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between"
+                  href={`/dashboard/${businessId}/appointments?time=today&id=${appt.id}`}
+                  className="flex flex-col gap-3 px-6 py-4 transition-colors hover:bg-white/5 sm:flex-row sm:items-center sm:justify-between lg:hover:bg-[#f8f9fb]"
                 >
                   <div className="min-w-0">
                     <p className="font-semibold text-[#1e2235]">
@@ -143,7 +152,7 @@ export default async function BusinessOverviewPage({
                   >
                     {appt.status.replace("_", " ")}
                   </span>
-                </div>
+                </Link>
               );
             })
           ) : (

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { LucideIcon } from "@/lib/admin-icons";
 import { cn } from "@/lib/utils";
 
@@ -6,13 +7,15 @@ export function StatCard({
   value,
   icon: Icon,
   className,
+  href,
 }: {
   label: string;
   value: string | number;
   icon: LucideIcon;
   className?: string;
+  href?: string;
 }) {
-  return (
+  const content = (
     <div className={cn("admin-card bg-booking-elevated p-6 lg:bg-[var(--admin-surface)]", className)}>
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -26,5 +29,13 @@ export function StatCard({
         </div>
       </div>
     </div>
+  );
+
+  if (!href) return content;
+
+  return (
+    <Link href={href} className="block transition-opacity hover:opacity-90">
+      {content}
+    </Link>
   );
 }

@@ -11,10 +11,14 @@ import { DEFAULT_TIMEZONE } from "@/lib/constants";
 
 export default async function AppointmentsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ businessId: string }>;
+  searchParams: Promise<{ time?: string; id?: string }>;
 }) {
   const { businessId } = await params;
+  const { time, id: highlightAppointmentId } = await searchParams;
+  const initialTimeFilter = time === "today" ? "today" : "all";
   const supabase = await createClient();
 
   const [
@@ -136,6 +140,8 @@ export default async function AppointmentsPage({
       saveAction={saveAppointment}
       deleteAction={removeAppointment}
       statusAction={setStatus}
+      initialTimeFilter={initialTimeFilter}
+      highlightAppointmentId={highlightAppointmentId}
     />
   );
 }

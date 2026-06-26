@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { format, isPast, isToday } from "date-fns";
 import {
   Calendar,
@@ -84,6 +84,8 @@ export function AppointmentsPanel({
   saveAction,
   deleteAction,
   statusAction,
+  initialTimeFilter = "all",
+  highlightAppointmentId,
 }: {
   appointments: AppointmentRow[];
   services: ServiceOption[];
@@ -92,12 +94,14 @@ export function AppointmentsPanel({
   saveAction: (formData: FormData) => Promise<ActionResult>;
   deleteAction: (formData: FormData) => Promise<ActionResult>;
   statusAction: (formData: FormData) => Promise<ActionResult>;
+  initialTimeFilter?: TimeFilter;
+  highlightAppointmentId?: string;
 }) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>(initialTimeFilter);
   const { wrapFormAction } = useActionToast();
 
   const handleSave = useMemo(
@@ -164,6 +168,13 @@ export function AppointmentsPanel({
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
   }, [appointments, query, statusFilter, timeFilter]);
+
+  useEffect(() => {
+    if (!highlightAppointmentId) return;
+
+    const row = document.getElementById(`appointment-${highlightAppointmentId}`);
+    row?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [highlightAppointmentId, filtered]);
 
   return (
     <div className="space-y-6">
@@ -276,7 +287,15 @@ export function AppointmentsPanel({
               const canQuickAction = !["cancelled", "completed"].includes(appt.status);
 
               return (
-                <div key={appt.id} className="px-4 py-5 sm:px-6">
+                <div
+                  key={appt.id}
+                  id={`appointment-${appt.id}`}
+                  className={cn(
+                    "px-4 py-5 sm:px-6",
+                    highlightAppointmentId === appt.id &&
+                      "bg-booking-accent/10 ring-1 ring-inset ring-booking-accent/30 lg:bg-[#f0f2f5]/80 lg:ring-[#1e2235]/15"
+                  )}
+                >
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">

@@ -34,10 +34,10 @@ export async function AdminShell({ children }: { children: React.ReactNode }) {
     }),
     businessId
       ? supabase
-          .from("businesses")
-          .select("id, name, logo_url, brand_color")
-          .eq("id", businessId)
-          .single()
+        .from("businesses")
+        .select("id, name, logo_url, brand_color")
+        .eq("id", businessId)
+        .single()
       : Promise.resolve({ data: null }),
   ]);
 
@@ -51,7 +51,7 @@ export async function AdminShell({ children }: { children: React.ReactNode }) {
       businessId={businessId ?? undefined}
       initialNotifications={notifications}
     >
-      <div className="admin-app-shell booking-theme min-h-dvh lg:flex">
+      <div className="admin-app-shell admin-theme booking-theme min-h-dvh lg:flex">
         {business ? <BusinessBrandTheme business={business} /> : null}
         <AdminSidebar userName={userName} userEmail={userEmail} />
         <div className="flex min-w-0 flex-1 flex-col">

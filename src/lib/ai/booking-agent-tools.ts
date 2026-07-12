@@ -6,6 +6,7 @@ import {
   todayInTimezone,
 } from "@/lib/availability";
 import type { PublicBusinessContext } from "@/lib/booking";
+import { serviceShowsPrice } from "@/lib/booking";
 import { getPublicBookedSlots } from "@/lib/booking-data";
 import { formatInTimeZone } from "date-fns-tz";
 import { mapCustomerAppointment } from "@/lib/customer-appointments-client";
@@ -118,17 +119,21 @@ export function buildBookingAgentSystemPrompt(
   const today = todayInTimezone(business.timezone);
   const currency = business.currency;
 
-  const serviceLines = services.map(
-    (s) =>
-      `- id: ${s.id} | ${s.name} | ${formatPrice(s.price, currency)} | ${s.duration_minutes} min${
-        s.description ? ` | ${s.description}` : ""
-      }`
-  );
+  const serviceLines = services.map((s) => {
+    const pricePart = serviceShowsPrice(s)
+      ? formatPrice(s.price, currency)
+      : "price hidden from customers";
+    return `- id: ${s.id} | ${s.name} | ${pricePart} | ${s.duration_minutes} min${
+      s.description ? ` | ${s.description}` : ""
+    }`;
+  });
 
-  const addonLines = addons.map(
-    (a) =>
-      `- id: ${a.id} | for service ${a.parent_service_id} | ${a.name} | ${formatPrice(a.price, currency)}`
-  );
+  const addonLines = addons.map((a) => {
+    const pricePart = serviceShowsPrice(a)
+      ? formatPrice(a.price, currency)
+      : "price hidden from customers";
+    return `- id: ${a.id} | for service ${a.parent_service_id} | ${a.name} | ${pricePart}`;
+  });
 
   const hourLines = hours.map(
     (h) =>
@@ -160,10 +165,11 @@ Rules:
 - When they want to cancel, list appointments first if needed, then confirm which booking by its details (e.g. "your Haircut on Friday at 2:30 PM") before calling cancel_appointment using _cancel_with from that booking.
 - When the customer asks about availability, call check_availability with the correct service_id and date.
 - Suggest nearby dates if a day has no slots.
-- Before booking, summarize service, date, time, and price; ask for explicit confirmation.
+- Before booking, summarize service, date, time, and price (only when price is not hidden); ask for explicit confirmation.
 - Only call book_appointment after the customer confirms.
 - If a tool returns an error, explain it plainly and offer alternatives.
 - Do not invent service IDs, appointment IDs, times, or prices — use tools and the lists above.
+- Never quote prices for services or add-ons marked "price hidden from customers".
 - Format times in 12-hour style for the customer (e.g. 2:30 PM) but pass HH:mm to tools.`;
 }
 

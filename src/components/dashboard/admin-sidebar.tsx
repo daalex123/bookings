@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { AdminNavIcons } from "@/lib/admin-icons";
 import { signOut } from "@/lib/actions";
@@ -10,6 +11,7 @@ const businessNav = [
   { href: "", label: "Overview", icon: AdminNavIcons.overview },
   { href: "/services", label: "Services", icon: AdminNavIcons.services },
   { href: "/appointments", label: "Appointments", icon: AdminNavIcons.appointments },
+  { href: "/income", label: "Income", icon: AdminNavIcons.income },
   { href: "/customers", label: "Customers", icon: AdminNavIcons.customers },
   { href: "/settings", label: "Settings", icon: AdminNavIcons.settings },
 ] as const;
@@ -23,14 +25,26 @@ function getBusinessId(pathname: string): string | null {
 export function AdminSidebar({
   userName,
   userEmail,
+  businessName,
+  businessLogoUrl,
 }: {
   userName: string;
   userEmail: string;
+  businessName?: string | null;
+  businessLogoUrl?: string | null;
 }) {
   const pathname = usePathname();
   const businessId = getBusinessId(pathname);
   const onBusinessRoute = Boolean(businessId);
   const base = businessId ? `/dashboard/${businessId}` : "/dashboard";
+
+  const brandTitle = onBusinessRoute && businessName ? businessName : "BookNow";
+  const brandInitials = brandTitle
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   const initials = userName
     .split(" ")
@@ -42,12 +56,31 @@ export function AdminSidebar({
   const sidebarContent = (
     <div className="flex h-full flex-col px-4 py-6 lg:px-5">
       <div className="mb-8 flex items-center gap-3 px-2">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1e2235] text-sm font-bold text-white">
-          B
+        {onBusinessRoute && businessLogoUrl ? (
+          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-xl border border-[#1e2235]/10 bg-white">
+            <Image
+              src={businessLogoUrl}
+              alt=""
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          </div>
+        ) : (
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1e2235] text-sm font-bold text-white">
+            {brandInitials || "B"}
+          </div>
+        )}
+        <div className="min-w-0">
+          <span className="block truncate text-lg font-bold tracking-tight text-[#1e2235]">
+            {brandTitle}
+          </span>
+          {onBusinessRoute && businessName ? (
+            <span className="block truncate text-xs text-[#8b92a5]">
+              Business admin
+            </span>
+          ) : null}
         </div>
-        <span className="text-lg font-bold tracking-tight text-[#1e2235]">
-          BookNow
-        </span>
       </div>
 
       <nav className="flex flex-1 flex-col gap-1.5">

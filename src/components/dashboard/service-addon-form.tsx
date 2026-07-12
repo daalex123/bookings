@@ -16,6 +16,7 @@ export type ServiceAddonFormValues = {
   price: number;
   image_url?: string | null;
   is_active: boolean;
+  show_price: boolean;
 };
 
 export function ServiceAddonForm({
@@ -111,6 +112,18 @@ export function ServiceAddonForm({
           placeholder="Optional details shown to customers"
         />
       </div>
+
+      <label className="flex cursor-pointer items-center gap-3 sm:col-span-2">
+        <input
+          type="checkbox"
+          name="show_price"
+          defaultChecked={values?.show_price ?? true}
+          className="h-4 w-4 rounded border-[#1e2235]/20 text-[#1e2235] focus:ring-[#1e2235]/20"
+        />
+        <span className="text-sm font-medium text-[#1e2235]">
+          Show price to customers on the booking page
+        </span>
+      </label>
 
       <label className="flex cursor-pointer items-center gap-3 sm:col-span-2">
         <input

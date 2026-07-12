@@ -59,6 +59,8 @@ export interface Database {
           logo_url: string | null;
           cover_image_url: string | null;
           brand_color: string;
+          background_color: string;
+          admin_background_color: string;
           contact_email: string | null;
           contact_whatsapp: string | null;
           booking_token: string;
@@ -76,6 +78,8 @@ export interface Database {
           logo_url?: string | null;
           cover_image_url?: string | null;
           brand_color?: string;
+          background_color?: string;
+          admin_background_color?: string;
           contact_email?: string | null;
           contact_whatsapp?: string | null;
           booking_token?: string;
@@ -93,6 +97,8 @@ export interface Database {
           logo_url?: string | null;
           cover_image_url?: string | null;
           brand_color?: string;
+          background_color?: string;
+          admin_background_color?: string;
           contact_email?: string | null;
           contact_whatsapp?: string | null;
           booking_token?: string;
@@ -213,6 +219,7 @@ export interface Database {
           price: number;
           image_url: string | null;
           is_active: boolean;
+          show_price: boolean;
           sort_order: number;
           created_at: string;
           updated_at: string;
@@ -228,6 +235,7 @@ export interface Database {
           price?: number;
           image_url?: string | null;
           is_active?: boolean;
+          show_price?: boolean;
           sort_order?: number;
           created_at?: string;
           updated_at?: string;
@@ -243,6 +251,7 @@ export interface Database {
           price?: number;
           image_url?: string | null;
           is_active?: boolean;
+          show_price?: boolean;
           sort_order?: number;
           created_at?: string;
           updated_at?: string;

@@ -1,4 +1,8 @@
 import type { PublicBusiness } from "@/lib/booking";
+import {
+  DEFAULT_BACKGROUND_COLOR,
+  DEFAULT_BRAND_COLOR,
+} from "@/lib/constants";
 
 function parseHexColor(hex: string): { r: number; g: number; b: number } | null {
   const normalized = hex.trim().replace(/^#/, "");
@@ -10,6 +14,26 @@ function parseHexColor(hex: string): { r: number; g: number; b: number } | null 
   };
 }
 
+function channelToHex(value: number): string {
+  return Math.max(0, Math.min(255, Math.round(value)))
+    .toString(16)
+    .padStart(2, "0");
+}
+
+/** Blend two hex colors; `tintWeight` is how much of `tint` to mix in (0–1). */
+export function mixHexColor(base: string, tint: string, tintWeight: number): string {
+  const baseRgb = parseHexColor(base);
+  const tintRgb = parseHexColor(tint);
+  if (!baseRgb || !tintRgb) return base;
+
+  const t = Math.max(0, Math.min(1, tintWeight));
+  const mix = (a: number, b: number) => a + (b - a) * t;
+
+  return `#${channelToHex(mix(baseRgb.r, tintRgb.r))}${channelToHex(
+    mix(baseRgb.g, tintRgb.g)
+  )}${channelToHex(mix(baseRgb.b, tintRgb.b))}`;
+}
+
 /** Pick readable text on top of the brand accent */
 export function accentForeground(hex: string): string {
   const rgb = parseHexColor(hex);
@@ -18,20 +42,48 @@ export function accentForeground(hex: string): string {
   return luminance > 0.55 ? "#0a0a0a" : "#fafafa";
 }
 
-/** Applies per-business accent color on the booking experience */
+function buildBookingThemeVars(
+  brandColor: string,
+  backgroundColor: string = DEFAULT_BACKGROUND_COLOR
+) {
+  const accent = brandColor || DEFAULT_BRAND_COLOR;
+  const accentFg = accentForeground(accent);
+  const bookingBg = backgroundColor || DEFAULT_BACKGROUND_COLOR;
+
+  return {
+    accent,
+    accentFg,
+    bookingBg,
+    bookingSurface: mixHexColor(bookingBg, accent, 0.14),
+    bookingElevated: mixHexColor(bookingBg, accent, 0.22),
+  };
+}
+
+/** Customer booking palette (not applied to the admin dashboard shell). */
 export function BusinessBrandTheme({
   business,
 }: {
-  business: Pick<PublicBusiness, "brand_color">;
+  business: Pick<PublicBusiness, "brand_color" | "background_color">;
 }) {
-  const accent = business.brand_color || "#f5c518";
-  const accentFg = accentForeground(accent);
+  const theme = buildBookingThemeVars(
+    business.brand_color,
+    business.background_color
+  );
 
   return (
     <style>{`
-      .booking-theme {
-        --color-booking-accent: ${accent};
-        --color-booking-accent-fg: ${accentFg};
+      .booking-theme:not(.admin-app-shell) {
+        --color-booking-accent: ${theme.accent};
+        --color-booking-accent-fg: ${theme.accentFg};
+        --color-booking-bg: ${theme.bookingBg};
+        --color-booking-surface: ${theme.bookingSurface};
+        --color-booking-elevated: ${theme.bookingElevated};
+        background: var(--color-booking-bg);
+      }
+
+      .admin-app-shell.booking-theme {
+        --color-booking-accent: ${theme.accent};
+        --color-booking-accent-fg: ${theme.accentFg};
       }
     `}</style>
   );

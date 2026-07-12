@@ -34,7 +34,7 @@ export async function BusinessLoginView({
   return (
     <>
       <BusinessBrandTheme business={business} />
-      <div className="px-5 pt-6 pb-6">
+      <div className="px-5 pt-6 pb-6 lg:mx-auto lg:max-w-lg">
         <div className="mb-6">
           <p className="text-sm font-medium text-booking-accent">{business.name}</p>
           <h1 className="mt-1 text-2xl font-bold text-white">Sign in</h1>

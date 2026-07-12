@@ -9,6 +9,7 @@ const businessNav = [
   { href: "", label: "Home", icon: AdminNavIcons.overview },
   { href: "/services", label: "Services", icon: AdminNavIcons.services },
   { href: "/appointments", label: "Bookings", icon: AdminNavIcons.appointments },
+  { href: "/income", label: "Income", icon: AdminNavIcons.income },
   { href: "/customers", label: "Clients", icon: AdminNavIcons.customers },
   { href: "/settings", label: "Settings", icon: AdminNavIcons.settings },
 ] as const;

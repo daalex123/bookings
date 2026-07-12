@@ -29,7 +29,7 @@ export default async function AccountPage() {
   }
 
   return (
-    <div className={cn("mx-auto max-w-md", isBooking ? "px-5 pt-6" : "")}>
+    <div className={cn("w-full max-w-md lg:max-w-lg", isBooking ? "px-5 pt-6" : "mx-auto")}>
       <div className="mb-6">
         <h1
           className={cn(

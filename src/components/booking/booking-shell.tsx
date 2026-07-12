@@ -26,7 +26,7 @@ export async function BookingShell({ children }: { children: React.ReactNode }) 
   return (
     <div className="booking-theme min-h-dvh">
       {ctx?.business && <BusinessBrandTheme business={ctx.business} />}
-      <div className="mx-auto min-h-dvh max-w-lg booking-main-pad">
+      <div className="mx-auto min-h-dvh w-full max-w-lg booking-main-pad lg:max-w-3xl xl:max-w-4xl lg:px-8">
         <BookingAppHeader business={ctx?.business ?? null} homePath={homePath} />
         {children}
       </div>

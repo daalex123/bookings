@@ -64,6 +64,7 @@ export async function BookingAppHeader({
       businessId={business?.id}
       userId={user?.id}
       notifications={notifications}
+      homePath={homePath}
     />
   );
 }

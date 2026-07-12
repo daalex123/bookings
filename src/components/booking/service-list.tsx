@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ArrowRight, Search } from "lucide-react";
 import { bookingFlowUrl } from "@/lib/booking";
 import type { PublicService } from "@/lib/booking";
+import { serviceShowsPrice } from "@/lib/booking";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -89,55 +90,93 @@ export function ServiceList({
       </div>
 
       {filtered.length > 0 ? (
-        <div className="mt-4 flex gap-4 overflow-x-auto px-5 pb-2">
-          {filtered.map((service, index) => (
-            <Link
-              key={service.id}
-              href={bookingFlowUrl(basePath, { serviceId: service.id })}
-              className="min-w-[260px] shrink-0"
-            >
-              <article
-                className={cn(
-                  "overflow-hidden rounded-3xl",
-                  !service.image_url && CARD_GRADIENTS[index % CARD_GRADIENTS.length]
-                )}
-              >
-                <div className="flex h-52 flex-col justify-between p-5">
-                  {service.image_url ? (
-                    <div className="relative h-28 overflow-hidden rounded-2xl bg-black/20">
-                      <Image
-                        src={service.image_url}
-                        alt=""
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
-                    </div>
-                  ) : (
-                    <div className="h-28 rounded-2xl bg-black/20" />
-                  )}
-                  <div className="mt-3 flex items-end justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-lg font-bold">{service.name}</p>
-                      <p className="text-sm text-white/60">
-                        {service.duration_minutes} min ·{" "}
-                        {formatPrice(service.price, currency)}
-                      </p>
-                    </div>
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-booking-accent text-booking-accent-fg">
-                      <ArrowRight className="h-5 w-5" />
-                    </span>
-                  </div>
-                </div>
-              </article>
-            </Link>
-          ))}
-        </div>
+        <>
+          <div className="mt-4 flex gap-4 overflow-x-auto px-5 pb-2 md:hidden">
+            {filtered.map((service, index) => (
+              <ServiceCard
+                key={service.id}
+                service={service}
+                index={index}
+                basePath={basePath}
+                currency={currency}
+                className="min-w-[260px] shrink-0"
+              />
+            ))}
+          </div>
+          <div className="mt-4 hidden gap-4 px-5 md:grid md:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((service, index) => (
+              <ServiceCard
+                key={service.id}
+                service={service}
+                index={index}
+                basePath={basePath}
+                currency={currency}
+              />
+            ))}
+          </div>
+        </>
       ) : (
         <p className="px-5 py-8 text-center text-booking-muted">
           No services match your search.
         </p>
       )}
     </div>
+  );
+}
+
+function ServiceCard({
+  service,
+  index,
+  basePath,
+  currency,
+  className,
+}: {
+  service: PublicService;
+  index: number;
+  basePath: string;
+  currency: string;
+  className?: string;
+}) {
+  return (
+    <Link
+      href={bookingFlowUrl(basePath, { serviceId: service.id })}
+      className={className}
+    >
+      <article
+        className={cn(
+          "h-full overflow-hidden rounded-3xl transition-transform hover:scale-[1.01] md:hover:scale-[1.02]",
+          !service.image_url && CARD_GRADIENTS[index % CARD_GRADIENTS.length]
+        )}
+      >
+        <div className="flex h-52 flex-col justify-between p-5">
+          {service.image_url ? (
+            <div className="relative h-28 overflow-hidden rounded-2xl bg-black/20">
+              <Image
+                src={service.image_url}
+                alt=""
+                fill
+                className="object-cover"
+                unoptimized
+              />
+            </div>
+          ) : (
+            <div className="h-28 rounded-2xl bg-black/20" />
+          )}
+          <div className="mt-3 flex items-end justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate text-lg font-bold">{service.name}</p>
+              <p className="text-sm text-white/60">
+                {service.duration_minutes} min
+                {serviceShowsPrice(service) &&
+                  ` · ${formatPrice(service.price, currency)}`}
+              </p>
+            </div>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-booking-accent text-booking-accent-fg">
+              <ArrowRight className="h-5 w-5" />
+            </span>
+          </div>
+        </div>
+      </article>
+    </Link>
   );
 }

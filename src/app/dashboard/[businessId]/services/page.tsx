@@ -82,6 +82,7 @@ export default async function ServicesPage({
       price: Number(service.price),
       image_url: service.image_url,
       is_active: service.is_active,
+      show_price: service.show_price ?? true,
       sort_order: service.sort_order ?? 0,
     })) ?? [];
 
@@ -103,6 +104,7 @@ export default async function ServicesPage({
       price: child.price,
       image_url: child.image_url,
       is_active: child.is_active,
+      show_price: child.show_price,
       is_linked: true,
       sort_order: link.sort_order ?? 0,
     });
@@ -116,6 +118,7 @@ export default async function ServicesPage({
     price: addon.price,
     image_url: addon.image_url,
     is_active: addon.is_active,
+    show_price: addon.show_price,
     is_linked: false,
     sort_order: addon.sort_order ?? 0,
   }));
@@ -126,6 +129,7 @@ export default async function ServicesPage({
     id: s.id,
     name: s.name,
     price: s.price,
+    show_price: s.show_price,
   }));
 
   return (

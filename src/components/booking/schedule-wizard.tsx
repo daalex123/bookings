@@ -8,6 +8,7 @@ import {
 } from "@/lib/availability";
 import { getPublicBookedSlots, getPublicBusiness } from "@/lib/booking-data";
 import { bookingFlowUrl } from "@/lib/booking";
+import { serviceShowsPrice } from "@/lib/booking";
 import { authUrl } from "@/lib/business-context";
 import { getCurrentUser } from "@/lib/supabase/auth";
 import { formatPrice } from "@/lib/utils";
@@ -105,7 +106,7 @@ export async function ScheduleWizard({
         <p className="mt-2 text-booking-muted">
           Your appointment at {business.name} has been requested.
         </p>
-        <div className="mt-8 flex w-full max-w-sm flex-col gap-3">
+        <div className="mt-8 flex w-full max-w-sm flex-col gap-3 lg:max-w-md">
           <Link
             href="/my-appointments"
             className="rounded-2xl bg-booking-accent py-3.5 text-center font-semibold text-booking-accent-fg"
@@ -140,22 +141,23 @@ export async function ScheduleWizard({
       <div className="relative min-h-screen">
         <div
           className={cn(
-            "pointer-events-none h-56 w-full",
+            "pointer-events-none h-56 w-full lg:h-72",
             !heroImage && "booking-hero-gradient"
           )}
           style={heroStyle}
         />
 
-      <div className="relative z-10 -mt-16 rounded-t-[2rem] bg-booking-bg px-5 pt-6 pb-40">
+      <div className="relative z-10 -mt-16 rounded-t-[2rem] bg-booking-bg px-5 pt-6 pb-40 lg:pb-12">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">
+            <h1 className="text-2xl font-bold lg:text-3xl">
               {selectedService?.name ?? business.name}
             </h1>
             <p className="mt-1 text-sm text-booking-muted">{business.name}</p>
             {selectedService && (
               <p className="mt-1 text-sm text-booking-muted">
-                {formatPrice(selectedService.price, currency)} ·{" "}
+                {serviceShowsPrice(selectedService) &&
+                  `${formatPrice(selectedService.price, currency)} · `}
                 {selectedService.duration_minutes} min
               </p>
             )}
@@ -193,36 +195,43 @@ export async function ScheduleWizard({
             <input type="hidden" name="serviceId" value={selectedService.id} />
             <input type="hidden" name="date" value={dateStr} />
 
-            <HorizontalDatePicker
-              flowPath={flowPath}
-              serviceId={selectedService.id}
-              selectedDate={dateStr}
-              timezone={timezone}
-            />
+            <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:items-start">
+              <div>
+                <HorizontalDatePicker
+                  flowPath={flowPath}
+                  serviceId={selectedService.id}
+                  selectedDate={dateStr}
+                  timezone={timezone}
+                />
 
-            <TimeSlotPicker slots={slots} defaultTime={preservedTime} />
+                <TimeSlotPicker slots={slots} defaultTime={preservedTime} />
+              </div>
 
-            <AddonPicker
-              addons={addons}
-              serviceId={selectedService.id}
-              basePrice={selectedService.price}
-              currency={currency}
-            />
+              <div>
+                <AddonPicker
+                  addons={addons}
+                  serviceId={selectedService.id}
+                  basePrice={selectedService.price}
+                  showBasePrice={serviceShowsPrice(selectedService)}
+                  currency={currency}
+                />
 
-            <div className="mt-6">
-              <label
-                htmlFor="notes"
-                className="mb-2 block text-sm font-medium text-booking-muted"
-              >
-                Notes (optional)
-              </label>
-              <textarea
-                id="notes"
-                name="notes"
-                rows={3}
-                placeholder="Any special requests..."
-                className="w-full resize-none rounded-2xl border-0 bg-booking-elevated px-4 py-3 text-base text-white placeholder:text-booking-muted focus:outline-none focus:ring-2 focus:ring-booking-accent/50"
-              />
+                <div className="mt-6">
+                  <label
+                    htmlFor="notes"
+                    className="mb-2 block text-sm font-medium text-booking-muted"
+                  >
+                    Notes (optional)
+                  </label>
+                  <textarea
+                    id="notes"
+                    name="notes"
+                    rows={3}
+                    placeholder="Any special requests..."
+                    className="w-full resize-none rounded-2xl border-0 bg-booking-elevated px-4 py-3 text-base text-white placeholder:text-booking-muted focus:outline-none focus:ring-2 focus:ring-booking-accent/50"
+                  />
+                </div>
+              </div>
             </div>
           </BookingSubmitForm>
         )}

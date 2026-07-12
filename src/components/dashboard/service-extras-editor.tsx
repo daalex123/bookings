@@ -19,6 +19,7 @@ export type ServiceExtraItem = {
   price: number;
   image_url?: string | null;
   is_active: boolean;
+  show_price: boolean;
   is_linked: boolean;
   sort_order: number;
 };
@@ -27,6 +28,7 @@ export type LinkableService = {
   id: string;
   name: string;
   price: number;
+  show_price: boolean;
 };
 
 export function ServiceExtrasEditor({
@@ -138,6 +140,7 @@ export function ServiceExtrasEditor({
           price: linked.price,
           image_url: null,
           is_active: true,
+          show_price: linked.show_price,
           is_linked: true,
           sort_order: prev.length,
         },

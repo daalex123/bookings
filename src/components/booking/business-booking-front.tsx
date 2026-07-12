@@ -38,10 +38,10 @@ export async function BusinessBookingFront({
   return (
     <div className="pb-6">
         <section
-          className="relative mx-5 mt-6 overflow-hidden rounded-3xl booking-hero-gradient p-6 min-h-[200px]"
+          className="relative mx-5 mt-6 overflow-hidden rounded-3xl booking-hero-gradient p-6 min-h-[200px] lg:mx-0 lg:mt-8 lg:min-h-[260px] lg:p-8"
           style={heroStyle}
         >
-          <div className="relative z-10 flex h-full min-h-[160px] flex-col justify-end">
+          <div className="relative z-10 flex h-full min-h-[160px] flex-col justify-end lg:min-h-[200px] lg:max-w-2xl">
             {business.logo_url && (
               <div className="mb-4 relative h-14 w-14 overflow-hidden rounded-2xl border border-white/20 bg-black/30">
                 <Image
@@ -53,13 +53,13 @@ export async function BusinessBookingFront({
                 />
               </div>
             )}
-            <p className="text-2xl font-bold leading-tight">{business.name}</p>
+            <p className="text-2xl font-bold leading-tight lg:text-3xl">{business.name}</p>
             {business.tagline && (
               <p className="mt-1 text-sm font-medium text-booking-accent">
                 {business.tagline}
               </p>
             )}
-            <p className="mt-2 max-w-[280px] text-sm text-white/70">
+            <p className="mt-2 max-w-[280px] text-sm text-white/70 lg:max-w-xl lg:text-base">
               {business.description ||
                 "Quality services — book your appointment in seconds."}
             </p>

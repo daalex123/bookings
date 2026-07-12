@@ -14,11 +14,12 @@ export default async function AppointmentsPage({
   searchParams,
 }: {
   params: Promise<{ businessId: string }>;
-  searchParams: Promise<{ time?: string; id?: string }>;
+  searchParams: Promise<{ time?: string; id?: string; view?: string }>;
 }) {
   const { businessId } = await params;
-  const { time, id: highlightAppointmentId } = await searchParams;
+  const { time, id: highlightAppointmentId, view } = await searchParams;
   const initialTimeFilter = time === "today" ? "today" : "all";
+  const initialViewMode = view === "list" ? "list" : "calendar";
   const supabase = await createClient();
 
   const [
@@ -141,6 +142,7 @@ export default async function AppointmentsPage({
       deleteAction={removeAppointment}
       statusAction={setStatus}
       initialTimeFilter={initialTimeFilter}
+      initialViewMode={initialViewMode}
       highlightAppointmentId={highlightAppointmentId}
     />
   );

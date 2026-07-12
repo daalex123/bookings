@@ -29,6 +29,7 @@ export function MyAppointmentsList({
   businessId,
   cancelAction,
   notifications = [],
+  embedded = false,
 }: {
   userId: string;
   initialAppointments: CustomerAppointmentItem[];
@@ -36,6 +37,7 @@ export function MyAppointmentsList({
   businessId?: string;
   cancelAction: (formData: FormData) => Promise<ActionResult>;
   notifications?: Notification[];
+  embedded?: boolean;
 }) {
   const { appointments } = useMyAppointments(
     userId,
@@ -44,7 +46,8 @@ export function MyAppointmentsList({
   );
 
   return (
-    <div className={cn("space-y-6", isBooking ? "px-5 pt-6" : "")}>
+    <div className={cn("space-y-6", isBooking && !embedded ? "px-5 pt-6" : "")}>
+      {!embedded && (
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1
@@ -67,9 +70,10 @@ export function MyAppointmentsList({
           />
         ) : null}
       </div>
+      )}
 
       {appointments.length > 0 ? (
-        <div className="space-y-4">
+        <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0 xl:grid-cols-2">
           {appointments.map((appt) => (
             <AppointmentCard
               key={appt.id}

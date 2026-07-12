@@ -1,6 +1,15 @@
 /** Default currency: Sri Lankan Rupee */
 export const DEFAULT_CURRENCY = "LKR";
 
+/** Default customer booking / admin mobile background */
+export const DEFAULT_BACKGROUND_COLOR = "#0a0a0a";
+
+/** Default desktop admin dashboard background */
+export const DEFAULT_ADMIN_BACKGROUND_COLOR = "#f0f2f5";
+
+/** Default brand accent */
+export const DEFAULT_BRAND_COLOR = "#f5c518";
+
 /** Default timezone: India Standard Time */
 export const DEFAULT_TIMEZONE = "Asia/Kolkata";
 

@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { format, startOfDay, endOfDay } from "date-fns";
-import { Calendar, Package } from "@/lib/admin-icons";
+import { format, startOfDay, endOfDay, startOfMonth } from "date-fns";
+import { Calendar, Package, TrendingUp } from "@/lib/admin-icons";
 import { adminDashboardUrl } from "@/lib/admin-url";
-import { asJoined } from "@/lib/utils";
+import { buildIncomeSummary } from "@/lib/business-income";
+import { asJoined, formatPrice } from "@/lib/utils";
 import { bookingPublicUrl } from "@/lib/booking";
+import { DEFAULT_TIMEZONE } from "@/lib/constants";
 import { getSiteUrl } from "@/lib/site-url";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -26,46 +28,62 @@ export default async function BusinessOverviewPage({
   const { businessId } = await params;
   const supabase = await createClient();
 
-  const [{ data: business }, siteUrl] = await Promise.all([
+  const todayStart = startOfDay(new Date()).toISOString();
+  const todayEnd = endOfDay(new Date()).toISOString();
+  const monthStart = startOfMonth(new Date()).toISOString();
+
+  const [
+    { data: business },
+    siteUrl,
+    { count: serviceCount },
+    { count: todayCount },
+    { data: todayAppts },
+    { data: incomeAppts },
+  ] = await Promise.all([
     supabase
       .from("businesses")
-      .select("slug")
+      .select("slug, currency, timezone")
       .eq("id", businessId)
       .single(),
     getSiteUrl(),
+    supabase
+      .from("services")
+      .select("*", { count: "exact", head: true })
+      .eq("business_id", businessId)
+      .eq("is_active", true),
+    supabase
+      .from("appointments")
+      .select("*", { count: "exact", head: true })
+      .eq("business_id", businessId)
+      .gte("start_at", todayStart)
+      .lte("start_at", todayEnd)
+      .not("status", "eq", "cancelled"),
+    supabase
+      .from("appointments")
+      .select(
+        `id, start_at, status, services ( name ), profiles ( full_name )`
+      )
+      .eq("business_id", businessId)
+      .gte("start_at", todayStart)
+      .lte("start_at", todayEnd)
+      .not("status", "eq", "cancelled")
+      .order("start_at", { ascending: true }),
+    supabase
+      .from("appointments")
+      .select(
+        `start_at, status, services ( price ), appointment_addons ( price )`
+      )
+      .eq("business_id", businessId)
+      .gte("start_at", monthStart)
+      .lte("start_at", todayEnd)
+      .eq("status", "completed"),
   ]);
 
+  const currency = business?.currency ?? "LKR";
+  const timezone = business?.timezone ?? DEFAULT_TIMEZONE;
+  const incomeSummary = buildIncomeSummary(incomeAppts ?? [], timezone);
   const shareUrl = business?.slug ? bookingPublicUrl(business.slug, siteUrl) : "";
   const adminAppUrl = adminDashboardUrl(businessId, siteUrl);
-
-  const todayStart = startOfDay(new Date()).toISOString();
-  const todayEnd = endOfDay(new Date()).toISOString();
-
-  const [{ count: serviceCount }, { count: todayCount }, { data: todayAppts }] =
-    await Promise.all([
-      supabase
-        .from("services")
-        .select("*", { count: "exact", head: true })
-        .eq("business_id", businessId)
-        .eq("is_active", true),
-      supabase
-        .from("appointments")
-        .select("*", { count: "exact", head: true })
-        .eq("business_id", businessId)
-        .gte("start_at", todayStart)
-        .lte("start_at", todayEnd)
-        .not("status", "eq", "cancelled"),
-      supabase
-        .from("appointments")
-        .select(
-          `id, start_at, status, services ( name ), profiles ( full_name )`
-        )
-        .eq("business_id", businessId)
-        .gte("start_at", todayStart)
-        .lte("start_at", todayEnd)
-        .not("status", "eq", "cancelled")
-        .order("start_at", { ascending: true }),
-    ]);
 
   return (
     <div className="space-y-6">
@@ -75,18 +93,32 @@ export default async function BusinessOverviewPage({
         action={
           <div className="flex gap-6 text-right">
             <div>
-              <p className="text-2xl font-bold text-[#1e2235]">{todayCount ?? 0}</p>
-              <p className="text-xs text-[#8b92a5]">Today</p>
+              <p className="text-2xl font-bold text-[#1e2235]">
+                {formatPrice(incomeSummary.today, currency)}
+              </p>
+              <p className="text-xs text-[#8b92a5]">Income today</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-[#1e2235]">{serviceCount ?? 0}</p>
-              <p className="text-xs text-[#8b92a5]">Services</p>
+              <p className="text-2xl font-bold text-[#1e2235]">{todayCount ?? 0}</p>
+              <p className="text-xs text-[#8b92a5]">Today</p>
             </div>
           </div>
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Income today"
+          value={formatPrice(incomeSummary.today, currency)}
+          icon={TrendingUp}
+          href={`/dashboard/${businessId}/income`}
+        />
+        <StatCard
+          label="Income this month"
+          value={formatPrice(incomeSummary.month, currency)}
+          icon={TrendingUp}
+          href={`/dashboard/${businessId}/income`}
+        />
         <StatCard
           label="Appointments today"
           value={todayCount ?? 0}
@@ -100,29 +132,12 @@ export default async function BusinessOverviewPage({
         />
       </div>
 
-      <ShareBookingCard
-        url={adminAppUrl}
-        title="Admin mobile app"
-        description="Staff can scan this QR code to open the full business dashboard on their phone. Sign in once, then add to home screen for app-like access."
-        downloadFileName="admin-app-qr.png"
-        variant="dark"
-      />
-
-      {shareUrl && (
-        <ShareBookingCard
-          url={shareUrl}
-          title="Share your booking page"
-          description="Customers can scan this QR code to book appointments at your business."
-          variant="dark"
-        />
-      )}
-
       <div className="admin-card overflow-hidden">
         <div className="flex items-center justify-between gap-3 border-b border-[#1e2235]/8 px-6 py-5">
           <h2 className="text-lg font-bold text-[#1e2235]">Today&apos;s schedule</h2>
           <Link
             href={`/dashboard/${businessId}/appointments?time=today`}
-            className="text-sm font-medium text-booking-accent hover:underline lg:text-[#1e2235]"
+            className="text-sm font-medium text-booking-accent hover:underline"
           >
             View all
           </Link>
@@ -161,6 +176,27 @@ export default async function BusinessOverviewPage({
             </p>
           )}
         </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <ShareBookingCard
+          url={adminAppUrl}
+          title="Admin mobile app"
+          description="Scan to open the business dashboard on a phone."
+          downloadFileName="admin-app-qr.png"
+          variant="dark"
+          compact
+        />
+
+        {shareUrl && (
+          <ShareBookingCard
+            url={shareUrl}
+            title="Customer booking page"
+            description="Share so customers can book appointments."
+            variant="dark"
+            compact
+          />
+        )}
       </div>
     </div>
   );

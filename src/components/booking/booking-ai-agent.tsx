@@ -185,7 +185,7 @@ export function BookingAiAgent({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom))] right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-booking-accent text-booking-accent-fg shadow-lg shadow-black/30 transition hover:scale-105 active:scale-95"
+          className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom))] right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-booking-accent text-booking-accent-fg shadow-lg shadow-black/30 transition hover:scale-105 active:scale-95 lg:bottom-6 lg:right-8"
           aria-label="Open booking assistant"
         >
           <Bot className="h-6 w-6" />
@@ -194,7 +194,7 @@ export function BookingAiAgent({
 
       {open && (
         <div
-          className="fixed inset-x-0 bottom-0 z-50 mx-auto flex max-w-lg flex-col rounded-t-3xl border border-white/10 bg-booking-bg shadow-2xl shadow-black/50"
+          className="fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full max-w-lg flex-col rounded-t-3xl border border-white/10 bg-booking-bg shadow-2xl shadow-black/50 lg:max-w-xl lg:rounded-3xl lg:bottom-6 lg:left-1/2 lg:-translate-x-1/2"
           style={{
             height: "min(78dvh, 640px)",
             paddingBottom: "env(safe-area-inset-bottom)",

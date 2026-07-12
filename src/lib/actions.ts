@@ -25,7 +25,7 @@ import {
   CUSTOMER_NOTIFICATION_AUDIENCE,
   STAFF_NOTIFICATION_AUDIENCE,
 } from "@/lib/notifications/constants";
-import { DEFAULT_CURRENCY, DEFAULT_TIMEZONE } from "@/lib/constants";
+import { DEFAULT_ADMIN_BACKGROUND_COLOR, DEFAULT_BACKGROUND_COLOR, DEFAULT_BRAND_COLOR, DEFAULT_CURRENCY, DEFAULT_TIMEZONE } from "@/lib/constants";
 import { getPublicBusiness, publicBusinessCacheTag } from "@/lib/booking-data";
 import { bookingPagePathBySlug, bookingFlowUrl } from "@/lib/booking";
 import { sendBookingNotifications } from "@/lib/notifications/send-booking-notifications";
@@ -202,7 +202,12 @@ export async function updateBusiness(businessId: string, formData: FormData) {
     currency: formData.get("currency"),
     logo_url: formData.get("logo_url")?.toString() || "",
     cover_image_url: formData.get("cover_image_url")?.toString() || "",
-    brand_color: formData.get("brand_color")?.toString() || "#f5c518",
+    brand_color: formData.get("brand_color")?.toString() || DEFAULT_BRAND_COLOR,
+    background_color:
+      formData.get("background_color")?.toString() || DEFAULT_BACKGROUND_COLOR,
+    admin_background_color:
+      formData.get("admin_background_color")?.toString() ||
+      DEFAULT_ADMIN_BACKGROUND_COLOR,
     contact_email: formData.get("contact_email")?.toString() || "",
     contact_whatsapp: formData.get("contact_whatsapp")?.toString() || "",
   });
@@ -223,7 +228,10 @@ export async function updateBusiness(businessId: string, formData: FormData) {
       currency: parsed.data.currency,
       logo_url: parsed.data.logo_url || null,
       cover_image_url: parsed.data.cover_image_url || null,
-      brand_color: parsed.data.brand_color ?? "#f5c518",
+      brand_color: parsed.data.brand_color ?? DEFAULT_BRAND_COLOR,
+      background_color: parsed.data.background_color ?? DEFAULT_BACKGROUND_COLOR,
+      admin_background_color:
+        parsed.data.admin_background_color ?? DEFAULT_ADMIN_BACKGROUND_COLOR,
       contact_email: parsed.data.contact_email ?? null,
       contact_whatsapp: parsed.data.contact_whatsapp ?? null,
     })
@@ -238,6 +246,7 @@ export async function updateBusiness(businessId: string, formData: FormData) {
     .single();
 
   revalidatePath(`/dashboard/${businessId}/settings`);
+  revalidatePath(`/dashboard/${businessId}`);
   revalidatePath(`/b/${parsed.data.slug}`);
   revalidatePath(`/b/${parsed.data.slug}/book`);
   if (refs?.slug) revalidateTag(publicBusinessCacheTag(refs.slug), "max");
@@ -276,6 +285,7 @@ export async function upsertService(businessId: string, formData: FormData) {
     price: formData.get("price"),
     image_url: formData.get("image_url")?.toString() || "",
     is_active: formData.get("is_active") === "on",
+    show_price: formData.get("show_price") === "on",
     parent_service_id: parentServiceId || undefined,
   });
 
@@ -316,6 +326,7 @@ export async function upsertService(businessId: string, formData: FormData) {
     price: parsed.data.price,
     image_url: parsed.data.image_url || null,
     is_active: parsed.data.is_active ?? true,
+    show_price: parsed.data.show_price ?? true,
     duration_minutes: durationMinutes!,
     slot_interval_minutes:
       slotIntervalMinutes ?? durationMinutes!,

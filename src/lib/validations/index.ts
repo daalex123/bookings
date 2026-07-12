@@ -25,6 +25,10 @@ export const registerSchema = z.object({
 
 const optionalUrl = z.union([z.string().url(), z.literal("")]).optional();
 
+const hexColorSchema = z
+  .string()
+  .regex(/^#[0-9A-Fa-f]{6}$/, "Use a hex color like #f5c518");
+
 export const businessSchema = z.object({
   name: z.string().min(2, "Business name is required"),
   slug: z
@@ -37,10 +41,9 @@ export const businessSchema = z.object({
   currency: z.string().length(3).default(DEFAULT_CURRENCY),
   logo_url: optionalUrl,
   cover_image_url: optionalUrl,
-  brand_color: z
-    .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, "Use a hex color like #f5c518")
-    .optional(),
+  brand_color: hexColorSchema.optional(),
+  background_color: hexColorSchema.optional(),
+  admin_background_color: hexColorSchema.optional(),
   contact_email: z
     .string()
     .trim()
@@ -71,6 +74,7 @@ export const serviceSchema = z.object({
   price: z.coerce.number().min(0),
   image_url: optionalUrl,
   is_active: z.boolean().optional(),
+  show_price: z.boolean().optional(),
   parent_service_id: z.string().uuid().optional().or(z.literal("")),
 });
 
@@ -80,6 +84,7 @@ export const serviceAddonSchema = z.object({
   price: z.coerce.number().min(0),
   image_url: optionalUrl,
   is_active: z.boolean().optional(),
+  show_price: z.boolean().optional(),
   parent_service_id: z.string().uuid("Select a primary service"),
 });
 

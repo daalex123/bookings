@@ -9,6 +9,8 @@ export type PublicBusiness = {
   logo_url: string | null;
   cover_image_url: string | null;
   brand_color: string;
+  background_color: string;
+  admin_background_color: string;
   booking_token: string;
 };
 
@@ -19,6 +21,7 @@ export type PublicService = {
   duration_minutes: number;
   slot_interval_minutes: number;
   price: number;
+  show_price: boolean;
   image_url: string | null;
 };
 
@@ -28,8 +31,14 @@ export type PublicServiceAddon = {
   name: string;
   description: string | null;
   price: number;
+  show_price: boolean;
   image_url: string | null;
 };
+
+/** Whether customer-facing UI should display a service price. */
+export function serviceShowsPrice(service: { show_price?: boolean }): boolean {
+  return service.show_price !== false;
+}
 
 export type PublicBusinessHour = {
   day_of_week: number;

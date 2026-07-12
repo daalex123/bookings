@@ -1,16 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { format, isPast, isToday } from "date-fns";
 import {
   Calendar,
   ChevronDown,
   Clock,
+  LayoutGrid,
+  List,
   Pencil,
   Plus,
   Search,
   User,
 } from "@/lib/admin-icons";
+import { AppointmentsCalendar } from "@/components/dashboard/appointments-calendar";
 import {
   AppointmentForm,
   type CustomerOption,
@@ -21,6 +25,7 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { StatusActionForm } from "@/components/dashboard/status-action-form";
 import { useActionToast } from "@/hooks/use-action-toast";
+import { todayInTimezone } from "@/lib/availability";
 import { hasActionError, type ActionResult } from "@/lib/action-result";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -51,6 +56,7 @@ type StatusFilter =
   | "no_show";
 
 type TimeFilter = "all" | "upcoming" | "today" | "past";
+type ViewMode = "calendar" | "list";
 
 const STATUS_STYLE: Record<string, string> = {
   pending: "bg-teal-50 text-teal-700",
@@ -85,6 +91,7 @@ export function AppointmentsPanel({
   deleteAction,
   statusAction,
   initialTimeFilter = "all",
+  initialViewMode = "calendar",
   highlightAppointmentId,
 }: {
   appointments: AppointmentRow[];
@@ -95,13 +102,31 @@ export function AppointmentsPanel({
   deleteAction: (formData: FormData) => Promise<ActionResult>;
   statusAction: (formData: FormData) => Promise<ActionResult>;
   initialTimeFilter?: TimeFilter;
+  initialViewMode?: ViewMode;
   highlightAppointmentId?: string;
 }) {
   const [showAddForm, setShowAddForm] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(
+    highlightAppointmentId ?? null
+  );
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>(initialTimeFilter);
+  const [viewMode, setViewMode] = useState<ViewMode>(() =>
+    highlightAppointmentId ? "list" : initialViewMode
+  );
+  const [selectedDate, setSelectedDate] = useState<string | null>(() => {
+    if (highlightAppointmentId) {
+      const appt = appointments.find((a) => a.id === highlightAppointmentId);
+      if (appt) return appt.date;
+    }
+    return initialTimeFilter === "today" ? todayInTimezone(timezone) : null;
+  });
+  const [activeAppointmentId, setActiveAppointmentId] = useState<string | null>(
+    highlightAppointmentId ?? null
+  );
+  const router = useRouter();
+  const pathname = usePathname();
   const { wrapFormAction } = useActionToast();
 
   const handleSave = useMemo(
@@ -172,9 +197,40 @@ export function AppointmentsPanel({
   useEffect(() => {
     if (!highlightAppointmentId) return;
 
+    const appt = appointments.find((a) => a.id === highlightAppointmentId);
+    if (appt) {
+      setSelectedDate(appt.date);
+      setActiveAppointmentId(appt.id);
+      setViewMode("list");
+      setEditingId(appt.id);
+    }
+
     const row = document.getElementById(`appointment-${highlightAppointmentId}`);
     row?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, [highlightAppointmentId, filtered]);
+  }, [highlightAppointmentId, appointments]);
+
+  const goToAppointment = (id: string) => {
+    const appt = appointments.find((a) => a.id === id);
+    setActiveAppointmentId(id);
+    if (appt) setSelectedDate(appt.date);
+    setViewMode("list");
+    setEditingId(id);
+    setShowAddForm(false);
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("id", id);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+
+    requestAnimationFrame(() => {
+      document
+        .getElementById(`appointment-${id}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  };
+
+  const handleCalendarSelectAppointment = (id: string) => {
+    goToAppointment(id);
+  };
 
   return (
     <div className="space-y-6">
@@ -224,14 +280,43 @@ export function AppointmentsPanel({
 
       <div className="admin-card overflow-hidden">
         <div className="border-b border-[#1e2235]/8 px-4 py-5 sm:px-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="text-lg font-bold text-[#1e2235]">All appointments</h2>
               <p className="mt-1 text-sm text-[#8b92a5]">
                 {filtered.length} of {appointments.length} shown
               </p>
             </div>
-            <div className="relative w-full max-w-sm">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="flex rounded-full border border-[#1e2235]/10 bg-[#f0f2f5]/60 p-1">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("calendar")}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+                    viewMode === "calendar"
+                      ? "bg-white text-[#1e2235] shadow-sm"
+                      : "text-[#8b92a5] hover:text-[#1e2235]"
+                  )}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                  Calendar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("list")}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+                    viewMode === "list"
+                      ? "bg-white text-[#1e2235] shadow-sm"
+                      : "text-[#8b92a5] hover:text-[#1e2235]"
+                  )}
+                >
+                  <List className="h-4 w-4" />
+                  List
+                </button>
+              </div>
+              <div className="relative w-full max-w-sm">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8b92a5]" />
               <input
                 type="search"
@@ -240,6 +325,7 @@ export function AppointmentsPanel({
                 onChange={(e) => setQuery(e.target.value)}
                 className="h-10 w-full rounded-full border border-[#1e2235]/10 bg-[#f0f2f5]/60 pl-10 pr-4 text-sm text-[#1e2235] placeholder:text-[#8b92a5] focus:border-[#1e2235]/20 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1e2235]/10"
               />
+            </div>
             </div>
           </div>
 
@@ -280,7 +366,44 @@ export function AppointmentsPanel({
           </div>
         </div>
 
-        {filtered.length > 0 ? (
+        {viewMode === "calendar" ? (
+          appointments.length === 0 ? (
+            <div className="px-6 py-14 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f0f2f5] text-[#1e2235]">
+                <Calendar className="h-6 w-6" strokeWidth={1.75} />
+              </div>
+              <p className="mt-4 font-semibold text-[#1e2235]">No appointments yet</p>
+              <p className="mt-1 text-sm text-[#8b92a5]">
+                Create one manually or share your booking link with customers.
+              </p>
+              <Button
+                type="button"
+                className="mt-5 rounded-full"
+                onClick={() => setShowAddForm(true)}
+              >
+                <Plus className="h-4 w-4" />
+                Create appointment
+              </Button>
+            </div>
+          ) : (
+            <div className="w-full">
+              {filtered.length === 0 && (
+                <p className="px-4 pb-4 text-center text-sm text-[#8b92a5] sm:px-6">
+                  No appointments match your search or filters.
+                </p>
+              )}
+              <AppointmentsCalendar
+                appointments={filtered}
+                timezone={timezone}
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+                onSelectAppointment={handleCalendarSelectAppointment}
+                highlightAppointmentId={activeAppointmentId ?? highlightAppointmentId}
+                focusDate={selectedDate}
+              />
+            </div>
+          )
+        ) : filtered.length > 0 ? (
           <div className="divide-y divide-[#1e2235]/6">
             {filtered.map((appt) => {
               const isEditing = editingId === appt.id;
@@ -292,7 +415,8 @@ export function AppointmentsPanel({
                   id={`appointment-${appt.id}`}
                   className={cn(
                     "px-4 py-5 sm:px-6",
-                    highlightAppointmentId === appt.id &&
+                    (highlightAppointmentId === appt.id ||
+                      activeAppointmentId === appt.id) &&
                       "bg-booking-accent/10 ring-1 ring-inset ring-booking-accent/30 lg:bg-[#f0f2f5]/80 lg:ring-[#1e2235]/15"
                   )}
                 >

@@ -60,6 +60,12 @@ body {
   padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
 }
 
+@media (min-width: 1024px) {
+  .booking-main-pad {
+    padding-bottom: 2rem;
+  }
+}
+
 @media (display-mode: standalone) {
   .booking-theme {
     -webkit-tap-highlight-color: transparent;
@@ -146,6 +152,11 @@ body {
     color: var(--admin-navy);
   }
 
+  .admin-app-shell.booking-theme {
+    background: var(--admin-bg);
+    color: var(--admin-navy);
+  }
+
   .admin-app-shell ::-webkit-scrollbar {
     display: initial;
   }
@@ -204,8 +215,17 @@ body {
     background: var(--color-booking-elevated) !important;
   }
 
+  .admin-app-shell input[type="color"],
+  .admin-app-shell .brand-color-picker {
+    background: transparent !important;
+    color: inherit !important;
+    padding: 0.15rem !important;
+    min-height: 2.5rem;
+    cursor: pointer;
+  }
+
   .admin-app-shell input[type="search"],
-  .admin-app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  .admin-app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="color"]):not(.brand-color-picker),
   .admin-app-shell textarea,
   .admin-app-shell select {
     background: var(--color-booking-elevated) !important;

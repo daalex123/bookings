@@ -1,6 +1,11 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { createAnonClient } from "@/lib/supabase/anon";
+import {
+  DEFAULT_ADMIN_BACKGROUND_COLOR,
+  DEFAULT_BACKGROUND_COLOR,
+  DEFAULT_BRAND_COLOR,
+} from "@/lib/constants";
 import type {
   BookedSlot,
   PublicBusinessContext,
@@ -24,9 +29,22 @@ async function fetchPublicBusiness(
   if (!ctx.business) return null;
 
   return {
-    business: ctx.business,
-    services: ctx.services ?? [],
-    addons: ctx.addons ?? [],
+    business: {
+      ...ctx.business,
+      brand_color: ctx.business.brand_color || DEFAULT_BRAND_COLOR,
+      background_color:
+        ctx.business.background_color || DEFAULT_BACKGROUND_COLOR,
+      admin_background_color:
+        ctx.business.admin_background_color || DEFAULT_ADMIN_BACKGROUND_COLOR,
+    },
+    services: (ctx.services ?? []).map((s) => ({
+      ...s,
+      show_price: s.show_price !== false,
+    })),
+    addons: (ctx.addons ?? []).map((a) => ({
+      ...a,
+      show_price: a.show_price !== false,
+    })),
     hours: ctx.hours ?? [],
   };
 }

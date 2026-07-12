@@ -7,6 +7,8 @@ import {
 } from "@/lib/booking";
 import {
   CURRENCY_OPTIONS,
+  DEFAULT_BACKGROUND_COLOR,
+  DEFAULT_BRAND_COLOR,
   DEFAULT_CURRENCY,
   DEFAULT_TIMEZONE,
   TIMEZONE_OPTIONS,
@@ -14,6 +16,7 @@ import {
 import { absoluteUrl, getSiteUrl } from "@/lib/site-url";
 import { ActionForm } from "@/components/action-form";
 import { ShareBookingCard } from "@/components/booking/share-booking-card";
+import { BrandColorField } from "@/components/dashboard/brand-color-field";
 import { AdminSelect } from "@/components/dashboard/admin-select";
 import { ImageUploadField } from "@/components/dashboard/image-upload-field";
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -221,7 +224,12 @@ export default async function SettingsPage({
             <input
               type="hidden"
               name="brand_color"
-              value={business?.brand_color ?? "#f5c518"}
+              value={business?.brand_color ?? DEFAULT_BRAND_COLOR}
+            />
+            <input
+              type="hidden"
+              name="background_color"
+              value={business?.background_color ?? DEFAULT_BACKGROUND_COLOR}
             />
             <SubmitButton pendingLabel="Saving…">
               Save notification settings
@@ -296,24 +304,24 @@ export default async function SettingsPage({
                 maxLength={120}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="brand_color">Brand accent color</Label>
-              <div className="flex gap-3">
-                <Input
-                  id="brand_color"
-                  name="brand_color"
-                  type="color"
-                  defaultValue={business?.brand_color ?? "#f5c518"}
-                  className="h-10 w-16 cursor-pointer p-1"
-                />
-                <Input
-                  defaultValue={business?.brand_color ?? "#f5c518"}
-                  readOnly
-                  className="font-mono text-sm"
-                  aria-hidden
-                />
-              </div>
-            </div>
+            <BrandColorField
+              key={`brand_color-${business?.updated_at ?? ""}`}
+              id="brand_color"
+              name="brand_color"
+              label="Brand accent color"
+              description="Buttons, links, and highlights on your booking page."
+              defaultValue={business?.brand_color ?? DEFAULT_BRAND_COLOR}
+            />
+            <BrandColorField
+              key={`background_color-${business?.updated_at ?? ""}`}
+              id="background_color"
+              name="background_color"
+              label="Booking page background"
+              description="Main background for your customer booking app and admin mobile view."
+              defaultValue={
+                business?.background_color ?? DEFAULT_BACKGROUND_COLOR
+              }
+            />
             <SubmitButton pendingLabel="Saving…">Save branding</SubmitButton>
           </ActionForm>
         </CardContent>
@@ -416,7 +424,12 @@ export default async function SettingsPage({
             <input
               type="hidden"
               name="brand_color"
-              value={business?.brand_color ?? "#f5c518"}
+              value={business?.brand_color ?? DEFAULT_BRAND_COLOR}
+            />
+            <input
+              type="hidden"
+              name="background_color"
+              value={business?.background_color ?? DEFAULT_BACKGROUND_COLOR}
             />
             <input
               type="hidden"

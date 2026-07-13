@@ -91,16 +91,16 @@ export default async function BusinessOverviewPage({
         title="Overview"
         description="Today's snapshot for your business"
         action={
-          <div className="flex gap-6 text-right">
-            <div>
-              <p className="text-2xl font-bold text-[#1e2235]">
+          <div className="hidden lg:flex items-center gap-5">
+            <div className="rounded-xl bg-white/80 backdrop-blur-sm border border-[var(--admin-border)] px-5 py-3 text-right shadow-sm">
+              <p className="text-xl font-black text-[var(--admin-navy)]">
                 {formatPrice(incomeSummary.today, currency)}
               </p>
-              <p className="text-xs text-[#8b92a5]">Income today</p>
+              <p className="text-[11px] font-medium text-[var(--admin-muted)]">Income today</p>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-[#1e2235]">{todayCount ?? 0}</p>
-              <p className="text-xs text-[#8b92a5]">Today</p>
+            <div className="rounded-xl bg-white/80 backdrop-blur-sm border border-[var(--admin-border)] px-5 py-3 text-right shadow-sm">
+              <p className="text-xl font-black text-[var(--admin-navy)]">{todayCount ?? 0}</p>
+              <p className="text-[11px] font-medium text-[var(--admin-muted)]">Appointments</p>
             </div>
           </div>
         }
@@ -133,8 +133,8 @@ export default async function BusinessOverviewPage({
       </div>
 
       <div className="admin-card overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-[#1e2235]/8 px-6 py-5">
-          <h2 className="text-lg font-bold text-[#1e2235]">Today&apos;s schedule</h2>
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--admin-border)] px-6 py-5">
+          <h2 className="text-lg font-bold text-[var(--admin-navy)]">Today&apos;s schedule</h2>
           <Link
             href={`/dashboard/${businessId}/appointments?time=today`}
             className="text-sm font-medium text-booking-accent hover:underline"
@@ -142,7 +142,7 @@ export default async function BusinessOverviewPage({
             View all
           </Link>
         </div>
-        <div className="divide-y divide-[#1e2235]/6">
+        <div className="divide-y divide-[var(--admin-border)]">
           {todayAppts && todayAppts.length > 0 ? (
             todayAppts.map((appt) => {
               const service = asJoined(appt.services);
@@ -151,19 +151,19 @@ export default async function BusinessOverviewPage({
                 <Link
                   key={appt.id}
                   href={`/dashboard/${businessId}/appointments?time=today&id=${appt.id}`}
-                  className="flex flex-col gap-3 px-6 py-4 transition-colors hover:bg-white/5 sm:flex-row sm:items-center sm:justify-between lg:hover:bg-[#f8f9fb]"
+                  className="flex flex-col gap-3 px-6 py-4 transition-colors hover:bg-white/5 sm:flex-row sm:items-center sm:justify-between lg:hover:bg-[var(--admin-accent-bg)]"
                 >
                   <div className="min-w-0">
-                    <p className="font-semibold text-[#1e2235]">
+                    <p className="font-semibold text-[var(--admin-navy)]">
                       {service?.name}
                     </p>
-                    <p className="text-sm text-[#8b92a5]">
+                    <p className="text-sm text-[var(--admin-muted)]">
                       {profile?.full_name ?? "Customer"} ·{" "}
                       {format(new Date(appt.start_at), "p")}
                     </p>
                   </div>
                   <span
-                    className={`w-fit rounded-full px-3 py-1 text-xs font-medium capitalize ${statusStyle[appt.status] ?? "bg-[#f0f2f5] text-[#8b92a5]"}`}
+                    className={`w-fit rounded-full px-3 py-1 text-xs font-medium capitalize ${statusStyle[appt.status] ?? "bg-[var(--admin-bg)] text-[var(--admin-muted)]"}`}
                   >
                     {appt.status.replace("_", " ")}
                   </span>
@@ -171,7 +171,7 @@ export default async function BusinessOverviewPage({
               );
             })
           ) : (
-            <p className="px-6 py-10 text-center text-sm text-[#8b92a5]">
+            <p className="px-6 py-10 text-center text-sm text-[var(--admin-muted)]">
               No appointments scheduled for today.
             </p>
           )}

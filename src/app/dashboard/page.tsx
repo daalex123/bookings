@@ -28,9 +28,9 @@ export default async function DashboardPage() {
 
   const { data: allBusinesses } = superAdmin
     ? await supabase
-        .from("businesses")
-        .select("id, name, slug")
-        .order("name")
+      .from("businesses")
+      .select("id, name, slug")
+      .order("name")
     : { data: null };
 
   const otherBusinesses =
@@ -51,24 +51,27 @@ export default async function DashboardPage() {
 
       {superAdmin && otherBusinesses.length > 0 && (
         <section className="space-y-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#8b92a5]">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--admin-muted)]">
             All businesses
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {otherBusinesses.map((biz) => (
               <div
                 key={biz.id}
-                className="admin-card border border-[#1e2235]/10 p-5 transition-shadow hover:shadow-lg"
+                className="admin-card p-5"
               >
                 <div className="flex items-start gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1e2235] text-white">
+                  <div
+                    className="flex h-11 w-11 items-center justify-center rounded-2xl text-white shadow-md"
+                    style={{ background: "var(--admin-gradient)" }}
+                  >
                     <Building2 className="h-5 w-5" strokeWidth={1.75} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold text-[#1e2235]">
+                    <p className="truncate font-semibold text-[var(--admin-navy)]">
                       {biz.name}
                     </p>
-                    <p className="text-sm text-[#8b92a5]">Super admin access</p>
+                    <p className="text-sm text-[var(--admin-muted)]">Super admin access</p>
                   </div>
                 </div>
                 <Link href={`/dashboard/${biz.id}`} className="mt-4 block">
@@ -82,7 +85,7 @@ export default async function DashboardPage() {
 
       {memberships && memberships.length > 0 && (
         <section className="space-y-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#8b92a5]">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--admin-muted)]">
             Your businesses
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -90,16 +93,16 @@ export default async function DashboardPage() {
               const biz = asJoined(m.businesses);
               if (!biz) return null;
               return (
-                <div key={biz.id} className="admin-card p-5 transition-shadow hover:shadow-lg">
+                <div key={biz.id} className="admin-card p-5">
                   <div className="flex items-start gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#f0f2f5] text-[#1e2235]">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--admin-accent-bg)] text-[var(--admin-accent)]">
                       <Building2 className="h-5 w-5" strokeWidth={1.75} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold text-[#1e2235]">
+                      <p className="truncate font-semibold text-[var(--admin-navy)]">
                         {biz.name}
                       </p>
-                      <p className="text-sm capitalize text-[#8b92a5]">{m.role}</p>
+                      <p className="text-sm capitalize text-[var(--admin-muted)]">{m.role}</p>
                     </div>
                   </div>
                   <Link href={`/dashboard/${biz.id}`} className="mt-4 block">
@@ -114,14 +117,14 @@ export default async function DashboardPage() {
 
       <section className="space-y-4">
         <div className="flex items-center gap-2">
-          <Plus className="h-5 w-5 text-[#8b92a5]" />
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-[#8b92a5]">
+          <Plus className="h-5 w-5 text-[var(--admin-muted)]" />
+          <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--admin-muted)]">
             Create a business
           </h2>
         </div>
         <div className="admin-card max-w-2xl p-6">
-          <h3 className="text-lg font-bold text-[#1e2235]">New business</h3>
-          <p className="mt-1 text-sm text-[#8b92a5]">
+          <h3 className="text-lg font-bold text-[var(--admin-navy)]">New business</h3>
+          <p className="mt-1 text-sm text-[var(--admin-muted)]">
             Set up your business to start accepting appointments
           </p>
           <CreateBusinessForm action={createBusiness} />

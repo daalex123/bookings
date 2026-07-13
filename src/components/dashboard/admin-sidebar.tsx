@@ -56,9 +56,10 @@ export function AdminSidebar({
 
   const sidebarContent = (
     <div className="flex h-full flex-col px-4 py-6 lg:px-5">
+      {/* Brand header */}
       <div className="mb-8 flex items-center gap-3 px-2">
         {onBusinessRoute && businessLogoUrl ? (
-          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-xl border border-[#1e2235]/10 bg-white">
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl ring-2 ring-white/80 shadow-md">
             <Image
               src={businessLogoUrl}
               alt=""
@@ -68,34 +69,42 @@ export function AdminSidebar({
             />
           </div>
         ) : (
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1e2235] text-sm font-bold text-white">
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold text-white shadow-lg"
+            style={{ background: "var(--admin-gradient)" }}
+          >
             {brandInitials || "B"}
           </div>
         )}
         <div className="min-w-0">
-          <span className="block truncate text-lg font-bold tracking-tight text-[#1e2235]">
+          <span className="block truncate text-[1.05rem] font-bold tracking-tight text-[var(--admin-navy)]">
             {brandTitle}
           </span>
           {onBusinessRoute && businessName ? (
-            <span className="block truncate text-xs text-[#8b92a5]">
+            <span className="block truncate text-[11px] font-medium text-[var(--admin-muted)]">
               Business admin
             </span>
           ) : null}
         </div>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-1.5">
+      {/* Section label */}
+      <p className="mb-2 px-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--admin-muted)]">
+        {onBusinessRoute ? "Menu" : "Navigation"}
+      </p>
+
+      <nav className="flex flex-1 flex-col gap-0.5">
         {!onBusinessRoute ? (
           <Link
             href="/dashboard"
             className={cn(
-              "flex items-center gap-3 rounded-full px-4 py-3 text-sm font-medium transition-all",
+              "group flex items-center gap-3 rounded-xl px-4 py-2.5 text-[0.84rem] font-medium transition-all duration-200",
               pathname === "/dashboard"
-                ? "admin-pill-active shadow-sm"
+                ? "admin-pill-active"
                 : "admin-pill-idle"
             )}
           >
-            <AdminNavIcons.businesses className="h-[18px] w-[18px]" strokeWidth={1.75} />
+            <AdminNavIcons.businesses className="h-[18px] w-[18px] transition-transform duration-200 group-hover:scale-110" strokeWidth={1.75} />
             Businesses
           </Link>
         ) : (
@@ -112,42 +121,48 @@ export function AdminSidebar({
                   key={item.href}
                   href={path}
                   className={cn(
-                    "flex items-center gap-3 rounded-full px-4 py-3 text-sm font-medium transition-all",
-                    active ? "admin-pill-active shadow-sm" : "admin-pill-idle"
+                    "group flex items-center gap-3 rounded-xl px-4 py-2.5 text-[0.84rem] font-medium transition-all duration-200",
+                    active ? "admin-pill-active" : "admin-pill-idle"
                   )}
                 >
-                  <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
+                  <Icon className="h-[18px] w-[18px] transition-transform duration-200 group-hover:scale-110" strokeWidth={1.75} />
                   {item.label}
                 </Link>
               );
             })}
+
+            <div className="my-3 h-px bg-[var(--admin-border)]" />
+
             <Link
               href="/dashboard"
-              className="mt-2 flex items-center gap-3 rounded-full px-4 py-3 text-sm font-medium admin-pill-idle"
+              className="group flex items-center gap-3 rounded-xl px-4 py-2.5 text-[0.84rem] font-medium admin-pill-idle"
             >
-              <AdminNavIcons.businesses className="h-[18px] w-[18px]" strokeWidth={1.75} />
+              <AdminNavIcons.businesses className="h-[18px] w-[18px] transition-transform duration-200 group-hover:scale-110" strokeWidth={1.75} />
               All businesses
             </Link>
           </>
         )}
       </nav>
 
-      <div className="mt-auto border-t border-[#1e2235]/8 pt-5">
-        <div className="flex items-center gap-3 rounded-2xl px-2 py-2">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#e8eaf0] text-sm font-semibold text-[#1e2235]">
+      <div className="mt-auto border-t border-[var(--admin-border)] pt-5">
+        <div className="flex items-center gap-3 rounded-xl px-2 py-2">
+          <div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-sm"
+            style={{ background: "var(--admin-gradient)" }}
+          >
             {initials || "?"}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-[#1e2235]">
+            <p className="truncate text-sm font-semibold text-[var(--admin-navy)]">
               {userName}
             </p>
-            <p className="truncate text-xs text-[#8b92a5]">{userEmail}</p>
+            <p className="truncate text-[11px] text-[var(--admin-muted)]">{userEmail}</p>
           </div>
         </div>
         <form action={signOut} className="mt-2 px-2">
           <button
             type="submit"
-            className="text-xs font-medium text-[#8b92a5] hover:text-[#1e2235]"
+            className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--admin-muted)] transition-colors hover:bg-[var(--admin-accent-bg)] hover:text-[var(--admin-accent)]"
           >
             Sign out
           </button>
@@ -158,7 +173,7 @@ export function AdminSidebar({
 
   return (
     <>
-      <aside className="hidden h-full w-[260px] shrink-0 border-r border-[#1e2235]/8 bg-[#f0f2f5] lg:static lg:block">
+      <aside className="hidden h-full w-[264px] shrink-0 border-r border-[var(--admin-border)] bg-white/70 backdrop-blur-xl lg:static lg:block">
         {sidebarContent}
       </aside>
     </>

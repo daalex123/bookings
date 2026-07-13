@@ -71,7 +71,7 @@ export async function AdminShell({ children }: { children: React.ReactNode }) {
             notifications={notifications}
             businessId={businessId ?? undefined}
           />
-          <main className="flex-1 overflow-auto px-5 py-4 booking-main-pad lg:px-8 lg:py-6 lg:pb-6">
+          <main className="flex-1 overflow-auto px-5 py-4 booking-main-pad lg:px-10 lg:py-8 lg:pb-8">
             <div className="mx-auto max-w-lg lg:max-w-6xl">{children}</div>
           </main>
         </div>

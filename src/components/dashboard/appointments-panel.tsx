@@ -280,7 +280,7 @@ export function AppointmentsPanel({
 
       <div className="admin-card overflow-hidden">
         <div className="border-b border-[#1e2235]/8 px-4 py-5 sm:px-6">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="text-lg font-bold text-[#1e2235]">All appointments</h2>
               <p className="mt-1 text-sm text-[#8b92a5]">
@@ -317,15 +317,15 @@ export function AppointmentsPanel({
                 </button>
               </div>
               <div className="relative w-full max-w-sm">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8b92a5]" />
-              <input
-                type="search"
-                placeholder="Search customer, service, notes…"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="h-10 w-full rounded-full border border-[#1e2235]/10 bg-[#f0f2f5]/60 pl-10 pr-4 text-sm text-[#1e2235] placeholder:text-[#8b92a5] focus:border-[#1e2235]/20 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1e2235]/10"
-              />
-            </div>
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8b92a5]" />
+                <input
+                  type="search"
+                  placeholder="Search customer, service, notes…"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="h-10 w-full rounded-full border border-[#1e2235]/10 bg-[#f0f2f5]/60 pl-10 pr-4 text-sm text-[#1e2235] placeholder:text-[#8b92a5] focus:border-[#1e2235]/20 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1e2235]/10"
+                />
+              </div>
             </div>
           </div>
 
@@ -417,7 +417,7 @@ export function AppointmentsPanel({
                     "px-4 py-5 sm:px-6",
                     (highlightAppointmentId === appt.id ||
                       activeAppointmentId === appt.id) &&
-                      "bg-booking-accent/10 ring-1 ring-inset ring-booking-accent/30 lg:bg-[#f0f2f5]/80 lg:ring-[#1e2235]/15"
+                    "bg-booking-accent/10 ring-1 ring-inset ring-booking-accent/30 lg:bg-[#f0f2f5]/80 lg:ring-[#1e2235]/15"
                   )}
                 >
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -435,7 +435,7 @@ export function AppointmentsPanel({
                           className={cn(
                             "rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
                             STATUS_STYLE[appt.status] ??
-                              "bg-[#f0f2f5] text-[#8b92a5]"
+                            "bg-[#f0f2f5] text-[#8b92a5]"
                           )}
                         >
                           {appt.status.replace("_", " ")}

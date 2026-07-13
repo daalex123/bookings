@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Search } from "lucide-react";
+import { ArrowRight, Search, User } from "lucide-react";
 import { bookingFlowUrl } from "@/lib/booking";
 import type { PublicService } from "@/lib/booking";
 import { serviceShowsPrice } from "@/lib/booking";
@@ -170,6 +170,14 @@ function ServiceCard({
                 {serviceShowsPrice(service) &&
                   ` · ${formatPrice(service.price, currency)}`}
               </p>
+              {service.staff_names?.length > 0 && (
+                <div className="mt-1.5 flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5 shrink-0 text-booking-accent" />
+                  <p className="truncate text-sm font-medium text-white/80">
+                    {service.staff_names.join(", ")}
+                  </p>
+                </div>
+              )}
             </div>
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-booking-accent text-booking-accent-fg">
               <ArrowRight className="h-5 w-5" />

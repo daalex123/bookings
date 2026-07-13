@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { notFound } from "next/navigation";
+import { User } from "lucide-react";
 import {
   dayBoundsInTimezone,
   generateTimeSlots,
@@ -43,19 +44,9 @@ export async function ScheduleWizard({
     getPublicBusiness(bookingRef),
   ]);
 
-  if (!user) {
-    redirect(
-      authUrl(
-        "login",
-        bookingFlowUrl(backPath, {
-          serviceId: searchParams.service,
-          date: searchParams.date,
-        })
-      )
-    );
-  }
-
   if (!ctx) notFound();
+
+  const isGuest = !user;
 
   const { business, services, addons, hours } = ctx;
   const timezone = business.timezone;
@@ -99,28 +90,28 @@ export async function ScheduleWizard({
       <>
         <BookingSuccessSound />
         <div className="flex min-h-[70vh] flex-col items-center justify-center px-5 text-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-booking-accent/20 text-3xl">
-          ✓
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-booking-accent/20 text-3xl">
+            ✓
+          </div>
+          <h1 className="mt-6 text-2xl font-bold">Booking confirmed!</h1>
+          <p className="mt-2 text-booking-muted">
+            Your appointment at {business.name} has been requested.
+          </p>
+          <div className="mt-8 flex w-full max-w-sm flex-col gap-3 lg:max-w-md">
+            <Link
+              href="/my-appointments"
+              className="rounded-2xl bg-booking-accent py-3.5 text-center font-semibold text-booking-accent-fg"
+            >
+              View appointments
+            </Link>
+            <Link
+              href={backPath}
+              className="rounded-2xl bg-booking-elevated py-3.5 text-center font-medium"
+            >
+              Back to {business.name}
+            </Link>
+          </div>
         </div>
-        <h1 className="mt-6 text-2xl font-bold">Booking confirmed!</h1>
-        <p className="mt-2 text-booking-muted">
-          Your appointment at {business.name} has been requested.
-        </p>
-        <div className="mt-8 flex w-full max-w-sm flex-col gap-3 lg:max-w-md">
-          <Link
-            href="/my-appointments"
-            className="rounded-2xl bg-booking-accent py-3.5 text-center font-semibold text-booking-accent-fg"
-          >
-            View appointments
-          </Link>
-          <Link
-            href={backPath}
-            className="rounded-2xl bg-booking-elevated py-3.5 text-center font-medium"
-          >
-            Back to {business.name}
-          </Link>
-        </div>
-      </div>
       </>
     );
   }
@@ -129,10 +120,10 @@ export async function ScheduleWizard({
     selectedService?.image_url ?? business.cover_image_url ?? null;
   const heroStyle = heroImage
     ? {
-        backgroundImage: `linear-gradient(to top, rgba(10,10,10,0.92), rgba(10,10,10,0.25)), url(${heroImage})`,
-        backgroundSize: "cover" as const,
-        backgroundPosition: "center" as const,
-      }
+      backgroundImage: `linear-gradient(to top, rgba(10,10,10,0.92), rgba(10,10,10,0.25)), url(${heroImage})`,
+      backgroundSize: "cover" as const,
+      backgroundPosition: "center" as const,
+    }
     : undefined;
 
   return (
@@ -147,96 +138,128 @@ export async function ScheduleWizard({
           style={heroStyle}
         />
 
-      <div className="relative z-10 -mt-16 rounded-t-[2rem] bg-booking-bg px-5 pt-6 pb-40 lg:pb-12">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold lg:text-3xl">
-              {selectedService?.name ?? business.name}
-            </h1>
-            <p className="mt-1 text-sm text-booking-muted">{business.name}</p>
-            {selectedService && (
-              <p className="mt-1 text-sm text-booking-muted">
-                {serviceShowsPrice(selectedService) &&
-                  `${formatPrice(selectedService.price, currency)} · `}
-                {selectedService.duration_minutes} min
-              </p>
-            )}
+        <div className="relative z-10 -mt-16 rounded-t-[2rem] bg-booking-bg px-5 pt-6 pb-40 lg:pb-12">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold lg:text-3xl">
+                {selectedService?.name ?? business.name}
+              </h1>
+              <p className="mt-1 text-sm text-booking-muted">{business.name}</p>
+              {selectedService && (
+                <p className="mt-1 text-sm text-booking-muted">
+                  {serviceShowsPrice(selectedService) &&
+                    `${formatPrice(selectedService.price, currency)} · `}
+                  {selectedService.duration_minutes} min
+                </p>
+              )}
+              {selectedService?.staff_names && selectedService.staff_names.length > 0 && (
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-booking-accent/20 text-booking-accent">
+                    <User className="h-3.5 w-3.5" />
+                  </span>
+                  <p className="text-sm font-medium text-white/80">
+                    {selectedService.staff_names.join(", ")}
+                  </p>
+                </div>
+              )}
+            </div>
+            <Link
+              href={backPath}
+              className="shrink-0 rounded-full bg-booking-elevated px-3 py-1.5 text-xs text-booking-muted"
+            >
+              Back
+            </Link>
           </div>
-          <Link
-            href={backPath}
-            className="shrink-0 rounded-full bg-booking-elevated px-3 py-1.5 text-xs text-booking-muted"
-          >
-            Back
-          </Link>
-        </div>
 
-        {services.length > 1 && (
-          <ServiceTabPicker
-            services={services}
-            flowPath={flowPath}
-            selectedServiceId={selectedServiceId ?? ""}
-            dateStr={dateStr}
-          />
-        )}
+          {services.length > 1 && (
+            <ServiceTabPicker
+              services={services}
+              flowPath={flowPath}
+              selectedServiceId={selectedServiceId ?? ""}
+              dateStr={dateStr}
+            />
+          )}
 
-        {searchParams.error && (
-          <p className="mt-4 rounded-2xl bg-red-500/20 px-4 py-3 text-sm text-red-300">
-            {searchParams.error}
-          </p>
-        )}
+          {searchParams.error && (
+            <p className="mt-4 rounded-2xl bg-red-500/20 px-4 py-3 text-sm text-red-300">
+              {searchParams.error}
+            </p>
+          )}
 
-        {selectedService && (
-          <BookingSubmitForm
-            className="relative z-10 mt-2"
-            slotsAvailable={slots.length > 0}
-          >
-            <input type="hidden" name="bookingRef" value={bookingRef} />
-            <input type="hidden" name="flowPath" value={flowPath} />
-            <input type="hidden" name="serviceId" value={selectedService.id} />
-            <input type="hidden" name="date" value={dateStr} />
+          {selectedService && (
+            <BookingSubmitForm
+              className="relative z-10 mt-2"
+              slotsAvailable={slots.length > 0}
+              hideSubmit={isGuest}
+            >
+              <input type="hidden" name="bookingRef" value={bookingRef} />
+              <input type="hidden" name="flowPath" value={flowPath} />
+              <input type="hidden" name="serviceId" value={selectedService.id} />
+              <input type="hidden" name="date" value={dateStr} />
 
-            <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:items-start">
-              <div>
-                <HorizontalDatePicker
-                  flowPath={flowPath}
-                  serviceId={selectedService.id}
-                  selectedDate={dateStr}
-                  timezone={timezone}
-                />
-
-                <TimeSlotPicker slots={slots} defaultTime={preservedTime} />
-              </div>
-
-              <div>
-                <AddonPicker
-                  addons={addons}
-                  serviceId={selectedService.id}
-                  basePrice={selectedService.price}
-                  showBasePrice={serviceShowsPrice(selectedService)}
-                  currency={currency}
-                />
-
-                <div className="mt-6">
-                  <label
-                    htmlFor="notes"
-                    className="mb-2 block text-sm font-medium text-booking-muted"
-                  >
-                    Notes (optional)
-                  </label>
-                  <textarea
-                    id="notes"
-                    name="notes"
-                    rows={3}
-                    placeholder="Any special requests..."
-                    className="w-full resize-none rounded-2xl border-0 bg-booking-elevated px-4 py-3 text-base text-white placeholder:text-booking-muted focus:outline-none focus:ring-2 focus:ring-booking-accent/50"
+              <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:items-start">
+                <div>
+                  <HorizontalDatePicker
+                    flowPath={flowPath}
+                    serviceId={selectedService.id}
+                    selectedDate={dateStr}
+                    timezone={timezone}
                   />
+
+                  <TimeSlotPicker slots={slots} defaultTime={preservedTime} />
+                </div>
+
+                <div>
+                  <AddonPicker
+                    addons={addons}
+                    serviceId={selectedService.id}
+                    basePrice={selectedService.price}
+                    showBasePrice={serviceShowsPrice(selectedService)}
+                    currency={currency}
+                  />
+
+                  <div className="mt-6">
+                    <label
+                      htmlFor="notes"
+                      className="mb-2 block text-sm font-medium text-booking-muted"
+                    >
+                      Notes (optional)
+                    </label>
+                    <textarea
+                      id="notes"
+                      name="notes"
+                      rows={3}
+                      placeholder="Any special requests..."
+                      className="w-full resize-none rounded-2xl border-0 bg-booking-elevated px-4 py-3 text-base text-white placeholder:text-booking-muted focus:outline-none focus:ring-2 focus:ring-booking-accent/50"
+                    />
+                  </div>
+
+                  {isGuest && (
+                    <div className="mt-6 rounded-2xl bg-booking-elevated p-5 text-center">
+                      <p className="text-sm text-booking-muted">
+                        Sign in to confirm your booking
+                      </p>
+                      <Link
+                        href={authUrl(
+                          "login",
+                          bookingFlowUrl(backPath, {
+                            serviceId: searchParams.service,
+                            date: searchParams.date,
+                            time: preservedTime || undefined,
+                          })
+                        )}
+                        className="mt-3 inline-flex rounded-full bg-booking-accent px-6 py-2.5 text-sm font-semibold text-booking-accent-fg"
+                      >
+                        Sign in to book
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
-          </BookingSubmitForm>
-        )}
+            </BookingSubmitForm>
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 }

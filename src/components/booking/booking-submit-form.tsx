@@ -7,10 +7,12 @@ import { useActionLoading } from "@/providers/action-loading-provider";
 export function BookingSubmitForm({
   className,
   slotsAvailable,
+  hideSubmit,
   children,
 }: {
   className?: string;
   slotsAvailable: boolean;
+  hideSubmit?: boolean;
   children: ReactNode;
 }) {
   const { show } = useActionLoading();
@@ -37,23 +39,25 @@ export function BookingSubmitForm({
   return (
     <form className={className} onSubmit={handleSubmit}>
       {children}
-      <div className="sticky bottom-20 z-30 mt-8 pb-4 lg:static lg:mt-8 lg:pb-0">
-        <button
-          type="submit"
-          disabled={!slotsAvailable || submitting}
-          aria-busy={submitting}
-          className="flex w-full items-center justify-center gap-3 rounded-2xl bg-booking-accent px-4 py-4 text-base font-semibold text-booking-accent-fg shadow-lg shadow-black/30 disabled:cursor-not-allowed disabled:opacity-50 lg:max-w-md lg:ml-auto"
-        >
-          {submitting ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin" />
-              Booking…
-            </>
-          ) : (
-            "Book Now"
-          )}
-        </button>
-      </div>
+      {!hideSubmit && (
+        <div className="sticky bottom-20 z-30 mt-8 pb-4 lg:static lg:mt-8 lg:pb-0">
+          <button
+            type="submit"
+            disabled={!slotsAvailable || submitting}
+            aria-busy={submitting}
+            className="flex w-full items-center justify-center gap-3 rounded-2xl bg-booking-accent px-4 py-4 text-base font-semibold text-booking-accent-fg shadow-lg shadow-black/30 disabled:cursor-not-allowed disabled:opacity-50 lg:max-w-md lg:ml-auto"
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Booking…
+              </>
+            ) : (
+              "Book Now"
+            )}
+          </button>
+        </div>
+      )}
     </form>
   );
 }

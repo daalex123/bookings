@@ -13,6 +13,7 @@ const businessNav = [
   { href: "/appointments", label: "Appointments", icon: AdminNavIcons.appointments },
   { href: "/income", label: "Income", icon: AdminNavIcons.income },
   { href: "/customers", label: "Customers", icon: AdminNavIcons.customers },
+  { href: "/staff", label: "Staff", icon: AdminNavIcons.staff },
   { href: "/settings", label: "Settings", icon: AdminNavIcons.settings },
 ] as const;
 

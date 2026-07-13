@@ -18,7 +18,7 @@ export default async function ServicesPage({
   const { businessId } = await params;
   const supabase = await createClient();
 
-  const [{ data: services }, { data: business }, { data: extraLinks }] =
+  const [{ data: services }, { data: business }, { data: extraLinks }, { data: staffServices }] =
     await Promise.all([
       supabase
         .from("services")
@@ -34,9 +34,22 @@ export default async function ServicesPage({
       supabase
         .from("service_extra_links")
         .select("parent_service_id, child_service_id, sort_order"),
+      supabase
+        .from("staff_services")
+        .select("service_id, member_id, business_members ( staff_name, profiles ( full_name ) )")
     ]);
 
   const currency = business?.currency ?? "LKR";
+
+  // Build service_id -> staff names map
+  const staffByService: Record<string, string[]> = {};
+  for (const ss of staffServices ?? []) {
+    const member = ss.business_members as any;
+    const name = member?.staff_name || (Array.isArray(member?.profiles) ? member.profiles[0]?.full_name : member?.profiles?.full_name) || null;
+    if (!name) continue;
+    if (!staffByService[ss.service_id]) staffByService[ss.service_id] = [];
+    staffByService[ss.service_id].push(name);
+  }
 
   async function saveService(formData: FormData) {
     "use server";
@@ -139,6 +152,7 @@ export default async function ServicesPage({
       linkableServices={linkableServices}
       currency={currency}
       businessId={businessId}
+      staffByService={staffByService}
       saveAction={saveService}
       deleteAction={removeService}
       reorderAction={saveOrder}

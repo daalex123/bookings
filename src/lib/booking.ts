@@ -23,6 +23,7 @@ export type PublicService = {
   price: number;
   show_price: boolean;
   image_url: string | null;
+  staff_names: string[];
 };
 
 export type PublicServiceAddon = {
@@ -87,12 +88,13 @@ export function bookingFlowPath(basePath: string): string {
 /** Booking flow URL with optional pre-selected service or date */
 export function bookingFlowUrl(
   basePath: string,
-  params?: { serviceId?: string; date?: string }
+  params?: { serviceId?: string; date?: string; time?: string }
 ): string {
   const flowPath = bookingFlowPath(basePath);
   const search = new URLSearchParams();
   if (params?.serviceId) search.set("service", params.serviceId);
   if (params?.date) search.set("date", params.date);
+  if (params?.time) search.set("time", params.time);
   const query = search.toString();
   return query ? `${flowPath}?${query}` : flowPath;
 }

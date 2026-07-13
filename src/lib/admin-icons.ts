@@ -24,6 +24,7 @@ import {
   Trash2,
   Upload,
   User,
+  UserCog,
   Users,
   X,
   type LucideIcon,
@@ -54,6 +55,7 @@ export {
   Trash2,
   Upload,
   User,
+  UserCog,
   Users,
   X,
 };
@@ -64,6 +66,7 @@ export const AdminNavIcons = {
   services: Package,
   appointments: Calendar,
   customers: Users,
+  staff: UserCog,
   settings: Settings,
   income: TrendingUp,
   businesses: Building2,

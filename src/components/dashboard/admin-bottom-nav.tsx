@@ -11,6 +11,7 @@ const businessNav = [
   { href: "/appointments", label: "Bookings", icon: AdminNavIcons.appointments },
   { href: "/income", label: "Income", icon: AdminNavIcons.income },
   { href: "/customers", label: "Clients", icon: AdminNavIcons.customers },
+  { href: "/staff", label: "Staff", icon: AdminNavIcons.staff },
   { href: "/settings", label: "Settings", icon: AdminNavIcons.settings },
 ] as const;
 
@@ -28,21 +29,21 @@ export function AdminBottomNav() {
 
   const items = onBusinessRoute
     ? businessNav.map((item) => {
-        const path = item.href ? `${base}${item.href}` : base;
-        const active =
-          item.href === ""
-            ? pathname === base
-            : pathname === path || pathname.startsWith(`${path}/`);
-        return { ...item, href: path, active };
-      })
+      const path = item.href ? `${base}${item.href}` : base;
+      const active =
+        item.href === ""
+          ? pathname === base
+          : pathname === path || pathname.startsWith(`${path}/`);
+      return { ...item, href: path, active };
+    })
     : [
-        {
-          href: "/dashboard",
-          label: "Businesses",
-          icon: AdminNavIcons.businesses,
-          active: pathname === "/dashboard",
-        },
-      ];
+      {
+        href: "/dashboard",
+        label: "Businesses",
+        icon: AdminNavIcons.businesses,
+        active: pathname === "/dashboard",
+      },
+    ];
 
   return (
     <nav className="booking-bottom-nav lg:hidden">

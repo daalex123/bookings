@@ -37,6 +37,7 @@ export function ServicesPanel({
   linkableServices,
   currency,
   businessId,
+  staffByService,
   saveAction,
   deleteAction,
   reorderAction,
@@ -49,6 +50,7 @@ export function ServicesPanel({
   linkableServices: LinkableService[];
   currency: string;
   businessId: string;
+  staffByService?: Record<string, string[]>;
   saveAction: (formData: FormData) => Promise<ActionResult>;
   deleteAction: (formData: FormData) => Promise<ActionResult>;
   reorderAction: (formData: FormData) => Promise<ActionResult>;
@@ -348,6 +350,13 @@ export function ServicesPanel({
                         {service.description && !isEditing && (
                           <p className="mt-2 line-clamp-2 text-sm text-[#8b92a5]">
                             {service.description}
+                          </p>
+                        )}
+
+                        {!isEditing && (staffByService?.[service.id]?.length ?? 0) > 0 && (
+                          <p className="mt-1.5 text-xs text-[#8b92a5]">
+                            <span className="font-medium text-[#1e2235]/60">Staff:</span>{" "}
+                            {staffByService![service.id].join(", ")}
                           </p>
                         )}
                       </div>

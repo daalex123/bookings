@@ -13,11 +13,11 @@ import { ShareBookingCard } from "@/components/booking/share-booking-card";
 import { createClient } from "@/lib/supabase/server";
 
 const statusStyle: Record<string, string> = {
-  pending: "bg-teal-50 text-teal-700",
-  confirmed: "bg-emerald-50 text-emerald-700",
-  cancelled: "bg-red-50 text-red-600",
-  completed: "bg-[#f0f2f5] text-[#8b92a5]",
-  no_show: "bg-red-50 text-red-600",
+  pending: "bg-amber-500/25 text-amber-300 font-semibold",
+  confirmed: "bg-emerald-500/25 text-emerald-300 font-semibold",
+  cancelled: "bg-red-500/25 text-red-300 font-semibold",
+  completed: "bg-white/10 text-[var(--admin-muted)] font-semibold",
+  no_show: "bg-red-500/25 text-red-300 font-semibold",
 };
 
 export default async function BusinessOverviewPage({
@@ -91,15 +91,15 @@ export default async function BusinessOverviewPage({
         title="Overview"
         description="Today's snapshot for your business"
         action={
-          <div className="hidden lg:flex items-center gap-5">
-            <div className="rounded-xl bg-white/80 backdrop-blur-sm border border-[var(--admin-border)] px-5 py-3 text-right shadow-sm">
-              <p className="text-xl font-black text-[var(--admin-navy)]">
+          <div className="hidden lg:flex items-center gap-4">
+            <div className="rounded-xl bg-[var(--admin-elevated)] border border-[var(--admin-border)] px-5 py-3 text-right">
+              <p className="text-xl font-black text-[var(--admin-accent)]">
                 {formatPrice(incomeSummary.today, currency)}
               </p>
               <p className="text-[11px] font-medium text-[var(--admin-muted)]">Income today</p>
             </div>
-            <div className="rounded-xl bg-white/80 backdrop-blur-sm border border-[var(--admin-border)] px-5 py-3 text-right shadow-sm">
-              <p className="text-xl font-black text-[var(--admin-navy)]">{todayCount ?? 0}</p>
+            <div className="rounded-xl bg-[var(--admin-elevated)] border border-[var(--admin-border)] px-5 py-3 text-right">
+              <p className="text-xl font-black text-[var(--admin-accent)]">{todayCount ?? 0}</p>
               <p className="text-[11px] font-medium text-[var(--admin-muted)]">Appointments</p>
             </div>
           </div>
@@ -137,7 +137,7 @@ export default async function BusinessOverviewPage({
           <h2 className="text-lg font-bold text-[var(--admin-navy)]">Today&apos;s schedule</h2>
           <Link
             href={`/dashboard/${businessId}/appointments?time=today`}
-            className="text-sm font-medium text-booking-accent hover:underline"
+            className="text-sm font-medium text-[var(--admin-accent)] hover:underline"
           >
             View all
           </Link>
@@ -151,7 +151,7 @@ export default async function BusinessOverviewPage({
                 <Link
                   key={appt.id}
                   href={`/dashboard/${businessId}/appointments?time=today&id=${appt.id}`}
-                  className="flex flex-col gap-3 px-6 py-4 transition-colors hover:bg-white/5 sm:flex-row sm:items-center sm:justify-between lg:hover:bg-[var(--admin-accent-bg)]"
+                  className="flex flex-col gap-3 px-6 py-4 transition-colors hover:bg-[var(--admin-elevated)] sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="min-w-0">
                     <p className="font-semibold text-[var(--admin-navy)]">

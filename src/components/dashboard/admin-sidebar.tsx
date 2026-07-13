@@ -59,7 +59,7 @@ export function AdminSidebar({
       {/* Brand header */}
       <div className="mb-8 flex items-center gap-3 px-2">
         {onBusinessRoute && businessLogoUrl ? (
-          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl ring-2 ring-white/80 shadow-md">
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl ring-2 ring-[var(--admin-accent)]/30 shadow-md">
             <Image
               src={businessLogoUrl}
               alt=""
@@ -70,8 +70,8 @@ export function AdminSidebar({
           </div>
         ) : (
           <div
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold text-white shadow-lg"
-            style={{ background: "var(--admin-gradient)" }}
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold shadow-lg"
+            style={{ background: "var(--admin-gradient)", color: "#0c0c0e" }}
           >
             {brandInitials || "B"}
           </div>
@@ -147,8 +147,8 @@ export function AdminSidebar({
       <div className="mt-auto border-t border-[var(--admin-border)] pt-5">
         <div className="flex items-center gap-3 rounded-xl px-2 py-2">
           <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-sm"
-            style={{ background: "var(--admin-gradient)" }}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold shadow-sm"
+            style={{ background: "var(--admin-gradient)", color: "#0c0c0e" }}
           >
             {initials || "?"}
           </div>
@@ -173,7 +173,7 @@ export function AdminSidebar({
 
   return (
     <>
-      <aside className="hidden h-full w-[264px] shrink-0 border-r border-[var(--admin-border)] bg-white/70 backdrop-blur-xl lg:static lg:block">
+      <aside className="hidden h-full w-[264px] shrink-0 border-r border-[var(--admin-border)] bg-[var(--admin-surface)] lg:static lg:block">
         {sidebarContent}
       </aside>
     </>

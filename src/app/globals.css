@@ -99,23 +99,24 @@ body {
   background: linear-gradient(145deg, #1f2a1f 0%, #101410 100%);
 }
 
-/* Admin dashboard — Premium modern */
+/* Admin dashboard — Dark premium */
 .admin-theme {
-  --admin-bg: #f4f6f9;
-  --admin-surface: #ffffff;
-  --admin-navy: #111827;
-  --admin-navy-hover: #1f2937;
-  --admin-muted: #6b7280;
-  --admin-border: rgba(0, 0, 0, 0.06);
-  --admin-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 6px 24px rgba(0, 0, 0, 0.06);
-  --admin-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.05), 0 20px 48px rgba(0, 0, 0, 0.08);
+  --admin-bg: #0c0c0e;
+  --admin-surface: #151518;
+  --admin-elevated: #1c1c21;
+  --admin-navy: #f5f5f7;
+  --admin-navy-hover: #ffffff;
+  --admin-muted: #9ca3af;
+  --admin-border: rgba(255, 255, 255, 0.07);
+  --admin-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2);
+  --admin-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
   --admin-radius: 1rem;
   --admin-radius-lg: 1.25rem;
-  --admin-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
-  --admin-gradient-subtle: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.06) 100%);
-  --admin-accent: #6366f1;
-  --admin-accent-light: #818cf8;
-  --admin-accent-bg: rgba(99,102,241,0.08);
+  --admin-accent: #f5a623;
+  --admin-accent-light: #fbbf24;
+  --admin-accent-bg: rgba(245, 166, 35, 0.1);
+  --admin-gradient: linear-gradient(135deg, #f5a623 0%, #f7c948 100%);
+  --admin-gradient-subtle: linear-gradient(135deg, rgba(245,166,35,0.1) 0%, rgba(247,201,72,0.05) 100%);
   background: var(--admin-bg);
   color: var(--admin-navy);
 }
@@ -130,13 +131,15 @@ body {
 
 .admin-card:hover {
   box-shadow: var(--admin-shadow-lg);
+  border-color: rgba(255, 255, 255, 0.12);
   transform: translateY(-1px);
 }
 
 .admin-pill-active {
-  background: var(--admin-gradient);
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+  background: var(--admin-accent);
+  color: #0c0c0e;
+  font-weight: 600;
+  box-shadow: 0 2px 12px rgba(245, 166, 35, 0.3);
 }
 
 .admin-pill-idle {
@@ -144,14 +147,14 @@ body {
 }
 
 .admin-pill-idle:hover {
-  background: var(--admin-accent-bg);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--admin-navy);
 }
 
-/* Admin mobile app — matches booking client UI on small screens */
+/* Admin app shell — dark everywhere */
 .admin-app-shell {
-  background: var(--color-booking-bg);
-  color: #fafafa;
+  background: var(--admin-bg);
+  color: var(--admin-navy);
 }
 
 .admin-app-shell ::-webkit-scrollbar {
@@ -163,137 +166,122 @@ body {
 }
 
 @media (min-width: 1024px) {
-  .admin-app-shell {
-    background: var(--admin-bg);
-    color: var(--admin-navy);
-  }
-
-  .admin-app-shell.booking-theme {
-    background: var(--admin-bg);
-    color: var(--admin-navy);
-  }
-
   .admin-app-shell ::-webkit-scrollbar {
     display: initial;
+    width: 6px;
+  }
+
+  .admin-app-shell ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .admin-app-shell ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
   }
 
   .admin-app-shell * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(0,0,0,0.12) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
   }
 }
 
-@media (max-width: 1023px) {
-  .admin-app-shell .admin-card {
-    background: var(--color-booking-elevated);
-    border-color: rgb(255 255 255 / 0.08);
-    box-shadow: none;
-  }
+/* Dark-theme overrides for admin cards & elements */
+.admin-app-shell [class*="bg-teal-50"] {
+  background: rgb(20 184 166 / 0.15) !important;
+  color: #5eead4 !important;
+}
 
-  .admin-app-shell .admin-card [class*="border-[#1e2235]"] {
-    border-color: rgb(255 255 255 / 0.08) !important;
-  }
+.admin-app-shell [class*="bg-emerald-50"] {
+  background: rgb(16 185 129 / 0.15) !important;
+  color: #6ee7b7 !important;
+}
 
-  .admin-app-shell .admin-card [class*="divide-[#1e2235]"] > * + * {
-    border-color: rgb(255 255 255 / 0.08) !important;
-  }
+.admin-app-shell [class*="bg-red-50"] {
+  background: rgb(239 68 68 / 0.15) !important;
+  color: #fca5a5 !important;
+}
 
-  .admin-app-shell main [class*="text-[#1e2235]"],
-  .admin-app-shell .admin-card [class*="text-[#1e2235]"] {
-    color: #fafafa !important;
-  }
+.admin-app-shell [class*="bg-white"] {
+  background: var(--admin-surface) !important;
+}
 
-  .admin-app-shell main [class*="text-[#8b92a5]"],
-  .admin-app-shell .admin-card [class*="text-[#8b92a5]"] {
-    color: var(--color-booking-muted) !important;
-  }
+.admin-app-shell input[type="color"],
+.admin-app-shell .brand-color-picker {
+  background: transparent !important;
+  color: inherit !important;
+  padding: 0.15rem !important;
+  min-height: 2.5rem;
+  cursor: pointer;
+}
 
-  .admin-app-shell main [class*="bg-[#f0f2f5]"] {
-    background: rgb(255 255 255 / 0.08) !important;
-    color: var(--color-booking-muted) !important;
-  }
+.admin-app-shell input[type="search"],
+.admin-app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="color"]):not(.brand-color-picker),
+.admin-app-shell textarea,
+.admin-app-shell select {
+  background: var(--admin-elevated) !important;
+  border-color: var(--admin-border) !important;
+  color: var(--admin-navy) !important;
+}
 
-  .admin-app-shell [class*="bg-teal-50"] {
-    background: rgb(20 184 166 / 0.18) !important;
-    color: #5eead4 !important;
-  }
+.admin-app-shell input::placeholder,
+.admin-app-shell textarea::placeholder {
+  color: var(--admin-muted) !important;
+}
 
-  .admin-app-shell [class*="bg-emerald-50"] {
-    background: rgb(16 185 129 / 0.18) !important;
-    color: #6ee7b7 !important;
-  }
+.admin-app-shell [class*="border-zinc"] {
+  border-color: var(--admin-border) !important;
+}
 
-  .admin-app-shell [class*="bg-red-50"] {
-    background: rgb(239 68 68 / 0.18) !important;
-    color: #fca5a5 !important;
-  }
+.admin-app-shell [class*="bg-zinc-50"] {
+  background: rgba(255 255 255 / 0.04) !important;
+}
 
-  .admin-app-shell [class*="bg-white"] {
-    background: var(--color-booking-elevated) !important;
-  }
+.admin-app-shell [class*="text-zinc-"] {
+  color: var(--admin-navy) !important;
+}
 
-  .admin-app-shell input[type="color"],
-  .admin-app-shell .brand-color-picker {
-    background: transparent !important;
-    color: inherit !important;
-    padding: 0.15rem !important;
-    min-height: 2.5rem;
-    cursor: pointer;
-  }
+.admin-app-shell [class*="text-zinc-5"],
+.admin-app-shell [class*="text-zinc-6"] {
+  color: var(--admin-muted) !important;
+}
 
-  .admin-app-shell input[type="search"],
-  .admin-app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="color"]):not(.brand-color-picker),
-  .admin-app-shell textarea,
-  .admin-app-shell select {
-    background: var(--color-booking-elevated) !important;
-    border-color: rgb(255 255 255 / 0.1) !important;
-    color: #fafafa !important;
-  }
+/* Catch legacy hardcoded light-theme colors in admin shell */
+.admin-app-shell [class*="text-[#1e2235]"],
+.admin-app-shell [class*="text-\\[\\#1e2235\\]"] {
+  color: var(--admin-navy) !important;
+}
 
-  .admin-app-shell input::placeholder,
-  .admin-app-shell textarea::placeholder {
-    color: var(--color-booking-muted) !important;
-  }
+.admin-app-shell [class*="text-[#8b92a5]"] {
+  color: var(--admin-muted) !important;
+}
 
-  .admin-app-shell [class*="border-zinc"] {
-    border-color: rgb(255 255 255 / 0.1) !important;
-  }
+.admin-app-shell [class*="bg-[#f0f2f5]"] {
+  background: var(--admin-elevated) !important;
+}
 
-  .admin-app-shell [class*="bg-zinc-50"] {
-    background: rgb(255 255 255 / 0.05) !important;
-  }
+.admin-app-shell [class*="bg-[#1e2235]"]:not([class*="/10"]):not([class*="/8"]):not([class*="/20"]) {
+  background: var(--admin-accent) !important;
+  color: #0c0c0e !important;
+}
 
-  .admin-app-shell [class*="text-zinc-"] {
-    color: #fafafa !important;
-  }
+.admin-app-shell [class*="border-[#1e2235]"] {
+  border-color: var(--admin-border) !important;
+}
 
-  .admin-app-shell [class*="text-zinc-5"],
-  .admin-app-shell [class*="text-zinc-6"] {
-    color: var(--color-booking-muted) !important;
-  }
+.admin-app-shell [class*="divide-[#1e2235]"] > * + * {
+  border-color: var(--admin-border) !important;
+}
 
-  .admin-app-shell .rounded-\[1\.25rem\] {
-    background: var(--color-booking-elevated) !important;
-    border-color: rgb(255 255 255 / 0.08) !important;
-    color: #fafafa !important;
-    box-shadow: none !important;
-  }
+.admin-app-shell [class*="bg-white"]:not(.admin-app-shell) {
+  background: var(--admin-surface) !important;
+}
 
-  .admin-app-shell button.rounded-full[class*="bg-[#1e2235]"]:not([class*="/10"]) {
-    background: var(--color-booking-accent) !important;
-    color: var(--color-booking-accent-fg) !important;
-    box-shadow: 0 2px 12px rgba(245, 197, 24, 0.25) !important;
-  }
-
-  .admin-app-shell button.rounded-full[class*="bg-[#f0f2f5]"] {
-    background: var(--color-booking-elevated) !important;
-    color: var(--color-booking-muted) !important;
-  }
-
-  .admin-app-shell button.rounded-full[class*="bg-[#1e2235]/10"] {
-    background: rgb(255 255 255 / 0.12) !important;
-    color: var(--color-booking-accent) !important;
-  }
+.admin-app-shell .rounded-\[1\.25rem\] {
+  background: var(--admin-surface) !important;
+  border-color: var(--admin-border) !important;
+  color: var(--admin-navy) !important;
+  box-shadow: var(--admin-shadow) !important;
 }
 
 @media (display-mode: standalone) {

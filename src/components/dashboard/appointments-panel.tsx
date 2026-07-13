@@ -59,11 +59,11 @@ type TimeFilter = "all" | "upcoming" | "today" | "past";
 type ViewMode = "calendar" | "list";
 
 const STATUS_STYLE: Record<string, string> = {
-  pending: "bg-teal-50 text-teal-700",
-  confirmed: "bg-emerald-50 text-emerald-700",
-  cancelled: "bg-red-50 text-red-600",
-  completed: "bg-[#f0f2f5] text-[#8b92a5]",
-  no_show: "bg-red-50 text-red-600",
+  pending: "bg-amber-500/25 text-amber-300 font-semibold",
+  confirmed: "bg-emerald-500/25 text-emerald-300 font-semibold",
+  cancelled: "bg-red-500/25 text-red-300 font-semibold",
+  completed: "bg-white/10 text-[var(--admin-muted)] font-semibold",
+  no_show: "bg-red-500/25 text-red-300 font-semibold",
 };
 
 const STATUS_FILTERS: { id: StatusFilter; label: string }[] = [

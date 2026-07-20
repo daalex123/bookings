@@ -2,6 +2,8 @@ import { createBusinessStatusNotifications } from "@/lib/notifications/in-app";
 import { createCustomerStatusNotification } from "@/lib/notifications/customer-in-app";
 import { excludeUserIds } from "@/lib/notifications/recipients";
 import { sendBusinessWhatsApp } from "@/lib/notifications/whatsapp";
+import { sendOneSignalPush } from "@/lib/push/onesignal/send-push";
+import { absoluteUrl, getSiteUrl } from "@/lib/site-url";
 import { hasAdminClient } from "@/lib/supabase/admin";
 import {
   loadBookingDetails,
@@ -40,6 +42,27 @@ export async function notifyAppointmentStatus(
       details.serviceName,
       status
     );
+
+    const siteUrl = await getSiteUrl();
+    const customerTitle =
+      status === "cancelled"
+        ? `Booking cancelled: ${details.serviceName}`
+        : status === "confirmed"
+          ? `Booking confirmed: ${details.serviceName}`
+          : `Appointment update: ${details.serviceName}`;
+    const customerBody =
+      status === "cancelled"
+        ? `Your ${details.serviceName} appointment at ${details.businessName} was cancelled.`
+        : status === "confirmed"
+          ? `Your ${details.serviceName} appointment at ${details.businessName} is confirmed.`
+          : `Your ${details.serviceName} appointment status is now ${status.replace("_", " ")}.`;
+
+    await sendOneSignalPush({
+      userIds: [details.customerId],
+      title: customerTitle,
+      body: customerBody,
+      url: absoluteUrl(siteUrl, "/my-appointments"),
+    });
   }
 
   if (!BUSINESS_WHATSAPP_STATUSES.has(status)) return;
@@ -55,6 +78,26 @@ export async function notifyAppointmentStatus(
     memberUserIds,
     businessStatus
   );
+
+  const siteUrl = await getSiteUrl();
+  const staffTitle =
+    status === "cancelled"
+      ? `Booking cancelled: ${details.serviceName}`
+      : `Booking confirmed: ${details.serviceName}`;
+  const staffBody =
+    status === "cancelled"
+      ? `${details.customerName} cancelled ${details.serviceName}.`
+      : `${details.customerName}'s ${details.serviceName} appointment was confirmed.`;
+
+  await sendOneSignalPush({
+    userIds: memberUserIds,
+    title: staffTitle,
+    body: staffBody,
+    url: absoluteUrl(
+      siteUrl,
+      `/dashboard/${details.businessId}/appointments?id=${details.appointmentId}`
+    ),
+  });
 
   if (!details.businessContactWhatsApp) return;
 

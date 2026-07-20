@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { SiteHeader } from "@/components/site-header";
 import { BookingShell } from "@/components/booking/booking-shell";
-import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
+import { OneSignalProvider } from "@/components/push/onesignal-provider";
 import { ActionLoadingProvider } from "@/providers/action-loading-provider";
 import { Toaster } from "@/components/ui/sonner";
 import {
@@ -68,7 +68,7 @@ export default async function RootLayout({
             <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
           </>
         )}
-        <ServiceWorkerRegister />
+        <OneSignalProvider />
         <Toaster />
         </ActionLoadingProvider>
       </body>

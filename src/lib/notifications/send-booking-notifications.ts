@@ -4,6 +4,8 @@ import { excludeUserIds } from "@/lib/notifications/recipients";
 import { sendEmail } from "@/lib/notifications/email";
 import { sendSms } from "@/lib/notifications/sms";
 import { sendBusinessWhatsApp, isWhatsAppConfigured } from "@/lib/notifications/whatsapp";
+import { sendOneSignalPush } from "@/lib/push/onesignal/send-push";
+import { absoluteUrl, getSiteUrl } from "@/lib/site-url";
 import {
   businessBookingEmail,
   businessBookingSms,
@@ -54,6 +56,30 @@ export async function sendBookingNotifications(
   await Promise.all([
     createBusinessNotifications(details, memberUserIds),
     createCustomerBookingNotification(details, details.customerId),
+  ]);
+
+  const siteUrl = await getSiteUrl();
+  const staffPushTitle = `New booking: ${details.serviceName}`;
+  const staffPushBody = `${details.customerName} booked for ${details.serviceName}.`;
+  const customerPushTitle = "Booking confirmed";
+  const customerPushBody = `Your ${details.serviceName} appointment at ${details.businessName} is booked.`;
+
+  await Promise.all([
+    sendOneSignalPush({
+      userIds: memberUserIds,
+      title: staffPushTitle,
+      body: staffPushBody,
+      url: absoluteUrl(
+        siteUrl,
+        `/dashboard/${details.businessId}/appointments?id=${details.appointmentId}`
+      ),
+    }),
+    sendOneSignalPush({
+      userIds: [details.customerId],
+      title: customerPushTitle,
+      body: customerPushBody,
+      url: absoluteUrl(siteUrl, "/my-appointments"),
+    }),
   ]);
 
   const businessEmailContent = businessBookingEmail(details);

@@ -6,17 +6,20 @@ import {
   bookingPublicUrl,
 } from "@/lib/booking";
 import {
+  CATEGORY_CUSTOM_FIELDS,
   CURRENCY_OPTIONS,
   DEFAULT_BACKGROUND_COLOR,
   DEFAULT_BRAND_COLOR,
   DEFAULT_CURRENCY,
   DEFAULT_TIMEZONE,
+  INDUSTRY_CATEGORIES,
   TIMEZONE_OPTIONS,
 } from "@/lib/constants";
 import { absoluteUrl, getSiteUrl } from "@/lib/site-url";
 import { ActionForm } from "@/components/action-form";
 import { ShareBookingCard } from "@/components/booking/share-booking-card";
 import { BrandColorField } from "@/components/dashboard/brand-color-field";
+import { BookingCustomFieldsBuilder } from "@/components/dashboard/booking-custom-fields-builder";
 import { AdminSelect } from "@/components/dashboard/admin-select";
 import { ImageUploadField } from "@/components/dashboard/image-upload-field";
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -78,6 +81,11 @@ export default async function SettingsPage({
     ? absoluteUrl(siteUrl, bookingPagePathByToken(business.booking_token))
     : "";
   const adminAppUrl = adminDashboardUrl(businessId, siteUrl);
+  const activeCategory = (business?.industry_category ?? "general") as keyof typeof CATEGORY_CUSTOM_FIELDS;
+  const categoryDefaults = CATEGORY_CUSTOM_FIELDS[activeCategory] ?? [];
+  const customFieldsHiddenValue = JSON.stringify(
+    (business?.booking_custom_fields as unknown) ?? categoryDefaults
+  );
 
   return (
     <div className="space-y-6 lg:space-y-8">
@@ -213,6 +221,16 @@ export default async function SettingsPage({
             />
             <input
               type="hidden"
+              name="industry_category"
+              value={business?.industry_category ?? "general"}
+            />
+            <input
+              type="hidden"
+              name="booking_custom_fields_json"
+              value={customFieldsHiddenValue}
+            />
+            <input
+              type="hidden"
               name="logo_url"
               value={business?.logo_url ?? ""}
             />
@@ -268,6 +286,16 @@ export default async function SettingsPage({
               type="hidden"
               name="currency"
               value={business?.currency ?? DEFAULT_CURRENCY}
+            />
+            <input
+              type="hidden"
+              name="industry_category"
+              value={business?.industry_category ?? "general"}
+            />
+            <input
+              type="hidden"
+              name="booking_custom_fields_json"
+              value={customFieldsHiddenValue}
             />
             <input
               type="hidden"
@@ -381,6 +409,27 @@ export default async function SettingsPage({
                 maxLength={120}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="industry_category">Industry Category</Label>
+              <AdminSelect
+                id="industry_category"
+                name="industry_category"
+                defaultValue={business?.industry_category ?? "general"}
+              >
+                {INDUSTRY_CATEGORIES.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
+                ))}
+              </AdminSelect>
+              <p className="text-xs text-zinc-500">
+                Controls which extra fields customers see in the booking form.
+              </p>
+            </div>
+            <BookingCustomFieldsBuilder
+              initialCategory={business?.industry_category ?? "general"}
+              initialFields={business?.booking_custom_fields as unknown}
+            />
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="currency">Currency</Label>

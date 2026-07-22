@@ -20,6 +20,7 @@ import { HorizontalDatePicker } from "@/components/booking/horizontal-date-picke
 import { ServiceTabPicker } from "@/components/booking/service-tab-picker";
 import { TimeSlotPicker } from "@/components/booking/time-slot-picker";
 import { AddonPicker } from "@/components/booking/addon-picker";
+import { CustomBookingFields } from "@/components/booking/custom-booking-fields";
 import { cn } from "@/lib/utils";
 
 export async function ScheduleWizard({
@@ -231,6 +232,14 @@ export async function ScheduleWizard({
                       rows={3}
                       placeholder="Any special requests..."
                       className="w-full resize-none rounded-2xl border-0 bg-booking-elevated px-4 py-3 text-base text-white placeholder:text-booking-muted focus:outline-none focus:ring-2 focus:ring-booking-accent/50"
+                    />
+                  </div>
+
+                  {/* Custom fields based on business category */}
+                  <div className="mt-6">
+                    <CustomBookingFields
+                      industryCategory={business.industry_category}
+                      customFields={business.booking_custom_fields}
                     />
                   </div>
 

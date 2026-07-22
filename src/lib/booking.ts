@@ -12,6 +12,16 @@ export type PublicBusiness = {
   background_color: string;
   admin_background_color: string;
   booking_token: string;
+  industry_category: string;
+  booking_custom_fields: Array<{
+    name: string;
+    label: string;
+    type: "text" | "number" | "email" | "tel" | "select" | "textarea";
+    placeholder?: string;
+    required?: boolean;
+    options?: { value: string; label: string }[];
+    description?: string;
+  }> | null;
 };
 
 export type PublicService = {

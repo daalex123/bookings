@@ -13,6 +13,7 @@ import {
   DEFAULT_CURRENCY,
   DEFAULT_TIMEZONE,
   TIMEZONE_OPTIONS,
+  INDUSTRY_CATEGORIES,
 } from "@/lib/constants";
 
 export function CreateBusinessForm({
@@ -58,6 +59,19 @@ export function CreateBusinessForm({
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>
         <Textarea id="description" name="description" rows={3} />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="industry_category">Industry Category</Label>
+        <AdminSelect id="industry_category" name="industry_category" defaultValue="general">
+          {INDUSTRY_CATEGORIES.map((cat) => (
+            <option key={cat.value} value={cat.value}>
+              {cat.label}
+            </option>
+          ))}
+        </AdminSelect>
+        <p className="text-xs text-zinc-500">
+          This determines custom fields shown during booking
+        </p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">

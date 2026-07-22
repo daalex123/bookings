@@ -160,6 +160,7 @@ export async function createBusiness(formData: FormData) {
     description: formData.get("description") || undefined,
     timezone: formData.get("timezone") || DEFAULT_TIMEZONE,
     currency: formData.get("currency") || DEFAULT_CURRENCY,
+    industry_category: formData.get("industry_category")?.toString() || "general",
   });
 
   if (!parsed.success) {
@@ -188,11 +189,29 @@ export async function createBusiness(formData: FormData) {
   if (bizError) return { error: bizError.message };
   if (!businessId) return { error: "Failed to create business" };
 
+  const { error: categoryError } = await supabase
+    .from("businesses")
+    .update({ industry_category: parsed.data.industry_category })
+    .eq("id", businessId as string);
+
+  if (categoryError) return { error: categoryError.message };
+
   revalidatePath("/dashboard");
   return { businessId: businessId as string };
 }
 
 export async function updateBusiness(businessId: string, formData: FormData) {
+  const customFieldsRaw = formData.get("booking_custom_fields_json")?.toString().trim();
+  let customFieldsParsed: unknown = undefined;
+
+  if (customFieldsRaw) {
+    try {
+      customFieldsParsed = JSON.parse(customFieldsRaw);
+    } catch {
+      return { error: { form: ["Custom fields JSON is invalid"] } };
+    }
+  }
+
   const parsed = businessSchema.safeParse({
     name: formData.get("name"),
     slug: formData.get("slug"),
@@ -200,6 +219,8 @@ export async function updateBusiness(businessId: string, formData: FormData) {
     tagline: formData.get("tagline") || undefined,
     timezone: formData.get("timezone"),
     currency: formData.get("currency"),
+    industry_category: formData.get("industry_category")?.toString() || "general",
+    booking_custom_fields: customFieldsParsed,
     logo_url: formData.get("logo_url")?.toString() || "",
     cover_image_url: formData.get("cover_image_url")?.toString() || "",
     brand_color: formData.get("brand_color")?.toString() || DEFAULT_BRAND_COLOR,
@@ -226,6 +247,8 @@ export async function updateBusiness(businessId: string, formData: FormData) {
       tagline: parsed.data.tagline ?? null,
       timezone: parsed.data.timezone,
       currency: parsed.data.currency,
+      industry_category: parsed.data.industry_category,
+      booking_custom_fields: parsed.data.booking_custom_fields ?? null,
       logo_url: parsed.data.logo_url || null,
       cover_image_url: parsed.data.cover_image_url || null,
       brand_color: parsed.data.brand_color ?? DEFAULT_BRAND_COLOR,
@@ -573,6 +596,15 @@ export async function createAppointment(
     .map((value) => value.toString())
     .filter(Boolean);
 
+  // Extract custom fields (prefixed with "custom_")
+  const customFields: Record<string, string> = {};
+  for (const [key, value] of formData.entries()) {
+    if (key.startsWith("custom_") && value) {
+      const fieldName = key.substring(7); // Remove "custom_" prefix
+      customFields[fieldName] = value.toString();
+    }
+  }
+
   if (!serviceId || !dateStr || !time) {
     return { error: "Missing booking details" };
   }
@@ -612,6 +644,7 @@ export async function createAppointment(
     p_end_at: end_at,
     p_notes: notes || null,
     p_addon_service_ids: addonServiceIds,
+    p_custom_fields: Object.keys(customFields).length > 0 ? customFields : null,
   });
 
   if (error) return { error: error.message };

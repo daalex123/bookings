@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { DEFAULT_CURRENCY, DEFAULT_TIMEZONE } from "@/lib/constants";
+import {
+  DEFAULT_CURRENCY,
+  DEFAULT_TIMEZONE,
+  INDUSTRY_CATEGORIES,
+} from "@/lib/constants";
 import { normalizePhone } from "@/lib/phone";
 
 export const phoneSchema = z
@@ -29,6 +33,33 @@ const hexColorSchema = z
   .string()
   .regex(/^#[0-9A-Fa-f]{6}$/, "Use a hex color like #f5c518");
 
+const industryCategoryValues = INDUSTRY_CATEGORIES.map((c) => c.value);
+
+const customFieldOptionSchema = z.object({
+  value: z.string().min(1),
+  label: z.string().min(1),
+});
+
+const customFieldSchema = z
+  .object({
+    name: z.string().min(1),
+    label: z.string().min(1),
+    type: z.enum(["text", "number", "email", "tel", "select", "textarea"]),
+    placeholder: z.string().optional(),
+    required: z.boolean().optional(),
+    options: z.array(customFieldOptionSchema).optional(),
+    description: z.string().optional(),
+  })
+  .superRefine((field, ctx) => {
+    if (field.type === "select" && (!field.options || field.options.length === 0)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Select fields must include at least one option",
+        path: ["options"],
+      });
+    }
+  });
+
 export const businessSchema = z.object({
   name: z.string().min(2, "Business name is required"),
   slug: z
@@ -39,6 +70,15 @@ export const businessSchema = z.object({
   tagline: z.string().max(120).optional(),
   timezone: z.string().min(1).default(DEFAULT_TIMEZONE),
   currency: z.string().length(3).default(DEFAULT_CURRENCY),
+  industry_category: z
+    .string()
+    .optional()
+    .transform((value) => value ?? "general")
+    .refine(
+      (value) => industryCategoryValues.includes(value as (typeof industryCategoryValues)[number]),
+      "Invalid industry category"
+    ),
+  booking_custom_fields: z.array(customFieldSchema).optional(),
   logo_url: optionalUrl,
   cover_image_url: optionalUrl,
   brand_color: hexColorSchema.optional(),

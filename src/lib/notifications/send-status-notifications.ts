@@ -2,6 +2,7 @@ import { createBusinessStatusNotifications } from "@/lib/notifications/in-app";
 import { createCustomerStatusNotification } from "@/lib/notifications/customer-in-app";
 import { excludeUserIds } from "@/lib/notifications/recipients";
 import { sendBusinessAdminSms } from "@/lib/notifications/sms";
+import { toE164 } from "@/lib/notifications/phone-e164";
 import { businessStatusSms } from "@/lib/notifications/templates";
 import { sendBusinessWhatsApp } from "@/lib/notifications/whatsapp";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -51,13 +52,29 @@ export async function notifyAppointmentStatus(
     await loadOwnerAdminUserIds(details.businessId),
     actorUserId
   );
+
+  const admin = createAdminClient();
+  const recipients = new Set<string>();
+
+  if (details.businessContactWhatsApp) {
+    const e164 = toE164(details.businessContactWhatsApp);
+    if (e164) recipients.add(e164);
+  }
+
   if (ownerAdminIds.length > 0) {
-    const admin = createAdminClient();
     const { data: ownerProfiles } = await admin
       .from("profiles")
       .select("id, phone")
       .in("id", ownerAdminIds);
 
+    for (const profile of ownerProfiles ?? []) {
+      if (!profile.phone) continue;
+      const e164 = toE164(profile.phone);
+      if (e164) recipients.add(e164);
+    }
+  }
+
+  if (recipients.size > 0) {
     const businessStatus = status as
       | "confirmed"
       | "cancelled"
@@ -65,16 +82,10 @@ export async function notifyAppointmentStatus(
       | "no_show";
 
     const siteUrl = await getSiteUrl();
+    const message = businessStatusSms(details, businessStatus, siteUrl);
 
     await Promise.all(
-      (ownerProfiles ?? [])
-        .filter((profile) => Boolean(profile.phone))
-        .map((profile) =>
-          sendBusinessAdminSms(
-            profile.phone as string,
-            businessStatusSms(details, businessStatus, siteUrl)
-          )
-        )
+      Array.from(recipients).map((to) => sendBusinessAdminSms(to, message))
     );
   }
 

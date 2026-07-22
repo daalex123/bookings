@@ -3,6 +3,7 @@ import { createCustomerBookingNotification } from "@/lib/notifications/customer-
 import { excludeUserIds } from "@/lib/notifications/recipients";
 import { sendEmail } from "@/lib/notifications/email";
 import { sendBusinessAdminSms, sendSms } from "@/lib/notifications/sms";
+import { toE164 } from "@/lib/notifications/phone-e164";
 import { sendBusinessWhatsApp, isWhatsAppConfigured } from "@/lib/notifications/whatsapp";
 import {
   businessBookingEmail,
@@ -128,6 +129,13 @@ export async function sendBookingNotifications(
   }
 
   const ownerAdminIds = await loadOwnerAdminUserIds(details.businessId);
+  const adminRecipients = new Set<string>();
+
+  if (details.businessContactWhatsApp) {
+    const e164 = toE164(details.businessContactWhatsApp);
+    if (e164) adminRecipients.add(e164);
+  }
+
   if (ownerAdminIds.length > 0) {
     const { data: ownerProfiles } = await admin
       .from("profiles")
@@ -135,11 +143,16 @@ export async function sendBookingNotifications(
       .in("id", ownerAdminIds);
 
     for (const ownerProfile of ownerProfiles ?? []) {
-      if (ownerProfile.phone) {
-        tasks.push(
-          sendBusinessAdminSms(ownerProfile.phone, businessBookingSms(details, siteUrl))
-        );
-      }
+      if (!ownerProfile.phone) continue;
+      const e164 = toE164(ownerProfile.phone);
+      if (e164) adminRecipients.add(e164);
+    }
+  }
+
+  if (adminRecipients.size > 0) {
+    const message = businessBookingSms(details, siteUrl);
+    for (const to of adminRecipients) {
+      tasks.push(sendBusinessAdminSms(to, message));
     }
   }
 

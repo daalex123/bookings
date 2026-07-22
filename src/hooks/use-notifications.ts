@@ -22,6 +22,7 @@ import {
   sortNotifications,
   type NotificationStore,
 } from "@/lib/notifications/notification-store";
+import { syncAppIconBadge } from "@/lib/pwa/app-badge";
 import type { Notification, NotificationAudience } from "@/types/database";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
@@ -92,6 +93,11 @@ export function useNotifications(
 
   const notifications = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
   const unreadCount = useMemo(() => countUnread(notifications), [notifications]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    void syncAppIconBadge(unreadCount);
+  }, [enabled, unreadCount]);
 
   const applyList = useCallback(
     (next: Notification[], playSound: boolean) => {

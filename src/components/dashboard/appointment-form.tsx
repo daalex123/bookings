@@ -6,7 +6,7 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { cn, formatDuration } from "@/lib/utils";
 
 export type CustomerOption = {
   id: string;
@@ -124,7 +124,7 @@ export function AppointmentForm({
           </option>
           {services.map((service) => (
             <option key={service.id} value={service.id}>
-              {service.name} ({service.duration_minutes} min)
+              {service.name} ({formatDuration(service.duration_minutes)})
               {!service.is_active ? " — inactive" : ""}
             </option>
           ))}

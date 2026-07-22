@@ -7,8 +7,7 @@ import { ArrowRight, Search, User } from "lucide-react";
 import { bookingFlowUrl } from "@/lib/booking";
 import type { PublicService } from "@/lib/booking";
 import { serviceShowsPrice } from "@/lib/booking";
-import { formatPrice } from "@/lib/utils";
-import { cn } from "@/lib/utils";
+import { formatPrice, formatDuration, cn } from "@/lib/utils";
 
 const CARD_GRADIENTS = [
   "booking-card-gradient-1",
@@ -166,7 +165,7 @@ function ServiceCard({
             <div className="min-w-0">
               <p className="truncate text-lg font-bold">{service.name}</p>
               <p className="text-sm text-white/60">
-                {service.duration_minutes} min
+                {formatDuration(service.duration_minutes)}
                 {serviceShowsPrice(service) &&
                   ` · ${formatPrice(service.price, currency)}`}
               </p>

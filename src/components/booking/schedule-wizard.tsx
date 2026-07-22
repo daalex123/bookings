@@ -12,7 +12,7 @@ import { bookingFlowUrl } from "@/lib/booking";
 import { serviceShowsPrice } from "@/lib/booking";
 import { authUrl } from "@/lib/business-context";
 import { getCurrentUser } from "@/lib/supabase/auth";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, formatDuration } from "@/lib/utils";
 import { BusinessBrandTheme } from "@/components/booking/business-brand-theme";
 import { BookingSuccessSound } from "@/components/booking/booking-success-sound";
 import { BookingSubmitForm } from "@/components/booking/booking-submit-form";
@@ -149,7 +149,7 @@ export async function ScheduleWizard({
                 <p className="mt-1 text-sm text-booking-muted">
                   {serviceShowsPrice(selectedService) &&
                     `${formatPrice(selectedService.price, currency)} · `}
-                  {selectedService.duration_minutes} min
+                  {formatDuration(selectedService.duration_minutes)}
                 </p>
               )}
               {selectedService?.staff_names && selectedService.staff_names.length > 0 && (

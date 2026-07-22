@@ -6,5 +6,8 @@
   "search.exclude": {
     "**/.next": true,
     "**/node_modules": true
+  },
+  "chat.tools.terminal.autoApprove": {
+    "mkdir": true
   }
 }

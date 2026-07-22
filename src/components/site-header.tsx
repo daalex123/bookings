@@ -3,6 +3,7 @@ import { getActiveBusinessPath, businessAuthPath } from "@/lib/business-context"
 import {
   canAccessAdminDashboard,
   getCurrentUser,
+  isSuperAdmin,
 } from "@/lib/supabase/auth";
 import { getUserNotifications } from "@/lib/notifications/queries";
 import { NotificationBell } from "@/components/dashboard/notification-bell";
@@ -25,18 +26,19 @@ export async function SiteHeader() {
 
   const showDashboard = user ? await canAccessAdminDashboard(user.id) : false;
   const notifications = user ? await getUserNotifications(user.id) : [];
+  const superAdmin = user ? await isSuperAdmin() : false;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-zinc-200/80 bg-white/90 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-        <Link href={homeHref} className="text-lg font-bold tracking-tight text-zinc-900">
+        <Link href={homeHref} className="text-lg font-bold tracking-tight text-zinc-100">
           BookNow
         </Link>
         <nav className="flex items-center gap-1 sm:gap-3 text-sm">
           {!activeBusinessPath && (
             <Link
               href="/"
-              className="hidden rounded-lg px-2.5 py-1.5 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 sm:inline-block"
+              className="hidden rounded-lg px-2.5 py-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 sm:inline-block"
             >
               Home
             </Link>
@@ -50,7 +52,7 @@ export async function SiteHeader() {
               />
               <Link
                 href="/my-appointments"
-                className="rounded-lg px-2.5 py-1.5 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                className="rounded-lg px-2.5 py-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
               >
                 <span className="hidden sm:inline">My appointments</span>
                 <span className="sm:hidden">Bookings</span>
@@ -58,19 +60,27 @@ export async function SiteHeader() {
               {showDashboard && (
                 <Link
                   href="/dashboard"
-                  className="rounded-lg px-2.5 py-1.5 font-medium text-zinc-900 hover:bg-zinc-100"
+                  className="rounded-lg px-2.5 py-1.5 font-medium text-zinc-100 hover:bg-zinc-800"
                 >
                   Dashboard
                 </Link>
               )}
+              {superAdmin && (
+                <Link
+                  href="/admin"
+                  className="rounded-lg px-2.5 py-1.5 font-medium text-emerald-400 hover:bg-zinc-800 hover:text-emerald-300"
+                >
+                  Admin
+                </Link>
+              )}
               <Link
                 href="/account"
-                className="hidden rounded-lg px-2.5 py-1.5 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 md:inline-block"
+                className="hidden rounded-lg px-2.5 py-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 md:inline-block"
               >
                 Account
               </Link>
               <form action={signOut}>
-                <Button type="submit" variant="outline" size="sm" className="rounded-lg">
+                <Button type="submit" variant="outline" size="sm" className="rounded-lg border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100">
                   Sign out
                 </Button>
               </form>
@@ -78,7 +88,7 @@ export async function SiteHeader() {
           ) : (
             <>
               <Link href={loginHref}>
-                <Button variant="ghost" size="sm" className="rounded-lg">
+                <Button variant="ghost" size="sm" className="rounded-lg text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100">
                   Sign in
                 </Button>
               </Link>

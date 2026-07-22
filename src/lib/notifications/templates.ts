@@ -54,6 +54,24 @@ export function formatBookingTimeRange(details: BookingDetails): string {
   return `${date}, ${start} – ${end}`;
 }
 
+/** Deep link to the appointment inside the business admin dashboard. */
+export function adminAppointmentDeepLink(
+  details: BookingDetails,
+  siteUrl: string
+): string {
+  const base = siteUrl.replace(/\/$/, "");
+  return `${base}/dashboard/${details.businessId}/appointments?id=${details.appointmentId}`;
+}
+
+/** Deep link to the appointment inside the customer's "My appointments" page. */
+export function customerAppointmentDeepLink(
+  details: BookingDetails,
+  siteUrl: string
+): string {
+  const base = siteUrl.replace(/\/$/, "");
+  return `${base}/my-appointments?id=${details.appointmentId}`;
+}
+
 export function customerConfirmationEmail(details: BookingDetails): {
   subject: string;
   html: string;
@@ -141,15 +159,37 @@ export function businessBookingEmail(details: BookingDetails): {
   return { subject, html, text };
 }
 
-export function customerConfirmationSms(details: BookingDetails): string {
+export function customerConfirmationSms(
+  details: BookingDetails,
+  siteUrl?: string
+): string {
   const when = formatBookingTimeRange(details);
-  return `BookNow: Your ${details.serviceName} booking at ${details.businessName} is pending for ${when}. We will notify you when it is confirmed.`;
+  const base = `BookNow: Your ${details.serviceName} booking at ${details.businessName} is pending for ${when}. We will notify you when it is confirmed.`;
+  if (!siteUrl) return base;
+  return `${base} View: ${customerAppointmentDeepLink(details, siteUrl)}`;
 }
 
-export function businessBookingSms(details: BookingDetails): string {
+export function businessBookingSms(
+  details: BookingDetails,
+  siteUrl?: string
+): string {
   const when = formatBookingDateTime(details.startAt, details.timezone);
   const phone = details.customerPhone ? ` (${details.customerPhone})` : "";
-  return `BookNow: New booking — ${details.customerName}${phone}, ${details.serviceName}, ${when}.`;
+  const base = `BookNow: New booking — ${details.customerName}${phone}, ${details.serviceName}, ${when}.`;
+  if (!siteUrl) return base;
+  return `${base} View: ${adminAppointmentDeepLink(details, siteUrl)}`;
+}
+
+export function businessStatusSms(
+  details: BookingDetails,
+  status: "confirmed" | "cancelled" | "completed" | "no_show",
+  siteUrl?: string
+): string {
+  const when = formatBookingDateTime(details.startAt, details.timezone);
+  const statusLabel = status === "no_show" ? "no-show" : status;
+  const base = `BookNow: ${details.customerName} appointment ${statusLabel} — ${details.serviceName}, ${when}.`;
+  if (!siteUrl) return base;
+  return `${base} View: ${adminAppointmentDeepLink(details, siteUrl)}`;
 }
 
 export function businessBookingWhatsApp(details: BookingDetails): string {

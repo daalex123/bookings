@@ -2,7 +2,7 @@ import { createBusinessNotifications } from "@/lib/notifications/in-app";
 import { createCustomerBookingNotification } from "@/lib/notifications/customer-in-app";
 import { excludeUserIds } from "@/lib/notifications/recipients";
 import { sendEmail } from "@/lib/notifications/email";
-import { sendSms } from "@/lib/notifications/sms";
+import { sendBusinessAdminSms, sendSms } from "@/lib/notifications/sms";
 import { sendBusinessWhatsApp, isWhatsAppConfigured } from "@/lib/notifications/whatsapp";
 import {
   businessBookingEmail,
@@ -12,6 +12,7 @@ import {
 } from "@/lib/notifications/templates";
 import { createAdminClient, hasAdminClient } from "@/lib/supabase/admin";
 import { resolveBusinessNotificationEmails } from "@/lib/notifications/business-email";
+import { getSiteUrl } from "@/lib/site-url";
 import {
   loadBookingDetails,
   loadBusinessMemberUserIds,
@@ -30,7 +31,7 @@ export async function sendBookingNotifications(
   if (!hasAdminClient()) {
     console.warn(
       "[notifications] SUPABASE_SERVICE_ROLE_KEY missing on server — skipping notifications. " +
-        "Add it in Vercel → Project → Settings → Environment Variables."
+      "Add it in Vercel → Project → Settings → Environment Variables."
     );
     return;
   }
@@ -38,12 +39,14 @@ export async function sendBookingNotifications(
   if (!isWhatsAppConfigured()) {
     console.warn(
       "[notifications] WhatsApp not configured on server — email/in-app may still work. " +
-        "Set WHATSAPP_ACCESS_TOKEN and WHATSAPP_PHONE_NUMBER_ID on Vercel."
+      "Set WHATSAPP_ACCESS_TOKEN and WHATSAPP_PHONE_NUMBER_ID on Vercel."
     );
   }
 
   const details = await loadBookingDetails(appointmentId);
   if (!details) return;
+
+  const siteUrl = await getSiteUrl();
 
   const memberUserIds = excludeUserIds(
     await loadBusinessMemberUserIds(details.businessId),
@@ -99,7 +102,7 @@ export async function sendBookingNotifications(
 
   if (details.customerPhone) {
     tasks.push(
-      sendSms(details.customerPhone, customerConfirmationSms(details))
+      sendSms(details.customerPhone, customerConfirmationSms(details, siteUrl))
     );
   }
 
@@ -133,7 +136,9 @@ export async function sendBookingNotifications(
 
     for (const ownerProfile of ownerProfiles ?? []) {
       if (ownerProfile.phone) {
-        tasks.push(sendSms(ownerProfile.phone, businessBookingSms(details)));
+        tasks.push(
+          sendBusinessAdminSms(ownerProfile.phone, businessBookingSms(details, siteUrl))
+        );
       }
     }
   }

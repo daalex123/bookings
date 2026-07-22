@@ -41,3 +41,65 @@ export async function sendSms(to: string, body: string): Promise<boolean> {
 
   return true;
 }
+
+export async function sendBusinessAdminSms(
+  to: string,
+  message: string
+): Promise<boolean> {
+  const apiKey = process.env.TEXTBEE_API_KEY;
+  const deviceId = process.env.TEXTBEE_DEVICE_ID;
+  const simSubscriptionId = process.env.TEXTBEE_SIM_SUBSCRIPTION_ID;
+
+  if (!apiKey || !deviceId) {
+    console.warn(
+      "[notifications] TextBee not configured — set TEXTBEE_API_KEY and TEXTBEE_DEVICE_ID"
+    );
+    return false;
+  }
+
+  const recipient = toE164(to);
+  if (!recipient) {
+    console.warn("[notifications] Invalid phone number for TextBee SMS:", to);
+    return false;
+  }
+
+  const payload: {
+    recipients: string[];
+    message: string;
+    simSubscriptionId?: number;
+  } = {
+    recipients: [recipient],
+    message,
+  };
+
+  if (simSubscriptionId) {
+    const parsed = Number(simSubscriptionId);
+    if (Number.isFinite(parsed)) {
+      payload.simSubscriptionId = parsed;
+    }
+  }
+
+  const response = await fetch(
+    `https://api.textbee.dev/api/v1/gateway/devices/${deviceId}/send-sms`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error(
+      "[notifications] TextBee SMS failed:",
+      response.status,
+      errorBody
+    );
+    return false;
+  }
+
+  return true;
+}

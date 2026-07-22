@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import { bookingPagePathBySlug } from "@/lib/booking";
 import { useMyAppointments } from "@/hooks/use-my-appointments";
@@ -44,32 +45,40 @@ export function MyAppointmentsList({
     initialAppointments,
     businessId
   );
+  const searchParams = useSearchParams();
+  const highlightAppointmentId = searchParams.get("id") ?? undefined;
+
+  useEffect(() => {
+    if (!highlightAppointmentId) return;
+    const el = document.getElementById(`appointment-${highlightAppointmentId}`);
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [highlightAppointmentId]);
 
   return (
     <div className={cn("space-y-6", isBooking && !embedded ? "px-5 pt-6" : "")}>
       {!embedded && (
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1
-            className={cn(
-              "text-3xl font-bold",
-              isBooking ? "text-white" : "text-zinc-900"
-            )}
-          >
-            My appointments
-          </h1>
-          <p className={isBooking ? "text-booking-muted" : "text-zinc-600"}>
-            View and manage your bookings
-          </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1
+              className={cn(
+                "text-3xl font-bold",
+                isBooking ? "text-white" : "text-zinc-900"
+              )}
+            >
+              My appointments
+            </h1>
+            <p className={isBooking ? "text-booking-muted" : "text-zinc-600"}>
+              View and manage your bookings
+            </p>
+          </div>
+          {!isBooking ? (
+            <NotificationBell
+              userId={userId}
+              initialNotifications={notifications}
+              variant="admin"
+            />
+          ) : null}
         </div>
-        {!isBooking ? (
-          <NotificationBell
-            userId={userId}
-            initialNotifications={notifications}
-            variant="admin"
-          />
-        ) : null}
-      </div>
       )}
 
       {appointments.length > 0 ? (
@@ -80,6 +89,7 @@ export function MyAppointmentsList({
               appt={appt}
               isBooking={isBooking}
               cancelAction={cancelAction}
+              highlighted={appt.id === highlightAppointmentId}
             />
           ))}
         </div>
@@ -105,10 +115,12 @@ function AppointmentCard({
   appt,
   isBooking,
   cancelAction,
+  highlighted = false,
 }: {
   appt: CustomerAppointmentItem;
   isBooking: boolean;
   cancelAction: (formData: FormData) => Promise<ActionResult>;
+  highlighted?: boolean;
 }) {
   const { wrapFormAction } = useActionToast();
   const wrappedCancel = useMemo(
@@ -123,11 +135,16 @@ function AppointmentCard({
 
   return (
     <article
+      id={`appointment-${appt.id}`}
       className={cn(
-        "rounded-3xl p-5",
+        "rounded-3xl p-5 transition-shadow",
         isBooking
           ? "bg-booking-elevated"
-          : "border border-zinc-200 bg-white shadow-sm"
+          : "border border-zinc-200 bg-white shadow-sm",
+        highlighted &&
+        (isBooking
+          ? "ring-2 ring-booking-accent"
+          : "ring-2 ring-zinc-900")
       )}
     >
       <div className="flex items-start justify-between gap-3">

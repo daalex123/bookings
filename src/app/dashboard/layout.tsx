@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { AdminShell } from "@/components/dashboard/admin-shell";
 import {
   ADMIN_MANIFEST_PATH,
@@ -13,12 +13,15 @@ export const metadata: Metadata = {
   description: ADMIN_PWA_DESCRIPTION,
   applicationName: ADMIN_PWA_NAME,
   manifest: ADMIN_MANIFEST_PATH,
-  themeColor: ADMIN_PWA_THEME_COLOR,
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: ADMIN_PWA_SHORT_NAME,
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: ADMIN_PWA_THEME_COLOR,
 };
 
 export default function DashboardLayout({

@@ -31,7 +31,7 @@ export default async function AppointmentsPage({
     supabase
       .from("appointments")
       .select(
-        `id, start_at, end_at, created_at, status, notes, service_id, customer_id,
+        `id, start_at, end_at, created_at, status, notes, custom_fields, service_id, customer_id,
          services ( name ),
          profiles ( full_name, phone ),
          appointment_addons ( services ( name ) )`
@@ -95,12 +95,16 @@ export default async function AppointmentsPage({
         created_at: appt.created_at,
         status: appt.status,
         notes: appt.notes,
+        custom_fields:
+          appt.custom_fields && typeof appt.custom_fields === "object"
+            ? (appt.custom_fields as Record<string, unknown>)
+            : {},
         service_id: appt.service_id,
         service_name: service?.name ?? "Service",
         addon_names: mapAddonNames(
           appt.appointment_addons as
-            | { services: { name: string } | { name: string }[] | null }[]
-            | null
+          | { services: { name: string } | { name: string }[] | null }[]
+          | null
         ),
         customer_name: customerName,
         customer_phone: profile?.phone ?? null,

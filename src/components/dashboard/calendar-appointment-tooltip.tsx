@@ -6,6 +6,22 @@ import { format } from "date-fns";
 import type { AppointmentRow } from "@/components/dashboard/appointments-panel";
 import { cn } from "@/lib/utils";
 
+function formatCustomFieldLabel(key: string): string {
+  return key
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function customFieldLines(customFields: Record<string, unknown>): string[] {
+  return Object.entries(customFields)
+    .map(([key, value]) => {
+      if (value == null) return null;
+      if (typeof value === "string" && value.trim().length === 0) return null;
+      return `${formatCustomFieldLabel(key)}: ${String(value)}`;
+    })
+    .filter((line): line is string => line !== null);
+}
+
 function appointmentTooltipLines(appt: AppointmentRow): string[] {
   const lines = [
     appt.service_name,
@@ -17,6 +33,7 @@ function appointmentTooltipLines(appt: AppointmentRow): string[] {
   if (appt.addon_names.length > 0) {
     lines.push(`Add-ons: ${appt.addon_names.join(", ")}`);
   }
+  lines.push(...customFieldLines(appt.custom_fields));
   lines.push(`Status: ${appt.status.replace(/_/g, " ")}`);
   if (appt.notes?.trim()) lines.push(`Notes: ${appt.notes.trim()}`);
 
@@ -46,7 +63,7 @@ function TooltipCard({
       role="tooltip"
       style={style}
       className={cn(
-        "pointer-events-none z-[200] w-[min(18rem,calc(100vw-1.5rem))] rounded-xl border px-3 py-2.5 text-left shadow-xl",
+        "pointer-events-none z-200 w-[min(18rem,calc(100vw-1.5rem))] rounded-xl border px-3 py-2.5 text-left shadow-xl",
         isBooking
           ? "border-white/15 bg-[#1a1a1a] text-white"
           : "border-[#1e2235]/10 bg-white text-[#1e2235]"
@@ -83,21 +100,36 @@ function TooltipCard({
           + {appt.addon_names.join(", ")}
         </p>
       )}
+      {customFieldLines(appt.custom_fields).length > 0 && (
+        <div className="mt-1 space-y-0.5">
+          {customFieldLines(appt.custom_fields).slice(0, 3).map((line) => (
+            <p
+              key={line}
+              className={cn(
+                "text-xs",
+                isBooking ? "text-booking-muted" : "text-[#8b92a5]"
+              )}
+            >
+              {line}
+            </p>
+          ))}
+        </div>
+      )}
       <p
         className={cn(
           "mt-2 inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium capitalize",
           appt.status === "pending" &&
-            (isBooking ? "bg-amber-500/20 text-amber-400" : "bg-teal-50 text-teal-700"),
+          (isBooking ? "bg-amber-500/20 text-amber-400" : "bg-teal-50 text-teal-700"),
           appt.status === "confirmed" &&
-            (isBooking
-              ? "bg-emerald-500/20 text-emerald-400"
-              : "bg-emerald-50 text-emerald-700"),
+          (isBooking
+            ? "bg-emerald-500/20 text-emerald-400"
+            : "bg-emerald-50 text-emerald-700"),
           appt.status === "cancelled" &&
-            (isBooking ? "bg-red-500/20 text-red-400" : "bg-red-50 text-red-600"),
+          (isBooking ? "bg-red-500/20 text-red-400" : "bg-red-50 text-red-600"),
           appt.status === "completed" &&
-            (isBooking ? "bg-white/10 text-booking-muted" : "bg-[#f0f2f5] text-[#8b92a5]"),
+          (isBooking ? "bg-white/10 text-booking-muted" : "bg-[#f0f2f5] text-[#8b92a5]"),
           appt.status === "no_show" &&
-            (isBooking ? "bg-red-500/20 text-red-400" : "bg-red-50 text-red-600")
+          (isBooking ? "bg-red-500/20 text-red-400" : "bg-red-50 text-red-600")
         )}
       >
         {appt.status.replace(/_/g, " ")}
@@ -308,7 +340,7 @@ export function CalendarDaySummaryTooltip({
             role="tooltip"
             style={coords}
             className={cn(
-              "pointer-events-none z-[200] w-[min(17rem,calc(100vw-1.5rem))] rounded-xl border px-3 py-2.5 shadow-xl",
+              "pointer-events-none z-200 w-[min(17rem,calc(100vw-1.5rem))] rounded-xl border px-3 py-2.5 shadow-xl",
               isBooking
                 ? "border-white/15 bg-[#1a1a1a] text-white"
                 : "border-[#1e2235]/10 bg-white text-[#1e2235]"
@@ -423,7 +455,7 @@ export function CalendarDayOverflowTooltip({
             role="tooltip"
             style={coords}
             className={cn(
-              "pointer-events-none z-[200] w-[min(16rem,calc(100vw-1.5rem))] rounded-xl border px-3 py-2.5 shadow-xl",
+              "pointer-events-none z-200 w-[min(16rem,calc(100vw-1.5rem))] rounded-xl border px-3 py-2.5 shadow-xl",
               isBooking
                 ? "border-white/15 bg-[#1a1a1a] text-white"
                 : "border-[#1e2235]/10 bg-white text-[#1e2235]"

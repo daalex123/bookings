@@ -37,6 +37,7 @@ export type AppointmentRow = {
   created_at: string;
   status: string;
   notes: string | null;
+  custom_fields: Record<string, unknown>;
   service_id: string;
   service_name: string;
   addon_names: string[];
@@ -46,6 +47,22 @@ export type AppointmentRow = {
   date: string;
   time: string;
 };
+
+function formatCustomFieldLabel(key: string): string {
+  return key
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function customFieldEntries(customFields: Record<string, unknown>): Array<[string, string]> {
+  return Object.entries(customFields)
+    .map(([key, value]) => {
+      if (value == null) return null;
+      if (typeof value === "string" && value.trim().length === 0) return null;
+      return [formatCustomFieldLabel(key), String(value)] as [string, string];
+    })
+    .filter((entry): entry is [string, string] => entry !== null);
+}
 
 type StatusFilter =
   | "all"
@@ -180,11 +197,17 @@ export function AppointmentsPanel({
       if (timeFilter === "past" && !isPast(end)) return false;
 
       if (!q) return true;
+      const customFieldText = customFieldEntries(appt.custom_fields)
+        .map(([label, value]) => `${label} ${value}`)
+        .join(" ")
+        .toLowerCase();
+
       return (
         appt.customer_name.toLowerCase().includes(q) ||
         appt.service_name.toLowerCase().includes(q) ||
         (appt.customer_phone?.includes(q) ?? false) ||
-        (appt.notes?.toLowerCase().includes(q) ?? false)
+        (appt.notes?.toLowerCase().includes(q) ?? false) ||
+        customFieldText.includes(q)
       );
     });
 
@@ -408,6 +431,7 @@ export function AppointmentsPanel({
             {filtered.map((appt) => {
               const isEditing = editingId === appt.id;
               const canQuickAction = !["cancelled", "completed"].includes(appt.status);
+              const customEntries = customFieldEntries(appt.custom_fields);
 
               return (
                 <div
@@ -461,6 +485,19 @@ export function AppointmentsPanel({
                         <p className="mt-2 line-clamp-2 text-sm text-[#8b92a5]">
                           {appt.notes}
                         </p>
+                      )}
+
+                      {customEntries.length > 0 && !isEditing && (
+                        <div className="mt-3 grid gap-1.5 rounded-xl border border-[#1e2235]/8 bg-[#f0f2f5]/50 p-3">
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-[#8b92a5]">
+                            Additional details
+                          </p>
+                          {customEntries.map(([label, value]) => (
+                            <p key={label} className="text-xs text-[#1e2235]">
+                              <span className="font-medium">{label}:</span> {value}
+                            </p>
+                          ))}
+                        </div>
                       )}
                     </div>
 
@@ -541,6 +578,20 @@ export function AppointmentsPanel({
                           Collapse
                         </button>
                       </div>
+                      {customEntries.length > 0 && (
+                        <div className="mb-4 rounded-xl border border-[#1e2235]/8 bg-white/70 p-3">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-[#8b92a5]">
+                            Additional details
+                          </p>
+                          <div className="mt-2 grid gap-1">
+                            {customEntries.map(([label, value]) => (
+                              <p key={label} className="text-sm text-[#1e2235]">
+                                <span className="font-medium">{label}:</span> {value}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       <AppointmentForm
                         action={handleSave}
                         services={services}

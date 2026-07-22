@@ -34,10 +34,10 @@ export async function createCustomerBookingNotification(
       user_id: customerId,
       business_id: details.businessId,
       appointment_id: details.appointmentId,
-      type: "booking_confirmed",
+      type: "booking_created",
       audience: CUSTOMER_NOTIFICATION_AUDIENCE,
-      title: `Booking confirmed at ${details.businessName}`,
-      body: `${details.serviceName} · ${when}`,
+      title: `Booking request received at ${details.businessName}`,
+      body: `${details.serviceName} · ${when} · Status: pending`,
     },
   ]);
 }

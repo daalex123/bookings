@@ -94,9 +94,9 @@ export async function ScheduleWizard({
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-booking-accent/20 text-3xl">
             ✓
           </div>
-          <h1 className="mt-6 text-2xl font-bold">Booking confirmed!</h1>
+          <h1 className="mt-6 text-2xl font-bold">Booking request sent!</h1>
           <p className="mt-2 text-booking-muted">
-            Your appointment at {business.name} has been requested.
+            Your appointment at {business.name} is pending confirmation.
           </p>
           <div className="mt-8 flex w-full max-w-sm flex-col gap-3 lg:max-w-md">
             <Link
@@ -139,7 +139,7 @@ export async function ScheduleWizard({
           style={heroStyle}
         />
 
-        <div className="relative z-10 -mt-16 rounded-t-[2rem] bg-booking-bg px-5 pt-6 pb-40 lg:pb-12">
+        <div className="relative z-10 -mt-16 rounded-t-4xl bg-booking-bg px-5 pt-6 pb-40 lg:pb-12">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold lg:text-3xl">
@@ -172,12 +172,13 @@ export async function ScheduleWizard({
             </Link>
           </div>
 
-          {services.length > 1 && (
+          {services.length > 0 && (
             <ServiceTabPicker
               services={services}
               flowPath={flowPath}
               selectedServiceId={selectedServiceId ?? ""}
               dateStr={dateStr}
+              currency={currency}
             />
           )}
 

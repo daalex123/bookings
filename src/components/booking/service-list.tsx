@@ -90,7 +90,7 @@ export function ServiceList({
 
       {filtered.length > 0 ? (
         <>
-          <div className="mt-4 flex gap-4 overflow-x-auto px-5 pb-2 md:hidden">
+          <div className="mt-4 grid gap-4 px-5 md:hidden">
             {filtered.map((service, index) => (
               <ServiceCard
                 key={service.id}
@@ -98,7 +98,7 @@ export function ServiceList({
                 index={index}
                 basePath={basePath}
                 currency={currency}
-                className="min-w-[260px] shrink-0"
+                className="w-full"
               />
             ))}
           </div>
@@ -143,13 +143,13 @@ function ServiceCard({
     >
       <article
         className={cn(
-          "h-full overflow-hidden rounded-3xl transition-transform hover:scale-[1.01] md:hover:scale-[1.02]",
+          "h-full overflow-hidden rounded-3xl border border-white/8 bg-booking-elevated/70 shadow-[0_16px_30px_rgba(0,0,0,0.3)] transition-all hover:-translate-y-0.5 hover:border-booking-accent/45 hover:shadow-[0_20px_36px_rgba(0,0,0,0.38)]",
           !service.image_url && CARD_GRADIENTS[index % CARD_GRADIENTS.length]
         )}
       >
-        <div className="flex h-52 flex-col justify-between p-5">
+        <div className="flex min-h-76 flex-col justify-between p-5 md:min-h-56">
           {service.image_url ? (
-            <div className="relative h-28 overflow-hidden rounded-2xl bg-black/20">
+            <div className="relative h-36 overflow-hidden rounded-2xl bg-black/20 md:h-28">
               <Image
                 src={service.image_url}
                 alt=""
@@ -159,12 +159,17 @@ function ServiceCard({
               />
             </div>
           ) : (
-            <div className="h-28 rounded-2xl bg-black/20" />
+            <div className="h-36 rounded-2xl bg-black/20 md:h-28" />
           )}
-          <div className="mt-3 flex items-end justify-between gap-3">
+          <div className="mt-4 flex items-end justify-between gap-3">
             <div className="min-w-0">
-              <p className="truncate text-lg font-bold">{service.name}</p>
-              <p className="text-sm text-white/60">
+              <p className="truncate text-xl font-bold tracking-tight md:text-lg">{service.name}</p>
+              {service.description && (
+                <p className="mt-1 line-clamp-2 text-sm text-white/65 md:line-clamp-1">
+                  {service.description}
+                </p>
+              )}
+              <p className="mt-1 text-sm text-white/70">
                 {formatDuration(service.duration_minutes)}
                 {serviceShowsPrice(service) &&
                   ` · ${formatPrice(service.price, currency)}`}
@@ -178,7 +183,7 @@ function ServiceCard({
                 </div>
               )}
             </div>
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-booking-accent text-booking-accent-fg">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-booking-accent text-booking-accent-fg md:h-10 md:w-10">
               <ArrowRight className="h-5 w-5" />
             </span>
           </div>

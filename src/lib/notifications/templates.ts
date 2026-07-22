@@ -62,12 +62,12 @@ export function customerConfirmationEmail(details: BookingDetails): {
   const when = formatBookingTimeRange(details);
   const price = formatTotalPrice(details);
   const serviceLine = formatServiceLine(details);
-  const subject = `Booking confirmed at ${details.businessName}`;
+  const subject = `Booking request received at ${details.businessName}`;
 
   const text = [
     `Hi ${details.customerName},`,
     "",
-    `Your appointment is confirmed.`,
+    `Your appointment request has been received and is pending confirmation.`,
     "",
     `Business: ${details.businessName}`,
     `Service: ${serviceLine}`,
@@ -82,16 +82,16 @@ export function customerConfirmationEmail(details: BookingDetails): {
 
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:520px;color:#1e2235">
-      <h2 style="margin:0 0 16px">Booking confirmed</h2>
+      <h2 style="margin:0 0 16px">Booking request received</h2>
       <p>Hi ${escapeHtml(details.customerName)},</p>
-      <p>Your appointment at <strong>${escapeHtml(details.businessName)}</strong> is confirmed.</p>
+      <p>Your appointment at <strong>${escapeHtml(details.businessName)}</strong> is currently <strong>pending</strong>.</p>
       <table style="width:100%;border-collapse:collapse;margin:20px 0">
         <tr><td style="padding:8px 0;color:#8b92a5">Service</td><td style="padding:8px 0"><strong>${escapeHtml(details.serviceName)}</strong> (${details.durationMinutes} min)${details.addonNames.length ? `<br><span style="color:#8b92a5;font-size:14px">+ ${escapeHtml(details.addonNames.join(", "))}</span>` : ""}</td></tr>
         <tr><td style="padding:8px 0;color:#8b92a5">When</td><td style="padding:8px 0">${escapeHtml(when)}</td></tr>
         <tr><td style="padding:8px 0;color:#8b92a5">Price</td><td style="padding:8px 0">${escapeHtml(price)}</td></tr>
         ${details.notes ? `<tr><td style="padding:8px 0;color:#8b92a5">Notes</td><td style="padding:8px 0">${escapeHtml(details.notes)}</td></tr>` : ""}
       </table>
-      <p style="color:#8b92a5;font-size:14px">Thank you for booking with BookNow.</p>
+      <p style="color:#8b92a5;font-size:14px">We will notify you as soon as the business confirms your appointment.</p>
     </div>
   `;
 
@@ -143,7 +143,7 @@ export function businessBookingEmail(details: BookingDetails): {
 
 export function customerConfirmationSms(details: BookingDetails): string {
   const when = formatBookingTimeRange(details);
-  return `BookNow: Your ${details.serviceName} at ${details.businessName} is confirmed for ${when}.`;
+  return `BookNow: Your ${details.serviceName} booking at ${details.businessName} is pending for ${when}. We will notify you when it is confirmed.`;
 }
 
 export function businessBookingSms(details: BookingDetails): string {

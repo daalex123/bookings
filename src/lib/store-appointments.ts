@@ -8,6 +8,7 @@ export type StoreAppointmentRow = {
   created_at: string;
   status: string;
   notes: string | null;
+  custom_fields: Record<string, unknown>;
   service_id: string;
   service_name: string;
   addon_names: string[];
@@ -25,15 +26,16 @@ type RawAppointment = {
   created_at: string;
   status: string;
   notes: string | null;
+  custom_fields: Record<string, unknown> | null;
   service_id: string;
   services: { name: string } | { name: string }[] | null;
   profiles:
-    | { full_name: string | null; phone: string | null }
-    | { full_name: string | null; phone: string | null }[]
-    | null;
+  | { full_name: string | null; phone: string | null }
+  | { full_name: string | null; phone: string | null }[]
+  | null;
   appointment_addons?:
-    | { services: { name: string } | { name: string }[] | null }[]
-    | null;
+  | { services: { name: string } | { name: string }[] | null }[]
+  | null;
 };
 
 export function normalizeStoreAppointments(
@@ -53,6 +55,7 @@ export function normalizeStoreAppointments(
       created_at: appt.created_at,
       status: appt.status,
       notes: appt.notes,
+      custom_fields: appt.custom_fields ?? {},
       service_id: appt.service_id,
       service_name: service?.name ?? "Service",
       addon_names: mapAddonNames(appt.appointment_addons),

@@ -17,6 +17,7 @@ export type ServiceExtraItem = {
   name: string;
   description?: string | null;
   price: number;
+  cost_price: number;
   image_url?: string | null;
   is_active: boolean;
   show_price: boolean;
@@ -138,6 +139,7 @@ export function ServiceExtrasEditor({
           name: linked.name,
           description: null,
           price: linked.price,
+          cost_price: 0,
           image_url: null,
           is_active: true,
           show_price: linked.show_price,
@@ -316,7 +318,7 @@ export function ServiceExtrasEditor({
               id="link-existing-service"
               value={selectedLinkId}
               onChange={(e) => setSelectedLinkId(e.target.value)}
-              className="h-10 min-w-[200px] flex-1 rounded-xl border border-[#1e2235]/15 bg-white px-3 text-sm"
+              className="h-10 min-w-50 flex-1 rounded-xl border border-[#1e2235]/15 bg-white px-3 text-sm"
             >
               <option value="">Select service…</option>
               {availableToLink.map((s) => (

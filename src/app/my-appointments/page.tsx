@@ -43,23 +43,23 @@ export default async function MyAppointmentsPage() {
 
   const storeAppointmentsPromise = isStoreStaff
     ? supabase
-        .from("appointments")
-        .select(
-          `id, start_at, end_at, created_at, status, notes, service_id,
+      .from("appointments")
+      .select(
+        `id, start_at, end_at, created_at, status, notes, custom_fields, service_id,
            services ( name ),
            profiles ( full_name, phone ),
            appointment_addons ( services ( name ) )`
-        )
-        .eq("business_id", activeBusiness!.businessId)
-        .order("start_at", { ascending: true })
+      )
+      .eq("business_id", activeBusiness!.businessId)
+      .order("start_at", { ascending: true })
     : Promise.resolve({ data: null });
 
   const businessTimezonePromise = isStoreStaff
     ? supabase
-        .from("businesses")
-        .select("timezone")
-        .eq("id", activeBusiness!.businessId)
-        .single()
+      .from("businesses")
+      .select("timezone")
+      .eq("id", activeBusiness!.businessId)
+      .single()
     : Promise.resolve({ data: null });
 
   const [

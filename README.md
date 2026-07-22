@@ -62,7 +62,7 @@ RESEND_API_KEY=your_resend_api_key
 EMAIL_FROM=BookNow <notifications@yourdomain.com>
 ```
 
-Optional for SMS (Twilio): `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`, `SMS_DEFAULT_COUNTRY_CODE=94`
+Optional for SMS (TextBee): `TEXTBEE_DEVICE_ID`, `TEXTBEE_API_KEY`, `SMS_DEFAULT_COUNTRY_CODE=94`
 
 Optional for business WhatsApp alerts (Meta Cloud API): `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`. Each business sets their receiving number under **Dashboard → Settings → Business WhatsApp**. See [Meta WhatsApp setup](#meta-whatsapp-setup) below.
 

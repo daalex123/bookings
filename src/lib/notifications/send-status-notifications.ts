@@ -1,9 +1,9 @@
 import { createBusinessStatusNotifications } from "@/lib/notifications/in-app";
 import { createCustomerStatusNotification } from "@/lib/notifications/customer-in-app";
 import { excludeUserIds } from "@/lib/notifications/recipients";
-import { sendBusinessAdminSms } from "@/lib/notifications/sms";
+import { sendBusinessAdminSms, sendSms } from "@/lib/notifications/sms";
 import { toE164 } from "@/lib/notifications/phone-e164";
-import { businessStatusSms } from "@/lib/notifications/templates";
+import { businessStatusSms, customerStatusSms } from "@/lib/notifications/templates";
 import { sendBusinessWhatsApp } from "@/lib/notifications/whatsapp";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hasAdminClient } from "@/lib/supabase/admin";
@@ -15,6 +15,7 @@ import {
 } from "@/lib/notifications/appointment-details";
 
 const BUSINESS_WHATSAPP_STATUSES = new Set(["confirmed", "cancelled"]);
+const CUSTOMER_SMS_STATUSES = new Set(["confirmed", "cancelled"]);
 
 export type StatusNotificationOptions = {
   /** User who changed the status — excluded from staff alerts; skips customer alert when they are the customer. */
@@ -34,6 +35,7 @@ export async function notifyAppointmentStatus(
   const details = await loadBookingDetails(appointmentId);
   if (!details) return;
 
+  const siteUrl = await getSiteUrl();
   const actorUserId = options.actorUserId;
   const customerTriggered = actorUserId === details.customerId;
 
@@ -46,6 +48,13 @@ export async function notifyAppointmentStatus(
       details.serviceName,
       status
     );
+
+    if (CUSTOMER_SMS_STATUSES.has(status) && details.customerPhone) {
+      await sendSms(
+        details.customerPhone,
+        customerStatusSms(details, status as "confirmed" | "cancelled", siteUrl)
+      );
+    }
   }
 
   const ownerAdminIds = excludeUserIds(
@@ -81,7 +90,6 @@ export async function notifyAppointmentStatus(
       | "completed"
       | "no_show";
 
-    const siteUrl = await getSiteUrl();
     const message = businessStatusSms(details, businessStatus, siteUrl);
 
     await Promise.all(

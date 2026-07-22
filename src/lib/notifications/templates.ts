@@ -192,6 +192,20 @@ export function businessStatusSms(
   return `${base} View: ${adminAppointmentDeepLink(details, siteUrl)}`;
 }
 
+export function customerStatusSms(
+  details: BookingDetails,
+  status: "confirmed" | "cancelled",
+  siteUrl?: string
+): string {
+  const when = formatBookingTimeRange(details);
+  const base =
+    status === "confirmed"
+      ? `BookNow: Your ${details.serviceName} booking at ${details.businessName} is confirmed for ${when}.`
+      : `BookNow: Your ${details.serviceName} booking at ${details.businessName} for ${when} has been cancelled.`;
+  if (!siteUrl) return base;
+  return `${base} View: ${customerAppointmentDeepLink(details, siteUrl)}`;
+}
+
 export function businessBookingWhatsApp(details: BookingDetails): string {
   const when = formatBookingTimeRange(details);
   const price = formatTotalPrice(details);

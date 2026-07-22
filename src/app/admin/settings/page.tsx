@@ -32,7 +32,7 @@ export default async function AdminSettingsPage() {
             icon: Bell,
             items: [
                 { label: "Email Provider", value: "Resend" },
-                { label: "SMS Provider", value: "Twilio" },
+                { label: "SMS Provider", value: "TextBee" },
                 { label: "WhatsApp", value: "Meta Business API" },
             ],
         },

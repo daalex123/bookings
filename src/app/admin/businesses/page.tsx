@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/auth";
+import { deleteBusinessAsSuperAdmin } from "@/lib/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { DeleteBusinessButton } from "@/components/dashboard/delete-business-button";
 import { Building2, ExternalLink, Calendar, Users } from "lucide-react";
 
 export default async function AdminBusinessesPage() {
@@ -10,6 +12,11 @@ export default async function AdminBusinessesPage() {
     if (!user) return null;
 
     const supabase = await createClient();
+
+    async function deleteBusiness(formData: FormData) {
+        "use server";
+        return deleteBusinessAsSuperAdmin(formData);
+    }
 
     // Fetch all businesses with member counts and appointment counts
     const { data: businesses } = await supabase
@@ -84,12 +91,17 @@ export default async function AdminBusinessesPage() {
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="w-full border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100"
+                                                className="w-full border-zinc-700 bg-zinc-900 text-zinc-200 hover:bg-zinc-800 hover:text-zinc-100"
                                             >
                                                 <ExternalLink className="mr-2 h-4 w-4" />
                                                 View Dashboard
                                             </Button>
                                         </Link>
+                                        <DeleteBusinessButton
+                                            action={deleteBusiness}
+                                            businessId={business.id}
+                                            businessName={business.name}
+                                        />
                                     </div>
 
                                     <div className="text-xs text-zinc-500">

@@ -20,6 +20,7 @@ export type ServiceFormValues = {
   duration_minutes: number;
   slot_interval_minutes: number;
   price: number;
+  cost_price: number;
   image_url?: string | null;
   is_active: boolean;
   show_price: boolean;
@@ -89,6 +90,22 @@ export function ServiceForm({
           defaultValue={values?.price ?? 0}
           required
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={values?.id ? `cost-${values.id}` : "cost-new"}>
+          Cost ({currency})
+        </Label>
+        <Input
+          id={values?.id ? `cost-${values.id}` : "cost-new"}
+          name="cost_price"
+          type="number"
+          min={0}
+          step="0.01"
+          defaultValue={values?.cost_price ?? 0}
+          required
+        />
+        <p className="text-xs text-[#8b92a5]">Direct delivery cost used for profit reports</p>
       </div>
 
       <div className="space-y-2">

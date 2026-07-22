@@ -9,10 +9,10 @@ import { IncomeReportPage } from "@/components/dashboard/income-report-page";
 import { formatPrice } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
 
-const INCOME_SELECT = `id, start_at, status,
-  services ( id, name, price ),
+const INCOME_SELECT = `id, start_at, end_at, customer_id, status,
+  services ( id, name, price, cost_price, duration_minutes ),
   profiles ( full_name ),
-  appointment_addons ( price, services ( name ) )`;
+  appointment_addons ( price, cost_price, services ( name, cost_price ) )`;
 
 export default async function IncomePage({
   params,
@@ -31,7 +31,12 @@ export default async function IncomePage({
     subDays(new Date(), periodDays - 1)
   ).toISOString();
 
-  const [{ data: business }, { data: periodAppts }, { data: allTimeAppts }] =
+  const [
+    { data: business },
+    { data: periodAppts },
+    { data: allTimeAppts },
+    { data: businessHours },
+  ] =
     await Promise.all([
       supabase
         .from("businesses")
@@ -44,15 +49,16 @@ export default async function IncomePage({
         .eq("business_id", businessId)
         .gte("start_at", periodStart)
         .lte("start_at", todayEnd)
-        .eq("status", "completed")
         .order("start_at", { ascending: false }),
       supabase
         .from("appointments")
-        .select(
-          `start_at, status, services ( price ), appointment_addons ( price )`
-        )
+        .select(INCOME_SELECT)
         .eq("business_id", businessId)
-        .eq("status", "completed"),
+        .lte("start_at", todayEnd),
+      supabase
+        .from("business_hours")
+        .select("day_of_week, open_time, close_time, is_closed")
+        .eq("business_id", businessId),
     ]);
 
   const currency = business?.currency ?? "LKR";
@@ -61,14 +67,15 @@ export default async function IncomePage({
     periodAppts ?? [],
     allTimeAppts ?? [],
     timezone,
-    periodDays
+    periodDays,
+    businessHours ?? []
   );
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Income"
-        description="Revenue reporting and appointment income breakdown"
+        title="Reporting"
+        description="Revenue, utilization, cancellation, and profit analytics"
         action={
           <div className="text-right">
             <p className="text-2xl font-bold text-[#1e2235]">

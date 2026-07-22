@@ -11,7 +11,7 @@ const businessNav = [
   { href: "", label: "Overview", icon: AdminNavIcons.overview },
   { href: "/services", label: "Services", icon: AdminNavIcons.services },
   { href: "/appointments", label: "Appointments", icon: AdminNavIcons.appointments },
-  { href: "/income", label: "Income", icon: AdminNavIcons.income },
+  { href: "/income", label: "Reports", icon: AdminNavIcons.income },
   { href: "/customers", label: "Customers", icon: AdminNavIcons.customers },
   { href: "/staff", label: "Staff", icon: AdminNavIcons.staff },
   { href: "/settings", label: "Settings", icon: AdminNavIcons.settings },
@@ -59,7 +59,7 @@ export function AdminSidebar({
       {/* Brand header */}
       <div className="mb-8 flex items-center gap-3 px-2">
         {onBusinessRoute && businessLogoUrl ? (
-          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl ring-2 ring-[var(--admin-accent)]/30 shadow-md">
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl ring-2 ring-(--admin-accent)/30 shadow-md">
             <Image
               src={businessLogoUrl}
               alt=""
@@ -77,11 +77,11 @@ export function AdminSidebar({
           </div>
         )}
         <div className="min-w-0">
-          <span className="block truncate text-[1.05rem] font-bold tracking-tight text-[var(--admin-navy)]">
+          <span className="block truncate text-[1.05rem] font-bold tracking-tight text-(--admin-navy)">
             {brandTitle}
           </span>
           {onBusinessRoute && businessName ? (
-            <span className="block truncate text-[11px] font-medium text-[var(--admin-muted)]">
+            <span className="block truncate text-[11px] font-medium text-(--admin-muted)">
               Business admin
             </span>
           ) : null}
@@ -89,7 +89,7 @@ export function AdminSidebar({
       </div>
 
       {/* Section label */}
-      <p className="mb-2 px-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--admin-muted)]">
+      <p className="mb-2 px-4 text-[10px] font-semibold uppercase tracking-widest text-(--admin-muted)">
         {onBusinessRoute ? "Menu" : "Navigation"}
       </p>
 
@@ -104,7 +104,7 @@ export function AdminSidebar({
                 : "admin-pill-idle"
             )}
           >
-            <AdminNavIcons.businesses className="h-[18px] w-[18px] transition-transform duration-200 group-hover:scale-110" strokeWidth={1.75} />
+            <AdminNavIcons.businesses className="h-4.5 w-4.5 transition-transform duration-200 group-hover:scale-110" strokeWidth={1.75} />
             Businesses
           </Link>
         ) : (
@@ -125,26 +125,26 @@ export function AdminSidebar({
                     active ? "admin-pill-active" : "admin-pill-idle"
                   )}
                 >
-                  <Icon className="h-[18px] w-[18px] transition-transform duration-200 group-hover:scale-110" strokeWidth={1.75} />
+                  <Icon className="h-4.5 w-4.5 transition-transform duration-200 group-hover:scale-110" strokeWidth={1.75} />
                   {item.label}
                 </Link>
               );
             })}
 
-            <div className="my-3 h-px bg-[var(--admin-border)]" />
+            <div className="my-3 h-px bg-(--admin-border)" />
 
             <Link
               href="/dashboard"
               className="group flex items-center gap-3 rounded-xl px-4 py-2.5 text-[0.84rem] font-medium admin-pill-idle"
             >
-              <AdminNavIcons.businesses className="h-[18px] w-[18px] transition-transform duration-200 group-hover:scale-110" strokeWidth={1.75} />
+              <AdminNavIcons.businesses className="h-4.5 w-4.5 transition-transform duration-200 group-hover:scale-110" strokeWidth={1.75} />
               All businesses
             </Link>
           </>
         )}
       </nav>
 
-      <div className="mt-auto border-t border-[var(--admin-border)] pt-5">
+      <div className="mt-auto border-t border-(--admin-border) pt-5">
         <div className="flex items-center gap-3 rounded-xl px-2 py-2">
           <div
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold shadow-sm"
@@ -153,16 +153,16 @@ export function AdminSidebar({
             {initials || "?"}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-[var(--admin-navy)]">
+            <p className="truncate text-sm font-semibold text-(--admin-navy)">
               {userName}
             </p>
-            <p className="truncate text-[11px] text-[var(--admin-muted)]">{userEmail}</p>
+            <p className="truncate text-[11px] text-(--admin-muted)">{userEmail}</p>
           </div>
         </div>
         <form action={signOut} className="mt-2 px-2">
           <button
             type="submit"
-            className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--admin-muted)] transition-colors hover:bg-[var(--admin-accent-bg)] hover:text-[var(--admin-accent)]"
+            className="rounded-lg px-3 py-1.5 text-xs font-medium text-(--admin-muted) transition-colors hover:bg-(--admin-accent-bg) hover:text-(--admin-accent)"
           >
             Sign out
           </button>
@@ -173,7 +173,7 @@ export function AdminSidebar({
 
   return (
     <>
-      <aside className="hidden h-full w-[264px] shrink-0 border-r border-[var(--admin-border)] bg-[var(--admin-surface)] lg:static lg:block">
+      <aside className="hidden h-full w-66 shrink-0 border-r border-(--admin-border) bg-(--admin-surface) lg:static lg:block">
         {sidebarContent}
       </aside>
     </>

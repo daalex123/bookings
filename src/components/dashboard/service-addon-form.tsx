@@ -14,6 +14,7 @@ export type ServiceAddonFormValues = {
   name: string;
   description?: string | null;
   price: number;
+  cost_price: number;
   image_url?: string | null;
   is_active: boolean;
   show_price: boolean;
@@ -86,6 +87,21 @@ export function ServiceAddonForm({
           min={0}
           step="0.01"
           defaultValue={values?.price ?? 0}
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor={values?.id ? `addon-cost-${values.id}` : "addon-cost-new"}>
+          Cost ({currency})
+        </Label>
+        <Input
+          id={values?.id ? `addon-cost-${values.id}` : "addon-cost-new"}
+          name="cost_price"
+          type="number"
+          min={0}
+          step="0.01"
+          defaultValue={values?.cost_price ?? 0}
           required
         />
       </div>

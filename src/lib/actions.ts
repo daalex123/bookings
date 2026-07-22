@@ -306,6 +306,7 @@ export async function upsertService(businessId: string, formData: FormData) {
         ? intervalRaw
         : durationRaw,
     price: formData.get("price"),
+    cost_price: formData.get("cost_price") || 0,
     image_url: formData.get("image_url")?.toString() || "",
     is_active: formData.get("is_active") === "on",
     show_price: formData.get("show_price") === "on",
@@ -347,6 +348,7 @@ export async function upsertService(businessId: string, formData: FormData) {
     name: parsed.data.name,
     description: parsed.data.description ?? null,
     price: parsed.data.price,
+    cost_price: parsed.data.cost_price,
     image_url: parsed.data.image_url || null,
     is_active: parsed.data.is_active ?? true,
     show_price: parsed.data.show_price ?? true,
@@ -421,6 +423,31 @@ export async function deleteService(businessId: string, serviceId: string) {
   if (error) return { error: error.message };
 
   revalidatePath(`/dashboard/${businessId}/services`);
+  return { success: true };
+}
+
+export async function deleteBusinessAsSuperAdmin(formData: FormData) {
+  const businessId = formData.get("id")?.toString();
+  if (!businessId) return { error: "Missing business id" };
+
+  const supabase = await createClient();
+  const { data: isAllowed, error: roleError } = await supabase.rpc(
+    "current_user_is_super_admin"
+  );
+
+  if (roleError || isAllowed !== true) {
+    return { error: "Not authorized to delete businesses" };
+  }
+
+  const { error } = await supabase
+    .from("businesses")
+    .delete()
+    .eq("id", businessId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/businesses");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 

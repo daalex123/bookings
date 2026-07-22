@@ -51,7 +51,7 @@ export async function AdminShell({ children }: { children: React.ReactNode }) {
       businessId={businessId ?? undefined}
       initialNotifications={notifications}
     >
-      <div className="admin-app-shell admin-theme booking-theme min-h-dvh lg:flex">
+      <div id="admin-app-shell" className="admin-app-shell admin-theme booking-theme min-h-dvh lg:flex">
         {business ? <BusinessBrandTheme business={business} /> : null}
         <AdminSidebar
           userName={userName}

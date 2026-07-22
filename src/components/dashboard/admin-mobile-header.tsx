@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { ConnectedNotificationBell } from "@/components/dashboard/notification-bell";
+import { AdminThemeToggle } from "@/components/dashboard/admin-theme-toggle";
 import { BookingSignOutButton } from "@/components/booking/booking-sign-out-button";
 
 export function AdminMobileHeader({
@@ -49,6 +50,7 @@ export function AdminMobileHeader({
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-0.5">
+        <AdminThemeToggle compact />
         <ConnectedNotificationBell appearance="booking" businessId={businessId} />
         <BookingSignOutButton variant="compact" />
       </div>

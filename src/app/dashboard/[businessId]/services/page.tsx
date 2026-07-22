@@ -93,6 +93,7 @@ export default async function ServicesPage({
       slot_interval_minutes:
         service.slot_interval_minutes ?? service.duration_minutes,
       price: Number(service.price),
+      cost_price: Number((service as { cost_price?: number }).cost_price ?? 0),
       image_url: service.image_url,
       is_active: service.is_active,
       show_price: service.show_price ?? true,

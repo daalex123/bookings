@@ -38,12 +38,12 @@ export async function BusinessBookingFront({
   return (
     <div className="pb-6">
         <section
-          className="relative mx-5 mt-6 overflow-hidden rounded-3xl booking-hero-gradient p-6 min-h-[200px] lg:mx-0 lg:mt-8 lg:min-h-[260px] lg:p-8"
+          className="relative mx-5 mt-6 overflow-hidden rounded-3xl booking-glass-hero booking-hero-gradient p-6 min-h-[200px] lg:mx-0 lg:mt-8 lg:min-h-[260px] lg:p-8"
           style={heroStyle}
         >
           <div className="relative z-10 flex h-full min-h-[160px] flex-col justify-end lg:min-h-[200px] lg:max-w-2xl">
             {business.logo_url && (
-              <div className="mb-4 relative h-14 w-14 overflow-hidden rounded-2xl border border-white/20 bg-black/30">
+              <div className="mb-4 relative h-14 w-14 overflow-hidden rounded-2xl booking-glass-avatar">
                 <Image
                   src={business.logo_url}
                   alt=""

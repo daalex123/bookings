@@ -73,8 +73,8 @@ export function AddonPicker({
               className={cn(
                 "flex cursor-pointer items-start gap-3 rounded-2xl border px-4 py-3 transition-colors",
                 checked
-                  ? "border-booking-accent/60 bg-booking-accent/10"
-                  : "border-transparent bg-booking-elevated"
+                  ? "border-booking-accent/60 bg-booking-accent/15 booking-glass"
+                  : "border-transparent booking-glass-card"
               )}
             >
               <input

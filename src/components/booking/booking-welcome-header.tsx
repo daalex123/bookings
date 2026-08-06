@@ -42,11 +42,11 @@ export function BookingWelcomeHeader({
       <div className="flex flex-wrap items-center justify-between gap-3 lg:gap-4">
         <div className="flex min-w-0 items-center gap-3">
           {logoUrl ? (
-            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-booking-elevated">
+            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full booking-glass-avatar">
               <Image src={logoUrl} alt="" fill className="object-cover" unoptimized />
             </div>
           ) : (
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-booking-elevated text-sm font-bold">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full booking-glass-avatar text-sm font-bold">
               {initials || "?"}
             </div>
           )}

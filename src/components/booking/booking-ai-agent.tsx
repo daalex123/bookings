@@ -194,7 +194,7 @@ export function BookingAiAgent({
 
       {open && (
         <div
-          className="fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full max-w-lg flex-col rounded-t-3xl border border-white/10 bg-booking-bg shadow-2xl shadow-black/50 lg:max-w-xl lg:rounded-3xl lg:bottom-6 lg:left-1/2 lg:-translate-x-1/2"
+          className="fixed inset-x-0 bottom-0 z-50 mx-auto flex w-full max-w-lg flex-col rounded-t-3xl booking-glass-panel shadow-2xl shadow-black/50 lg:max-w-xl lg:rounded-3xl lg:bottom-6 lg:left-1/2 lg:-translate-x-1/2"
           style={{
             height: "min(78dvh, 640px)",
             paddingBottom: "env(safe-area-inset-bottom)",
@@ -217,8 +217,8 @@ export function BookingAiAgent({
                   className={cn(
                     "rounded-full p-2 transition",
                     voiceReplies
-                      ? "text-booking-accent hover:bg-booking-elevated"
-                      : "text-booking-muted hover:bg-booking-elevated hover:text-white"
+                      ? "text-booking-accent hover:bg-white/10"
+                      : "text-booking-muted hover:bg-white/10 hover:text-white"
                   )}
                   aria-label={voiceReplies ? "Mute voice replies" : "Enable voice replies"}
                   title={voiceReplies ? "Voice replies on" : "Voice replies off"}
@@ -233,7 +233,7 @@ export function BookingAiAgent({
               <button
                 type="button"
                 onClick={closePanel}
-                className="rounded-full p-2 text-booking-muted hover:bg-booking-elevated hover:text-white"
+                className="rounded-full p-2 text-booking-muted hover:bg-white/10 hover:text-white"
                 aria-label="Close assistant"
               >
                 <X className="h-5 w-5" />
@@ -267,14 +267,14 @@ export function BookingAiAgent({
                       "max-w-[88%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
                       msg.role === "user"
                         ? "ml-auto bg-booking-accent text-booking-accent-fg"
-                        : "bg-booking-elevated text-white"
+                        : "booking-glass text-white"
                     )}
                   >
                     <p className="whitespace-pre-wrap">{msg.content}</p>
                   </div>
                 ))}
                 {loading && (
-                  <div className="flex max-w-[88%] items-center gap-2 rounded-2xl bg-booking-elevated px-4 py-3 text-sm text-booking-muted">
+                  <div className="flex max-w-[88%] items-center gap-2 rounded-2xl booking-glass px-4 py-3 text-sm text-booking-muted">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Thinking…
                   </div>
@@ -308,7 +308,7 @@ export function BookingAiAgent({
                         "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition disabled:opacity-50",
                         listening
                           ? "bg-red-500/25 text-red-300 ring-2 ring-red-400/50"
-                          : "bg-booking-elevated text-booking-muted hover:text-white"
+                          : "booking-glass-pill text-booking-muted hover:text-white"
                       )}
                       aria-label={listening ? "Stop listening" : "Start voice input"}
                       title={listening ? "Stop" : "Voice booking"}
@@ -341,7 +341,7 @@ export function BookingAiAgent({
                     }
                     disabled={loading}
                     className={cn(
-                      "max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border-0 bg-booking-elevated px-4 py-3 text-sm text-white placeholder:text-booking-muted focus:outline-none focus:ring-2 focus:ring-booking-accent/50 disabled:opacity-60",
+                      "max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl booking-glass-input px-4 py-3 text-sm text-white placeholder:text-booking-muted focus:outline-none focus:ring-2 focus:ring-booking-accent/50 disabled:opacity-60",
                       listening && "text-booking-accent"
                     )}
                   />

@@ -26,7 +26,7 @@ export function BookingSignOutButton({
     <form action={signOut}>
       <button
         type="submit"
-        className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-booking-surface py-3.5 text-sm font-semibold text-booking-muted transition-colors hover:border-white/20 hover:text-white"
+        className="flex w-full items-center justify-center gap-2 rounded-2xl booking-glass-pill py-3.5 text-sm font-semibold text-booking-muted transition-colors hover:border-white/20 hover:text-white"
       >
         <LogOut className="h-4 w-4" aria-hidden />
         Sign out

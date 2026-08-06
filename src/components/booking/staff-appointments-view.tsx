@@ -53,13 +53,13 @@ export function StaffAppointmentsView({
         </div>
         <Link
           href={`/dashboard/${businessId}/appointments`}
-          className="shrink-0 rounded-full bg-booking-elevated px-3 py-1.5 text-xs font-medium text-booking-muted hover:text-white"
+          className="shrink-0 rounded-full booking-glass-pill px-3 py-1.5 text-xs font-medium text-booking-muted hover:text-white"
         >
           Manage
         </Link>
       </div>
 
-      <div className="flex rounded-full border border-white/10 bg-booking-elevated p-1">
+      <div className="flex rounded-full booking-glass-pill p-1">
         <button
           type="button"
           onClick={() => setTab("store")}
@@ -89,7 +89,7 @@ export function StaffAppointmentsView({
       {tab === "store" ? (
         <div className="pb-2">
           {storeAppointments.length === 0 ? (
-            <div className="rounded-3xl bg-booking-elevated px-5 py-10 text-center text-sm text-booking-muted">
+            <div className="rounded-3xl booking-glass-card px-5 py-10 text-center text-sm text-booking-muted">
               No store appointments yet.
             </div>
           ) : (

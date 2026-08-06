@@ -98,7 +98,7 @@ export function MyAppointmentsList({
           className={cn(
             "rounded-3xl py-12 text-center",
             isBooking
-              ? "bg-booking-elevated text-booking-muted"
+              ? "booking-glass-card text-booking-muted"
               : "border bg-white text-zinc-500"
           )}
         >
@@ -139,7 +139,7 @@ function AppointmentCard({
       className={cn(
         "rounded-3xl p-5 transition-shadow",
         isBooking
-          ? "bg-booking-elevated"
+          ? "booking-glass-card"
           : "border border-zinc-200 bg-white shadow-sm",
         highlighted &&
         (isBooking

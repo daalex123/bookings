@@ -45,7 +45,7 @@ export function CustomBookingFields({
 
 function CustomField({ field }: { field: CustomFieldConfig }) {
     const baseClassName =
-        "w-full rounded-2xl border-0 bg-booking-elevated px-4 py-3 text-base text-white placeholder:text-booking-muted focus:outline-none focus:ring-2 focus:ring-booking-accent/50";
+        "w-full rounded-2xl booking-glass-input px-4 py-3 text-base text-white placeholder:text-booking-muted focus:outline-none focus:ring-2 focus:ring-booking-accent/50";
 
     return (
         <div className="space-y-2">

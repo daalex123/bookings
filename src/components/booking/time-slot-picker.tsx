@@ -44,7 +44,7 @@ export function TimeSlotPicker({
           name="time"
           required
           defaultValue={selectedDefault}
-          className="w-full appearance-none rounded-2xl border-0 bg-booking-elevated px-4 py-3.5 text-base text-white focus:outline-none focus:ring-2 focus:ring-booking-accent/50"
+          className="w-full appearance-none rounded-2xl booking-glass-input px-4 py-3.5 text-base text-white focus:outline-none focus:ring-2 focus:ring-booking-accent/50"
         >
           <option value="" disabled>
             Choose a time
@@ -62,8 +62,8 @@ export function TimeSlotPicker({
               key={slot}
               className={cn(
                 "inline-flex min-h-[48px] min-w-[72px] cursor-pointer items-center justify-center rounded-2xl px-4 py-3 text-sm font-medium",
-                "bg-booking-elevated text-white",
-                "has-[:checked]:bg-booking-accent has-[:checked]:text-booking-accent-fg"
+                "booking-glass-pill text-white",
+                "has-[:checked]:border-booking-accent/60 has-[:checked]:bg-booking-accent/20 has-[:checked]:text-booking-accent has-[:checked]:shadow-[0_4px_16px_color-mix(in_srgb,var(--color-booking-accent)_25%,transparent)]"
               )}
             >
               <input

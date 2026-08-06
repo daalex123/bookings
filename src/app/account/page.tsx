@@ -47,7 +47,7 @@ export default async function AccountPage() {
       <div
         className={cn(
           "rounded-3xl p-6",
-          isBooking ? "bg-booking-elevated" : "border border-zinc-200 bg-white shadow-sm"
+          isBooking ? "booking-glass-card" : "border border-zinc-200 bg-white shadow-sm"
         )}
       >
         <ProfileForm

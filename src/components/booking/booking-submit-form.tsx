@@ -45,7 +45,7 @@ export function BookingSubmitForm({
             type="submit"
             disabled={!slotsAvailable || submitting}
             aria-busy={submitting}
-            className="flex w-full items-center justify-center gap-3 rounded-2xl bg-booking-accent px-4 py-4 text-base font-semibold text-booking-accent-fg shadow-lg shadow-black/30 disabled:cursor-not-allowed disabled:opacity-50 lg:max-w-md lg:ml-auto"
+            className="flex w-full items-center justify-center gap-3 rounded-2xl bg-booking-accent px-4 py-4 text-base font-semibold text-booking-accent-fg shadow-[0_8px_32px_color-mix(in_srgb,var(--color-booking-accent)_40%,transparent)] disabled:cursor-not-allowed disabled:opacity-50 lg:max-w-md lg:ml-auto"
           >
             {submitting ? (
               <>

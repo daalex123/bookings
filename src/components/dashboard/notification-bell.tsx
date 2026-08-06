@@ -94,7 +94,7 @@ function NotificationBellView({
         className={cn(
           "relative flex items-center justify-center transition",
           isBookingVisual
-            ? "rounded-2xl bg-booking-elevated p-3 text-booking-muted"
+            ? "rounded-2xl booking-glass-pill p-3 text-booking-muted"
             : "h-11 w-11 rounded-full bg-white text-[#1e2235] shadow-sm hover:bg-[#fafbfc]"
         )}
         aria-label="Notifications"
@@ -120,7 +120,7 @@ function NotificationBellView({
           className={cn(
             "absolute right-0 top-full z-50 mt-2 w-[min(100vw-2rem,360px)] overflow-hidden rounded-2xl shadow-xl",
             isBookingVisual
-              ? "border border-white/10 bg-[#161616]"
+              ? "booking-glass-card"
               : "border border-[#1e2235]/10 bg-white"
           )}
         >

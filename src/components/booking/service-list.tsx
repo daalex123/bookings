@@ -45,7 +45,7 @@ export function ServiceList({
             placeholder="Search services"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-2xl border-0 bg-booking-elevated py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-booking-muted focus:outline-none focus:ring-2 focus:ring-booking-accent/50"
+            className="w-full rounded-2xl booking-glass-input py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-booking-muted focus:outline-none focus:ring-2 focus:ring-booking-accent/50"
           />
         </div>
 
@@ -56,8 +56,8 @@ export function ServiceList({
             className={cn(
               "shrink-0 rounded-full px-5 py-2 text-sm font-medium transition-colors",
               activeFilter === "all"
-                ? "bg-booking-accent text-booking-accent-fg"
-                : "bg-booking-elevated text-white"
+                ? "bg-booking-accent text-booking-accent-fg shadow-[0_4px_20px_color-mix(in_srgb,var(--color-booking-accent)_40%,transparent)]"
+                : "booking-glass-pill text-white"
             )}
           >
             All
@@ -73,8 +73,8 @@ export function ServiceList({
               className={cn(
                 "shrink-0 rounded-full px-5 py-2 text-sm font-medium transition-colors",
                 activeFilter === s.id
-                  ? "bg-booking-accent text-booking-accent-fg"
-                  : "bg-booking-elevated text-white"
+                  ? "bg-booking-accent text-booking-accent-fg shadow-[0_4px_20px_color-mix(in_srgb,var(--color-booking-accent)_40%,transparent)]"
+                  : "booking-glass-pill text-white"
               )}
             >
               {s.name.split(" ")[0]}
@@ -143,13 +143,13 @@ function ServiceCard({
     >
       <article
         className={cn(
-          "h-full overflow-hidden rounded-3xl border border-white/8 bg-booking-elevated/70 shadow-[0_16px_30px_rgba(0,0,0,0.3)] transition-all hover:-translate-y-0.5 hover:border-booking-accent/45 hover:shadow-[0_20px_36px_rgba(0,0,0,0.38)]",
+          "h-full overflow-hidden rounded-3xl booking-glass-card transition-all hover:-translate-y-0.5 hover:border-booking-accent/45 hover:shadow-[0_20px_36px_rgba(0,0,0,0.38)]",
           !service.image_url && CARD_GRADIENTS[index % CARD_GRADIENTS.length]
         )}
       >
         <div className="flex min-h-76 flex-col justify-between p-5 md:min-h-56">
           {service.image_url ? (
-            <div className="relative h-36 overflow-hidden rounded-2xl bg-black/20 md:h-28">
+            <div className="relative h-36 overflow-hidden rounded-2xl booking-glass md:h-28">
               <Image
                 src={service.image_url}
                 alt=""
@@ -159,7 +159,7 @@ function ServiceCard({
               />
             </div>
           ) : (
-            <div className="h-36 rounded-2xl bg-black/20 md:h-28" />
+            <div className="h-36 rounded-2xl booking-glass md:h-28" />
           )}
           <div className="mt-4 flex items-end justify-between gap-3">
             <div className="min-w-0">

@@ -1,10 +1,17 @@
 import { cn } from "@/lib/utils";
 
 export const bookingFormCardClass =
-  "rounded-3xl border border-white/10 bg-booking-surface p-6 shadow-[0_8px_32px_rgba(0,0,0,0.35)]";
+  "booking-glass-card rounded-3xl p-6";
 
 export const bookingInputClass =
-  "w-full min-h-[48px] rounded-2xl border border-white/15 bg-booking-bg px-4 py-3 text-base text-white shadow-inner shadow-black/20 placeholder:text-white/35 focus:border-booking-accent focus:outline-none focus:ring-2 focus:ring-booking-accent/35 disabled:cursor-not-allowed disabled:opacity-60";
+  "booking-glass-input w-full min-h-[48px] rounded-2xl px-4 py-3 text-base text-white placeholder:text-white/40 focus:border-booking-accent focus:outline-none focus:ring-2 focus:ring-booking-accent/35 disabled:cursor-not-allowed disabled:opacity-60";
+
+export const bookingGlassCardClass = "booking-glass-card";
+export const bookingGlassClass = "booking-glass";
+export const bookingGlassInputClass = "booking-glass-input";
+export const bookingGlassPillClass = "booking-glass-pill";
+export const bookingGlassAvatarClass = "booking-glass-avatar";
+export const bookingGlassPanelClass = "booking-glass-panel";
 
 export const bookingLabelClass = "text-sm font-medium text-white/85";
 

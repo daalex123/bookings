@@ -12,7 +12,7 @@ export function InstallAppBanner() {
 
   return (
     <div className="fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 px-4 lg:bottom-6">
-      <div className="mx-auto flex w-full max-w-lg items-start gap-3 rounded-2xl border border-white/10 bg-booking-surface p-4 shadow-xl shadow-black/40 lg:max-w-3xl xl:max-w-4xl">
+      <div className="mx-auto flex w-full max-w-lg items-start gap-3 rounded-2xl booking-glass-card p-4 shadow-xl shadow-black/40 lg:max-w-3xl xl:max-w-4xl">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-booking-accent text-lg font-bold text-booking-accent-fg">
           B
         </div>

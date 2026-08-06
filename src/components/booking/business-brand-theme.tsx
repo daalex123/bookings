@@ -56,6 +56,11 @@ function buildBookingThemeVars(
     bookingBg,
     bookingSurface: mixHexColor(bookingBg, accent, 0.14),
     bookingElevated: mixHexColor(bookingBg, accent, 0.22),
+    glassBg: `color-mix(in srgb, ${accent} 6%, rgba(255, 255, 255, 0.05))`,
+    glassBgElevated: `color-mix(in srgb, ${accent} 10%, rgba(255, 255, 255, 0.08))`,
+    glassBgStrong: `color-mix(in srgb, ${accent} 14%, rgba(255, 255, 255, 0.12))`,
+    glassBorder: `color-mix(in srgb, ${accent} 8%, rgba(255, 255, 255, 0.12))`,
+    glassBorderStrong: `color-mix(in srgb, ${accent} 12%, rgba(255, 255, 255, 0.18))`,
   };
 }
 
@@ -78,6 +83,11 @@ export function BusinessBrandTheme({
         --color-booking-bg: ${theme.bookingBg};
         --color-booking-surface: ${theme.bookingSurface};
         --color-booking-elevated: ${theme.bookingElevated};
+        --booking-glass-bg: ${theme.glassBg};
+        --booking-glass-bg-elevated: ${theme.glassBgElevated};
+        --booking-glass-bg-strong: ${theme.glassBgStrong};
+        --booking-glass-border: ${theme.glassBorder};
+        --booking-glass-border-strong: ${theme.glassBorderStrong};
         background: var(--color-booking-bg);
       }
 

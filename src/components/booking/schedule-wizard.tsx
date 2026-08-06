@@ -107,7 +107,7 @@ export async function ScheduleWizard({
             </Link>
             <Link
               href={backPath}
-              className="rounded-2xl bg-booking-elevated py-3.5 text-center font-medium"
+              className="rounded-2xl booking-glass-pill py-3.5 text-center font-medium"
             >
               Back to {business.name}
             </Link>
@@ -139,7 +139,7 @@ export async function ScheduleWizard({
           style={heroStyle}
         />
 
-        <div className="relative z-10 -mt-16 rounded-t-4xl bg-booking-bg px-5 pt-6 pb-40 lg:pb-12">
+        <div className="relative z-10 -mt-16 rounded-t-4xl booking-glass-panel px-5 pt-6 pb-40 lg:pb-12">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold lg:text-3xl">
@@ -166,7 +166,7 @@ export async function ScheduleWizard({
             </div>
             <Link
               href={backPath}
-              className="shrink-0 rounded-full bg-booking-elevated px-3 py-1.5 text-xs text-booking-muted"
+              className="shrink-0 rounded-full booking-glass-pill px-3 py-1.5 text-xs text-booking-muted"
             >
               Back
             </Link>
@@ -232,7 +232,7 @@ export async function ScheduleWizard({
                       name="notes"
                       rows={3}
                       placeholder="Any special requests..."
-                      className="w-full resize-none rounded-2xl border-0 bg-booking-elevated px-4 py-3 text-base text-white placeholder:text-booking-muted focus:outline-none focus:ring-2 focus:ring-booking-accent/50"
+                      className="w-full resize-none rounded-2xl booking-glass-input px-4 py-3 text-base text-white placeholder:text-booking-muted focus:outline-none focus:ring-2 focus:ring-booking-accent/50"
                     />
                   </div>
 
@@ -245,7 +245,7 @@ export async function ScheduleWizard({
                   </div>
 
                   {isGuest && (
-                    <div className="mt-6 rounded-2xl bg-booking-elevated p-5 text-center">
+                    <div className="mt-6 rounded-2xl booking-glass-card p-5 text-center">
                       <p className="text-sm text-booking-muted">
                         Sign in to confirm your booking
                       </p>

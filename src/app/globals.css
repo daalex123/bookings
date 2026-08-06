@@ -33,8 +33,101 @@ body {
   --foreground: #fafafa;
   --color-booking-accent: #f5c518;
   --color-booking-accent-fg: #0a0a0a;
+  --booking-glass-bg: rgba(255, 255, 255, 0.05);
+  --booking-glass-bg-elevated: rgba(255, 255, 255, 0.08);
+  --booking-glass-bg-strong: rgba(255, 255, 255, 0.12);
+  --booking-glass-border: rgba(255, 255, 255, 0.12);
+  --booking-glass-border-strong: rgba(255, 255, 255, 0.18);
+  --booking-glass-blur: 20px;
+  --booking-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+  --booking-glass-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.35);
+  --booking-glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  isolation: isolate;
   background: var(--background);
   color: var(--foreground);
+  overflow-x: clip;
+}
+
+.booking-theme::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 70% 50% at 15% 8%,
+      color-mix(in srgb, var(--color-booking-accent) 18%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 55% 45% at 85% 25%,
+      color-mix(in srgb, var(--color-booking-accent) 10%, transparent),
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 50% 95%,
+      rgba(255, 255, 255, 0.03),
+      transparent 70%
+    );
+}
+
+/* Glassmorphism utilities */
+.booking-glass {
+  background: var(--booking-glass-bg);
+  backdrop-filter: blur(var(--booking-glass-blur));
+  -webkit-backdrop-filter: blur(var(--booking-glass-blur));
+  border: 1px solid var(--booking-glass-border);
+  box-shadow: var(--booking-glass-shadow), var(--booking-glass-highlight);
+}
+
+.booking-glass-card {
+  background: var(--booking-glass-bg-elevated);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--booking-glass-border);
+  box-shadow: var(--booking-glass-shadow-lg), var(--booking-glass-highlight);
+}
+
+.booking-glass-input {
+  background: var(--booking-glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--booking-glass-border);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.booking-glass-pill {
+  background: var(--booking-glass-bg-elevated);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--booking-glass-border);
+  box-shadow: var(--booking-glass-highlight);
+}
+
+.booking-glass-hero {
+  background: var(--booking-glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--booking-glass-border-strong);
+  box-shadow: var(--booking-glass-shadow-lg), var(--booking-glass-highlight);
+}
+
+.booking-glass-panel {
+  background: color-mix(in srgb, var(--color-booking-bg) 75%, transparent);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-top: 1px solid var(--booking-glass-border);
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.25);
+}
+
+.booking-glass-avatar {
+  background: var(--booking-glass-bg-strong);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--booking-glass-border-strong);
+  box-shadow: var(--booking-glass-highlight);
 }
 
 .booking-theme ::-webkit-scrollbar {
@@ -79,24 +172,41 @@ body {
 }
 
 .booking-hero-gradient {
-  background: linear-gradient(
-    135deg,
-    #2a1810 0%,
-    #1a1410 40%,
-    #0f0f0f 100%
-  );
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-booking-accent) 22%, transparent) 0%,
+      color-mix(in srgb, var(--color-booking-accent) 8%, transparent) 40%,
+      transparent 100%
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, transparent 100%);
 }
 
 .booking-card-gradient-1 {
-  background: linear-gradient(145deg, #3d2b1f 0%, #1a1410 100%);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--color-booking-accent) 20%, rgba(255, 255, 255, 0.06)) 0%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
 }
 
 .booking-card-gradient-2 {
-  background: linear-gradient(145deg, #2a2a35 0%, #141418 100%);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.09) 0%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
 }
 
 .booking-card-gradient-3 {
-  background: linear-gradient(145deg, #1f2a1f 0%, #101410 100%);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--color-booking-accent) 12%, rgba(255, 255, 255, 0.06)) 0%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
 }
 
 /* Admin dashboard — Dark premium */

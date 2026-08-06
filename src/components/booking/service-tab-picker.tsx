@@ -79,8 +79,8 @@ export function ServiceTabPicker({
                 "group relative min-h-36 shrink-0 rounded-3xl border px-4 py-4 text-left transition-all disabled:opacity-70",
                 singleService ? "w-full" : "w-70",
                 selected
-                  ? "border-booking-accent/70 bg-linear-to-br from-booking-accent/30 via-booking-accent/15 to-booking-elevated text-white shadow-[0_12px_30px_rgba(245,197,24,0.24)]"
-                  : "border-white/8 bg-linear-to-br from-booking-elevated to-[#18181b] text-white hover:-translate-y-0.5 hover:border-booking-accent/30 hover:shadow-[0_10px_24px_rgba(0,0,0,0.3)]"
+                  ? "border-booking-accent/70 bg-linear-to-br from-booking-accent/30 via-booking-accent/15 to-transparent booking-glass text-white shadow-[0_12px_30px_color-mix(in_srgb,var(--color-booking-accent)_30%,transparent)]"
+                  : "border-white/8 booking-glass-card text-white hover:-translate-y-0.5 hover:border-booking-accent/30 hover:shadow-[0_10px_24px_rgba(0,0,0,0.3)]"
               )}
             >
               <div className="flex items-start justify-between gap-3">
@@ -102,14 +102,14 @@ export function ServiceTabPicker({
 
               <div className="mt-4 flex flex-wrap items-center gap-2.5 text-xs">
                 {service.duration_minutes != null && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-zinc-200">
+                  <span className="inline-flex items-center gap-1 rounded-full booking-glass-pill px-2.5 py-1 text-zinc-200">
                     <Clock3 className="h-3.5 w-3.5" />
                     {formatDuration(service.duration_minutes)}
                   </span>
                 )}
 
                 {staffCount > 0 && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/20 px-2.5 py-1 text-zinc-200">
+                  <span className="inline-flex items-center gap-1 rounded-full booking-glass-pill px-2.5 py-1 text-zinc-200">
                     <Users className="h-3.5 w-3.5" />
                     {staffCount} staff
                   </span>

@@ -63,8 +63,8 @@ export function HorizontalDatePicker({
               className={cn(
                 "flex min-h-[56px] min-w-[56px] shrink-0 flex-col items-center justify-center rounded-2xl px-3 py-3 transition-colors disabled:opacity-70",
                 selected
-                  ? "bg-booking-accent text-booking-accent-fg"
-                  : "bg-booking-elevated text-white active:bg-booking-surface"
+                  ? "bg-booking-accent text-booking-accent-fg shadow-[0_4px_16px_color-mix(in_srgb,var(--color-booking-accent)_35%,transparent)]"
+                  : "booking-glass-pill text-white active:opacity-80"
               )}
             >
               <span className="text-lg font-bold">{format(labelDate, "d")}</span>

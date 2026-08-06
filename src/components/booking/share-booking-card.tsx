@@ -63,7 +63,7 @@ export function ShareBookingCard({
     <div
       className={cn(
         compact ? "rounded-2xl p-4" : "rounded-3xl p-5",
-        isDark ? "bg-booking-elevated" : "border border-zinc-200 bg-white"
+        isDark ? "booking-glass-card" : "border border-zinc-200 bg-white"
       )}
     >
       <div className="space-y-1">
@@ -108,7 +108,7 @@ export function ShareBookingCard({
           <p
             className={cn(
               "break-all rounded-lg px-2.5 py-1.5 font-mono text-[10px] sm:text-xs",
-              isDark ? "bg-booking-surface text-booking-muted" : "bg-zinc-50 text-zinc-600"
+              isDark ? "booking-glass text-booking-muted" : "bg-zinc-50 text-zinc-600"
             )}
           >
             {url}
@@ -144,7 +144,7 @@ export function ShareBookingCard({
                 "inline-flex items-center gap-1.5 rounded-lg font-medium transition-colors",
                 compact ? "px-3 py-1.5 text-xs" : "rounded-xl px-4 py-2.5 text-sm",
                 isDark
-                  ? "bg-booking-surface text-white hover:bg-white/10"
+                  ? "booking-glass-pill text-white hover:bg-white/10"
                   : "border border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-50"
               )}
             >

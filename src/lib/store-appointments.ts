@@ -47,6 +47,10 @@ export function normalizeStoreAppointments(
     const profile = asJoined(appt.profiles);
     const local = utcToLocalParts(appt.start_at, timezone);
     const customerName = profile?.full_name ?? "Customer";
+    const customFields =
+      appt.custom_fields && typeof appt.custom_fields === "object"
+        ? (appt.custom_fields as Record<string, unknown>)
+        : {};
 
     return {
       id: appt.id,
@@ -55,7 +59,7 @@ export function normalizeStoreAppointments(
       created_at: appt.created_at,
       status: appt.status,
       notes: appt.notes,
-      custom_fields: appt.custom_fields ?? {},
+      custom_fields: customFields,
       service_id: appt.service_id,
       service_name: service?.name ?? "Service",
       addon_names: mapAddonNames(appt.appointment_addons),

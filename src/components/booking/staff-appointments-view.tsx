@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppointmentsCalendar } from "@/components/dashboard/appointments-calendar";
 import { MyAppointmentsList } from "@/components/booking/my-appointments-list";
+import { useBusinessAppointments } from "@/hooks/use-business-appointments";
 import type { ActionResult } from "@/lib/action-result";
 import type { CustomerAppointmentItem } from "@/lib/customer-appointments";
 import type { StoreAppointmentRow } from "@/lib/store-appointments";
@@ -18,7 +19,7 @@ export function StaffAppointmentsView({
   businessId,
   businessName,
   timezone,
-  storeAppointments,
+  storeAppointments: initialStoreAppointments,
   personalAppointments,
   cancelAction,
   notifications,
@@ -32,6 +33,11 @@ export function StaffAppointmentsView({
   cancelAction: (formData: FormData) => Promise<ActionResult>;
   notifications: Notification[];
 }) {
+  const { appointments: storeAppointments } = useBusinessAppointments(
+    businessId,
+    timezone,
+    initialStoreAppointments
+  );
   const [tab, setTab] = useState<Tab>("store");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);

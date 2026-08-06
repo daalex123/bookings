@@ -25,6 +25,7 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { StatusActionForm } from "@/components/dashboard/status-action-form";
 import { useActionToast } from "@/hooks/use-action-toast";
+import { useBusinessAppointments } from "@/hooks/use-business-appointments";
 import { todayInTimezone } from "@/lib/availability";
 import { hasActionError, type ActionResult } from "@/lib/action-result";
 import { Button } from "@/components/ui/button";
@@ -100,7 +101,8 @@ const TIME_FILTERS: { id: TimeFilter; label: string }[] = [
 ];
 
 export function AppointmentsPanel({
-  appointments,
+  businessId,
+  appointments: initialAppointments,
   services,
   customers,
   timezone,
@@ -111,6 +113,7 @@ export function AppointmentsPanel({
   initialViewMode = "calendar",
   highlightAppointmentId,
 }: {
+  businessId: string;
   appointments: AppointmentRow[];
   services: ServiceOption[];
   customers: CustomerOption[];
@@ -122,6 +125,11 @@ export function AppointmentsPanel({
   initialViewMode?: ViewMode;
   highlightAppointmentId?: string;
 }) {
+  const { appointments } = useBusinessAppointments(
+    businessId,
+    timezone,
+    initialAppointments
+  );
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(
     highlightAppointmentId ?? null
@@ -134,7 +142,7 @@ export function AppointmentsPanel({
   );
   const [selectedDate, setSelectedDate] = useState<string | null>(() => {
     if (highlightAppointmentId) {
-      const appt = appointments.find((a) => a.id === highlightAppointmentId);
+      const appt = initialAppointments.find((a) => a.id === highlightAppointmentId);
       if (appt) return appt.date;
     }
     return initialTimeFilter === "today" ? todayInTimezone(timezone) : null;

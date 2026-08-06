@@ -138,6 +138,7 @@ export default async function AppointmentsPage({
 
   return (
     <AppointmentsPanel
+      businessId={businessId}
       appointments={normalizedAppointments}
       services={services ?? []}
       customers={customers}

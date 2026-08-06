@@ -277,14 +277,16 @@ export function NotificationBell({
   const shared = useOptionalNotificationsContext();
   const visual = appearance ?? variant;
   const isBooking = variant === "booking";
+  // Booking bell must never reuse the admin staff provider — audiences differ.
+  const useShared = Boolean(shared) && !isBooking;
 
   const localState = useNotifications(userId, initialNotifications, {
     businessId,
     audience: (isBooking ? "customer" : "staff") satisfies NotificationAudience,
-    enabled: !shared,
+    enabled: !useShared,
   });
 
-  const state = shared ?? localState;
+  const state = useShared && shared ? shared : localState;
 
   return (
     <NotificationBellView

@@ -72,18 +72,26 @@ export function useNotifications(
     [initialNotifications, filterNotification]
   );
 
-  const storeRef = useRef<{ userId: string; store: NotificationStore } | null>(
-    null
-  );
-  if (!storeRef.current || storeRef.current.userId !== userId) {
+  const storeKey = `${userId}:${audience}:${businessId ?? ""}`;
+  const storeRef = useRef<{
+    key: string;
+    store: NotificationStore;
+  } | null>(null);
+  if (!storeRef.current || storeRef.current.key !== storeKey) {
     storeRef.current = {
-      userId,
+      key: storeKey,
       store: createNotificationStore(initialFiltered),
     };
   }
 
   const store = storeRef.current.store;
   const wasHiddenRef = useRef(false);
+  const lastSyncedKeyRef = useRef<string | null>(null);
+
+  // Keep local store aligned when SSR initial list changes (e.g. after navigation).
+  useEffect(() => {
+    store.replace(mergeNotifications(store.getSnapshot(), initialFiltered));
+  }, [store, initialFiltered]);
 
   const subscribe = useCallback(
     (listener: () => void) => store.subscribe(listener),
@@ -166,6 +174,13 @@ export function useNotifications(
 
   useEffect(() => {
     if (!enabled) return;
+
+    // Catch notifications created after SSR (e.g. booking submit `after()`),
+    // and re-sync when business/audience scope changes.
+    if (lastSyncedKeyRef.current !== storeKey) {
+      lastSyncedKeyRef.current = storeKey;
+      void syncNotifications();
+    }
 
     const supabase = createClient();
     let channel: RealtimeChannel | null = null;
@@ -299,6 +314,7 @@ export function useNotifications(
     };
   }, [
     userId,
+    storeKey,
     applyNotification,
     syncNotifications,
     filterNotification,

@@ -75,7 +75,8 @@ export function MyAppointmentsList({
             <NotificationBell
               userId={userId}
               initialNotifications={notifications}
-              variant="admin"
+              variant="booking"
+              businessId={businessId}
             />
           ) : null}
         </div>

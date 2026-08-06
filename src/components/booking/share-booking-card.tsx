@@ -57,19 +57,19 @@ export function ShareBookingCard({
   }, [downloadFileName]);
 
   const isDark = variant === "dark";
-  const qrSize = compact ? 88 : 148;
+  const qrSize = compact ? 72 : 120;
 
   return (
     <div
       className={cn(
-        compact ? "rounded-2xl p-4" : "rounded-3xl p-5",
+        compact ? "rounded-2xl p-3" : "rounded-3xl p-4",
         isDark ? "booking-glass-card" : "border border-zinc-200 bg-white"
       )}
     >
-      <div className="space-y-1">
+      <div className={cn(compact ? "space-y-0.5" : "space-y-1")}>
         <h3
           className={cn(
-            compact ? "text-sm font-semibold" : "font-semibold",
+            compact ? "text-sm font-semibold" : "text-base font-semibold",
             isDark ? "text-white" : "text-zinc-900"
           )}
         >
@@ -77,7 +77,7 @@ export function ShareBookingCard({
         </h3>
         <p
           className={cn(
-            compact ? "text-xs leading-relaxed" : "text-sm",
+            compact ? "text-[11px] leading-snug" : "text-sm",
             isDark ? "text-booking-muted" : "text-zinc-600"
           )}
         >
@@ -87,39 +87,39 @@ export function ShareBookingCard({
 
       <div
         className={cn(
-          "mt-4 flex gap-3",
+          "mt-3 flex gap-2.5",
           compact
-            ? "flex-col items-center"
-            : "sm:mt-5 sm:flex-row sm:items-start sm:gap-4"
+            ? "items-center"
+            : "sm:mt-4 sm:flex-row sm:items-start sm:gap-3"
         )}
       >
         <div
           ref={qrRef}
           className={cn(
-            "rounded-xl bg-white shadow-sm",
-            compact ? "mx-auto p-2" : "mx-auto rounded-2xl p-4 sm:mx-0"
+            "shrink-0 rounded-lg bg-white shadow-sm",
+            compact ? "p-1.5" : "mx-auto rounded-xl p-3 sm:mx-0"
           )}
           aria-hidden
         >
           <QRCode value={url} size={qrSize} level="M" />
         </div>
 
-        <div className="w-full min-w-0 flex-1 space-y-2">
+        <div className="w-full min-w-0 flex-1 space-y-1.5">
           <p
             className={cn(
-              "break-all rounded-lg px-2.5 py-1.5 font-mono text-[10px] sm:text-xs",
+              "break-all rounded-md px-2 py-1 font-mono text-[10px] leading-snug",
               isDark ? "booking-glass text-booking-muted" : "bg-zinc-50 text-zinc-600"
             )}
           >
             {url}
           </p>
-          <div className={cn("flex gap-2", compact ? "flex-col sm:flex-row" : "flex-wrap")}>
+          <div className="flex flex-wrap gap-1.5">
             <button
               type="button"
               onClick={copyLink}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-lg font-medium transition-colors",
-                compact ? "px-3 py-1.5 text-xs" : "rounded-xl px-4 py-2.5 text-sm",
+                "inline-flex items-center gap-1 rounded-md font-medium transition-colors",
+                compact ? "px-2.5 py-1 text-[11px]" : "rounded-lg px-3 py-2 text-xs",
                 isDark
                   ? "bg-booking-accent text-booking-accent-fg"
                   : "bg-zinc-900 text-white hover:bg-zinc-800"
@@ -127,12 +127,12 @@ export function ShareBookingCard({
             >
               {copied ? (
                 <>
-                  <Check className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
+                  <Check className="h-3 w-3" />
                   Copied
                 </>
               ) : (
                 <>
-                  <Copy className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
+                  <Copy className="h-3 w-3" />
                   Copy link
                 </>
               )}
@@ -141,14 +141,14 @@ export function ShareBookingCard({
               type="button"
               onClick={downloadQr}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-lg font-medium transition-colors",
-                compact ? "px-3 py-1.5 text-xs" : "rounded-xl px-4 py-2.5 text-sm",
+                "inline-flex items-center gap-1 rounded-md font-medium transition-colors",
+                compact ? "px-2.5 py-1 text-[11px]" : "rounded-lg px-3 py-2 text-xs",
                 isDark
                   ? "booking-glass-pill text-white hover:bg-white/10"
                   : "border border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-50"
               )}
             >
-              <Download className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
+              <Download className="h-3 w-3" />
               Download QR
             </button>
           </div>

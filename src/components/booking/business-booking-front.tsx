@@ -87,12 +87,13 @@ export async function BusinessBookingFront({
           </p>
         )}
 
-        <div className="mt-8 px-5">
+        <div className="mt-5 px-5">
           <ShareBookingCard
             url={shareUrl}
             title="Share with friends"
             description="Scan or share this page so others can book at this business."
             variant="dark"
+            compact
           />
         </div>
       </div>

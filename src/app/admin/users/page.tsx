@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/auth";
+import { UserAvatar } from "@/components/account/user-avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Mail, Calendar, Shield } from "lucide-react";
+import { Mail, Calendar, Shield } from "lucide-react";
 
 export default async function AdminUsersPage() {
     const user = await getCurrentUser();
@@ -16,6 +17,7 @@ export default async function AdminUsersPage() {
       id,
       full_name,
       phone,
+      avatar_url,
       created_at
     `)
         .order("created_at", { ascending: false });
@@ -67,9 +69,11 @@ export default async function AdminUsersPage() {
                                         className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-950/50 p-4 transition-colors hover:border-zinc-700"
                                     >
                                         <div className="flex items-center gap-4">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800">
-                                                <User className="h-5 w-5 text-zinc-400" />
-                                            </div>
+                                            <UserAvatar
+                                                name={profile.full_name}
+                                                src={profile.avatar_url}
+                                                className="bg-zinc-800 text-zinc-300"
+                                            />
                                             <div>
                                                 <div className="flex items-center gap-2">
                                                     <h3 className="font-medium text-zinc-100">

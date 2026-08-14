@@ -148,7 +148,7 @@ body {
   background: rgba(22, 22, 22, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  padding: 0.75rem 1.5rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  padding: 0.625rem 0.5rem calc(0.625rem + env(safe-area-inset-bottom, 0px));
 }
 
 .booking-main-pad {
@@ -222,11 +222,12 @@ body {
   --admin-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
   --admin-radius: 1rem;
   --admin-radius-lg: 1.25rem;
-  --admin-accent: #f5a623;
-  --admin-accent-light: #fbbf24;
-  --admin-accent-bg: rgba(245, 166, 35, 0.1);
-  --admin-gradient: linear-gradient(135deg, #f5a623 0%, #f7c948 100%);
-  --admin-gradient-subtle: linear-gradient(135deg, rgba(245,166,35,0.1) 0%, rgba(247,201,72,0.05) 100%);
+  --admin-accent: #f5c518;
+  --admin-accent-fg: #0a0a0a;
+  --admin-accent-light: #f7d24a;
+  --admin-accent-bg: color-mix(in srgb, var(--admin-accent) 14%, transparent);
+  --admin-gradient: linear-gradient(135deg, var(--admin-accent) 0%, var(--admin-accent-light) 100%);
+  --admin-gradient-subtle: linear-gradient(135deg, color-mix(in srgb, var(--admin-accent) 14%, transparent) 0%, color-mix(in srgb, var(--admin-accent) 6%, transparent) 100%);
   background: var(--admin-bg);
   color: var(--admin-navy);
 }
@@ -241,11 +242,12 @@ body {
   --admin-border: rgba(17, 24, 39, 0.14);
   --admin-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 6px 18px rgba(15, 23, 42, 0.08);
   --admin-shadow-lg: 0 8px 28px rgba(15, 23, 42, 0.14), 0 3px 10px rgba(15, 23, 42, 0.08);
-  --admin-accent: #d97706;
-  --admin-accent-light: #f59e0b;
-  --admin-accent-bg: rgba(217, 119, 6, 0.12);
-  --admin-gradient: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
-  --admin-gradient-subtle: linear-gradient(135deg, rgba(217,119,6,0.12) 0%, rgba(251,191,36,0.08) 100%);
+  --admin-accent: #f5c518;
+  --admin-accent-fg: #0a0a0a;
+  --admin-accent-light: #f7d24a;
+  --admin-accent-bg: color-mix(in srgb, var(--admin-accent) 14%, transparent);
+  --admin-gradient: linear-gradient(135deg, var(--admin-accent) 0%, var(--admin-accent-light) 100%);
+  --admin-gradient-subtle: linear-gradient(135deg, color-mix(in srgb, var(--admin-accent) 14%, transparent) 0%, color-mix(in srgb, var(--admin-accent) 6%, transparent) 100%);
   background: var(--admin-bg);
   color: var(--admin-navy);
 }
@@ -270,9 +272,9 @@ body {
 
 .admin-pill-active {
   background: var(--admin-accent);
-  color: #0c0c0e;
+  color: var(--admin-accent-fg, #0a0a0a);
   font-weight: 600;
-  box-shadow: 0 2px 12px rgba(245, 166, 35, 0.3);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--admin-accent) 35%, transparent);
 }
 
 .admin-pill-idle {
@@ -288,6 +290,7 @@ body {
 .admin-app-shell {
   background: var(--admin-bg);
   color: var(--admin-navy);
+  width: 100%;
 }
 
 .admin-app-shell ::-webkit-scrollbar {
@@ -395,7 +398,7 @@ body {
 
 .admin-app-shell [class*="bg-[#1e2235]"]:not([class*="/10"]):not([class*="/8"]):not([class*="/20"]) {
   background: var(--admin-accent) !important;
-  color: #0c0c0e !important;
+  color: var(--admin-accent-fg, #0a0a0a) !important;
 }
 
 .admin-app-shell [class*="border-[#1e2235]"] {

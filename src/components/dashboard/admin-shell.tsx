@@ -7,14 +7,10 @@ import { AdminSidebar } from "@/components/dashboard/admin-sidebar";
 import { AdminTopbar } from "@/components/dashboard/admin-topbar";
 import { BusinessBrandTheme } from "@/components/booking/business-brand-theme";
 import { AdminInstallAppBanner } from "@/components/pwa/admin-install-app-banner";
+import { dashboardBusinessId } from "@/lib/admin-url";
 import { getUserNotifications, STAFF_NOTIFICATION_AUDIENCE } from "@/lib/notifications/queries";
-import { getCurrentUser, getProfileName } from "@/lib/supabase/auth";
+import { getCurrentUser, getProfile } from "@/lib/supabase/auth";
 import { createClient } from "@/lib/supabase/server";
-
-function businessIdFromPath(pathname: string): string | null {
-  const match = pathname.match(/^\/dashboard\/([^/]+)/);
-  return match?.[1] ?? null;
-}
 
 export async function AdminShell({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
@@ -22,12 +18,12 @@ export async function AdminShell({ children }: { children: React.ReactNode }) {
 
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") ?? "";
-  const businessId = businessIdFromPath(pathname);
+  const businessId = dashboardBusinessId(pathname);
 
   const supabase = await createClient();
 
-  const [fullName, notifications, businessResult] = await Promise.all([
-    getProfileName(user.id),
+  const [profile, notifications, businessResult] = await Promise.all([
+    getProfile(user.id),
     getUserNotifications(user.id, {
       businessId: businessId ?? undefined,
       audience: STAFF_NOTIFICATION_AUDIENCE,
@@ -42,8 +38,9 @@ export async function AdminShell({ children }: { children: React.ReactNode }) {
   ]);
 
   const business = businessResult.data;
-  const userName = fullName || user.email?.split("@")[0] || "User";
+  const userName = profile?.full_name || user.email?.split("@")[0] || "User";
   const userEmail = user.email ?? "";
+  const userAvatarUrl = profile?.avatar_url ?? null;
 
   return (
     <AdminNotificationsProvider
@@ -51,28 +48,30 @@ export async function AdminShell({ children }: { children: React.ReactNode }) {
       businessId={businessId ?? undefined}
       initialNotifications={notifications}
     >
-      <div id="admin-app-shell" className="admin-app-shell admin-theme booking-theme min-h-dvh lg:flex">
+      <div id="admin-app-shell" className="admin-app-shell admin-theme booking-theme flex min-h-dvh w-full flex-col lg:flex-row">
         {business ? <BusinessBrandTheme business={business} /> : null}
         <AdminSidebar
           userName={userName}
           userEmail={userEmail}
+          userAvatarUrl={userAvatarUrl}
           businessName={business?.name}
           businessLogoUrl={business?.logo_url}
         />
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <AdminMobileHeader
             displayName={userName}
             logoUrl={business?.logo_url}
             businessName={business?.name}
             businessId={business?.id}
+            profileHref={business ? `/dashboard/${business.id}/profile` : "/dashboard/profile"}
           />
           <AdminTopbar
             userId={user.id}
             notifications={notifications}
             businessId={businessId ?? undefined}
           />
-          <main className="flex-1 overflow-auto px-5 py-4 booking-main-pad lg:px-10 lg:py-8 lg:pb-8">
-            <div className="mx-auto max-w-lg lg:max-w-6xl">{children}</div>
+          <main className="min-h-0 flex-1 overflow-auto px-4 py-4 booking-main-pad sm:px-6 lg:px-8 lg:py-8">
+            <div className="w-full">{children}</div>
           </main>
         </div>
         <AdminBottomNav />

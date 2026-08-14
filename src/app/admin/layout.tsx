@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser, isSuperAdmin } from "@/lib/supabase/auth";
 import { AdminThemeToggle } from "@/components/dashboard/admin-theme-toggle";
-import { Shield, Building2, Users, Settings, LayoutDashboard } from "lucide-react";
+import { Shield, Building2, Users, Settings, LayoutDashboard, User } from "lucide-react";
 
 export default async function AdminLayout({
     children,
@@ -25,13 +25,14 @@ export default async function AdminLayout({
         { name: "Overview", href: "/admin", icon: LayoutDashboard },
         { name: "Businesses", href: "/admin/businesses", icon: Building2 },
         { name: "Users", href: "/admin/users", icon: Users },
+        { name: "Profile", href: "/admin/profile", icon: User },
         { name: "Settings", href: "/admin/settings", icon: Settings },
     ];
 
     return (
         <div id="admin-app-shell" className="admin-app-shell admin-theme booking-theme flex min-h-screen">
             {/* Sidebar */}
-            <aside className="w-64 border-r border-(--admin-border) bg-(--admin-surface)">
+            <aside className="relative w-64 shrink-0 border-r border-(--admin-border) bg-(--admin-surface)">
                 <div className="flex h-16 items-center gap-2 border-b border-(--admin-border) px-6">
                     <Shield className="h-6 w-6 text-emerald-400" />
                     <span className="text-lg font-bold text-(--admin-navy)">Admin Panel</span>
@@ -65,8 +66,8 @@ export default async function AdminLayout({
             </aside>
 
             {/* Main content */}
-            <main className="flex-1 overflow-y-auto">
-                <div className="mx-auto max-w-7xl p-6 sm:p-8">
+            <main className="min-w-0 flex-1 overflow-y-auto">
+                <div className="w-full p-6 sm:p-8">
                     {children}
                 </div>
             </main>

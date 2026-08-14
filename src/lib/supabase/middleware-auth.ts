@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { isBusinessAuthPath } from "@/lib/business-context";
 
 const AUTH_ROUTES = ["/login", "/register"];
-const PROTECTED_ROUTES = ["/dashboard", "/my-appointments", "/account"];
+const PROTECTED_ROUTES = ["/dashboard", "/my-appointments", "/my-invoices", "/account"];
 
 export function isAuthRoute(pathname: string): boolean {
   return (

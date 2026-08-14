@@ -46,8 +46,15 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const headersList = await headers();
-  const isBooking = headersList.get("x-booking-route") === "1";
-  const isDashboard = headersList.get("x-dashboard-route") === "1";
+  const pathname = headersList.get("x-pathname") ?? "";
+  const isBooking =
+    headersList.get("x-booking-route") === "1" ||
+    pathname.startsWith("/b/") ||
+    pathname.startsWith("/book/");
+  const isDashboard =
+    headersList.get("x-dashboard-route") === "1" ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/admin");
 
   return (
     <html lang="en">

@@ -130,6 +130,8 @@ export async function updateProfile(formData: FormData) {
   const parsed = profileSchema.safeParse({
     full_name: formData.get("full_name"),
     phone: formData.get("phone"),
+    date_of_birth: formData.get("date_of_birth")?.toString() || "",
+    avatar_url: formData.get("avatar_url")?.toString() || "",
   });
 
   if (!parsed.success) {
@@ -144,12 +146,19 @@ export async function updateProfile(formData: FormData) {
 
   const { error } = await supabase
     .from("profiles")
-    .update(parsed.data)
+    .update({
+      full_name: parsed.data.full_name,
+      phone: parsed.data.phone,
+      date_of_birth: parsed.data.date_of_birth,
+      avatar_url: parsed.data.avatar_url || null,
+    })
     .eq("id", user.id);
 
   if (error) return { error: { form: [error.message] } };
 
   revalidatePath("/account");
+  revalidatePath("/dashboard", "layout");
+  revalidatePath("/admin", "layout");
   return { success: true };
 }
 
@@ -344,6 +353,16 @@ export async function upsertService(businessId: string, formData: FormData) {
     slotIntervalMinutes = parent.slot_interval_minutes;
   }
 
+  const templateRaw =
+    formData.get("default_checklist_template_id")?.toString() ?? "";
+  const defaultChecklistTemplateId =
+    !parentServiceId &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      templateRaw
+    )
+      ? templateRaw
+      : null;
+
   const payload = {
     name: parsed.data.name,
     description: parsed.data.description ?? null,
@@ -356,6 +375,9 @@ export async function upsertService(businessId: string, formData: FormData) {
     slot_interval_minutes:
       slotIntervalMinutes ?? durationMinutes!,
     parent_service_id: parentServiceId || null,
+    ...(parentServiceId
+      ? {}
+      : { default_checklist_template_id: defaultChecklistTemplateId }),
   };
 
   if (serviceId) {
@@ -708,6 +730,18 @@ export async function updateAppointmentStatus(
     .eq("id", appointmentId);
 
   if (error) return { error: error.message };
+
+  try {
+    const { syncJobFromAppointmentStatus } = await import("@/lib/jobs");
+    await syncJobFromAppointmentStatus(
+      appointmentId,
+      businessId,
+      status,
+      user?.id
+    );
+  } catch (err) {
+    console.error("[jobs] Failed to sync job from appointment status", err);
+  }
 
   try {
     await notifyAppointmentStatus(appointmentId, status, {

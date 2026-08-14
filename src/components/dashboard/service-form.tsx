@@ -1,6 +1,7 @@
 "use client";
 
 import { ImageUploadField } from "@/components/dashboard/image-upload-field";
+import { AdminSelect } from "@/components/dashboard/admin-select";
 import {
   ServiceExtrasEditor,
   type LinkableService,
@@ -24,6 +25,7 @@ export type ServiceFormValues = {
   image_url?: string | null;
   is_active: boolean;
   show_price: boolean;
+  default_checklist_template_id?: string | null;
 };
 
 export function ServiceForm({
@@ -34,6 +36,7 @@ export function ServiceForm({
   submitLabel,
   onCancel,
   className,
+  checklistTemplates,
   extras,
   linkableServices,
   saveExtraAction,
@@ -49,6 +52,7 @@ export function ServiceForm({
   submitLabel: string;
   onCancel?: () => void;
   className?: string;
+  checklistTemplates?: { id: string; name: string; is_active: boolean }[];
   extras?: ServiceExtraItem[];
   linkableServices?: LinkableService[];
   saveExtraAction?: (formData: FormData) => Promise<ActionResult>;
@@ -151,6 +155,31 @@ export function ServiceForm({
         serviceId={values?.id}
         className="sm:col-span-2"
       />
+
+      {checklistTemplates && (
+        <div className="space-y-2 sm:col-span-2">
+          <Label htmlFor={values?.id ? `checklist-${values.id}` : "checklist-new"}>
+            Default job checklist
+          </Label>
+          <AdminSelect
+            id={values?.id ? `checklist-${values.id}` : "checklist-new"}
+            name="default_checklist_template_id"
+            defaultValue={values?.default_checklist_template_id ?? ""}
+          >
+            <option value="">None</option>
+            {checklistTemplates.map((template) => (
+              <option key={template.id} value={template.id}>
+                {template.name}
+                {template.is_active ? "" : " (inactive)"}
+              </option>
+            ))}
+          </AdminSelect>
+          <p className="text-xs text-[#8b92a5]">
+            Applied automatically when a job is created for this service. Staff can
+            still change it on the job.
+          </p>
+        </div>
+      )}
 
       <div className="space-y-2 sm:col-span-2">
         <Label htmlFor={values?.id ? `desc-${values.id}` : "desc-new"}>

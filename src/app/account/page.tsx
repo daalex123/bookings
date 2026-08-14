@@ -40,7 +40,7 @@ export default async function AccountPage() {
           Profile
         </h1>
         <p className={isBooking ? "text-booking-muted" : "text-zinc-600"}>
-          Update your account details
+          Update your photo and account details
         </p>
       </div>
 
@@ -52,9 +52,11 @@ export default async function AccountPage() {
       >
         <ProfileForm
           action={saveProfile}
-          isBooking={isBooking}
+          variant={isBooking ? "booking" : "dashboard"}
           defaultName={profile?.full_name ?? ""}
           defaultPhone={profile?.phone ?? ""}
+          defaultDateOfBirth={profile?.date_of_birth ?? ""}
+          defaultAvatarUrl={profile?.avatar_url ?? ""}
           email={user?.email ?? ""}
         />
       </div>

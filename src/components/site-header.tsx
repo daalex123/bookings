@@ -57,6 +57,12 @@ export async function SiteHeader() {
                 <span className="hidden sm:inline">My appointments</span>
                 <span className="sm:hidden">Bookings</span>
               </Link>
+              <Link
+                href="/my-invoices"
+                className="hidden rounded-lg px-2.5 py-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 sm:inline-block"
+              >
+                Invoices
+              </Link>
               {showDashboard && (
                 <Link
                   href="/dashboard"

@@ -33,6 +33,16 @@ export function asJoined<T>(value: T | T[] | null | undefined): T | null {
   return Array.isArray(value) ? (value[0] ?? null) : value;
 }
 
+export function getInitials(name: string | null | undefined): string {
+  const parts = name?.trim().split(/\s+/).filter(Boolean) ?? [];
+  if (parts.length === 0) return "?";
+  return parts
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
 export function utcToLocalParts(
   iso: string,
   timezone: string

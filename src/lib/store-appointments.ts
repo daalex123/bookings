@@ -17,6 +17,7 @@ export type StoreAppointmentRow = {
   customer_label: string;
   date: string;
   time: string;
+  job_id?: string | null;
 };
 
 type RawAppointment = {

@@ -104,7 +104,12 @@ export async function updateStaffRole(
 export async function updateStaffMember(
     businessId: string,
     memberId: string,
-    data: { staff_name?: string; staff_phone?: string; role?: BusinessRole }
+    data: {
+      staff_name?: string;
+      staff_phone?: string;
+      role?: BusinessRole;
+      avatar_url?: string | null;
+    }
 ): Promise<{ error?: string }> {
     const supabase = await createClient();
 

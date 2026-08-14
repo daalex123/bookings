@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Home, User } from "lucide-react";
+import { CalendarDays, Home, Receipt, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function bookingNavItems(homePath: string) {
@@ -18,6 +18,12 @@ export function bookingNavItems(homePath: string) {
       label: "Bookings",
       icon: CalendarDays,
       match: (p: string) => p.startsWith("/my-appointments"),
+    },
+    {
+      href: "/my-invoices",
+      label: "Invoices",
+      icon: Receipt,
+      match: (p: string) => p.startsWith("/my-invoices"),
     },
     {
       href: "/account",

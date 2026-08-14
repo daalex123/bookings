@@ -20,7 +20,7 @@ export function ImageUploadField({
   className,
 }: {
   businessId: string;
-  kind: UploadKind;
+  kind: Exclude<UploadKind, "avatar" | "staff">;
   name: string;
   label: string;
   defaultUrl?: string;

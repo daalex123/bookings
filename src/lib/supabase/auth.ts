@@ -48,11 +48,16 @@ export const userCanAccessBusiness = cache(
 );
 
 export const getProfileName = cache(async (userId: string) => {
+  const profile = await getProfile(userId);
+  return profile?.full_name ?? null;
+});
+
+export const getProfile = cache(async (userId: string) => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
-    .select("full_name")
+    .select("full_name, avatar_url, phone")
     .eq("id", userId)
     .maybeSingle();
-  return data?.full_name ?? null;
+  return data;
 });

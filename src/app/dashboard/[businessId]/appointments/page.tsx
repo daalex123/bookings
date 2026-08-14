@@ -14,10 +14,20 @@ export default async function AppointmentsPage({
   searchParams,
 }: {
   params: Promise<{ businessId: string }>;
-  searchParams: Promise<{ time?: string; id?: string; view?: string }>;
+  searchParams: Promise<{
+    time?: string;
+    id?: string;
+    view?: string;
+    openJob?: string;
+  }>;
 }) {
   const { businessId } = await params;
-  const { time, id: highlightAppointmentId, view } = await searchParams;
+  const {
+    time,
+    id: highlightAppointmentId,
+    view,
+    openJob: openJobId,
+  } = await searchParams;
   const initialTimeFilter = time === "today" ? "today" : "all";
   const initialViewMode = view === "list" ? "list" : "calendar";
   const supabase = await createClient();
@@ -26,6 +36,7 @@ export default async function AppointmentsPage({
     { data: appointments },
     { data: services },
     { data: business },
+    { data: jobs },
     customerDirectory,
   ] = await Promise.all([
     supabase
@@ -49,10 +60,18 @@ export default async function AppointmentsPage({
       .select("timezone")
       .eq("id", businessId)
       .single(),
+    supabase
+      .from("jobs")
+      .select("id, appointment_id")
+      .eq("business_id", businessId),
     supabase.rpc("get_business_customer_directory", {
       p_business_id: businessId,
     }),
   ]);
+
+  const jobByAppointment = new Map(
+    (jobs ?? []).map((j) => [j.appointment_id, j.id])
+  );
 
   const timezone = business?.timezone ?? DEFAULT_TIMEZONE;
 
@@ -113,6 +132,7 @@ export default async function AppointmentsPage({
           : customerName,
         date: local.date,
         time: local.time,
+        job_id: jobByAppointment.get(appt.id) ?? null,
       };
     }) ?? [];
 
@@ -134,6 +154,19 @@ export default async function AppointmentsPage({
     const status = formData.get("status")?.toString();
     if (!id || !status) return { error: "Missing status update" };
     return updateAppointmentStatus(id, status, businessId);
+  }
+
+  // Open job from list when job does not exist yet
+  if (openJobId && !jobByAppointment.has(openJobId)) {
+    const { ensureJobForAppointment } = await import("@/lib/jobs");
+    const ensured = await ensureJobForAppointment(openJobId, businessId);
+    if ("job" in ensured && ensured.job) {
+      const { redirect } = await import("next/navigation");
+      redirect(`/dashboard/${businessId}/jobs/${ensured.job.id}`);
+    }
+  } else if (openJobId && jobByAppointment.has(openJobId)) {
+    const { redirect } = await import("next/navigation");
+    redirect(`/dashboard/${businessId}/jobs/${jobByAppointment.get(openJobId)}`);
   }
 
   return (

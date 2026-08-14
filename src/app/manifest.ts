@@ -58,6 +58,12 @@ export default function manifest(): MetadataRoute.Manifest {
         icons: [{ src: "/icon-192", sizes: "192x192", type: "image/png" }],
       },
       {
+        name: "Invoices",
+        short_name: "Invoices",
+        url: "/my-invoices",
+        icons: [{ src: "/icon-192", sizes: "192x192", type: "image/png" }],
+      },
+      {
         name: "Profile",
         short_name: "Profile",
         url: "/account",

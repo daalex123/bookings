@@ -38,6 +38,7 @@ export function ServicesPanel({
   currency,
   businessId,
   staffByService,
+  checklistTemplates,
   saveAction,
   deleteAction,
   reorderAction,
@@ -51,6 +52,7 @@ export function ServicesPanel({
   currency: string;
   businessId: string;
   staffByService?: Record<string, string[]>;
+  checklistTemplates?: { id: string; name: string; is_active: boolean }[];
   saveAction: (formData: FormData) => Promise<ActionResult>;
   deleteAction: (formData: FormData) => Promise<ActionResult>;
   reorderAction: (formData: FormData) => Promise<ActionResult>;
@@ -215,6 +217,7 @@ export function ServicesPanel({
               currency={currency}
               submitLabel="Create service"
               onCancel={() => setShowAddForm(false)}
+              checklistTemplates={checklistTemplates}
             />
           </div>
         </div>
@@ -251,7 +254,7 @@ export function ServicesPanel({
                 className={cn(
                   "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
                   filter === item.id
-                    ? "bg-[#1e2235] text-white"
+                    ? "bg-booking-accent text-booking-accent-fg"
                     : "bg-[#f0f2f5] text-[#8b92a5] hover:text-[#1e2235]"
                 )}
               >
@@ -408,6 +411,7 @@ export function ServicesPanel({
                         values={service}
                         submitLabel="Save changes"
                         onCancel={() => setEditingId(null)}
+                        checklistTemplates={checklistTemplates}
                         extras={serviceExtras}
                         linkableServices={linkableServices}
                         saveExtraAction={handleSaveExtra}

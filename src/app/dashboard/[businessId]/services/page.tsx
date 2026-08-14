@@ -8,6 +8,7 @@ import {
 } from "@/lib/actions";
 import { ServicesPanel } from "@/components/dashboard/services-panel";
 import type { ServiceExtraItem } from "@/components/dashboard/service-extras-editor";
+import { listChecklistTemplates } from "@/lib/checklists";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function ServicesPage({
@@ -18,8 +19,13 @@ export default async function ServicesPage({
   const { businessId } = await params;
   const supabase = await createClient();
 
-  const [{ data: services }, { data: business }, { data: extraLinks }, { data: staffServices }] =
-    await Promise.all([
+  const [
+    { data: services },
+    { data: business },
+    { data: extraLinks },
+    { data: staffServices },
+    templates,
+  ] = await Promise.all([
       supabase
         .from("services")
         .select("*")
@@ -36,7 +42,8 @@ export default async function ServicesPage({
         .select("parent_service_id, child_service_id, sort_order"),
       supabase
         .from("staff_services")
-        .select("service_id, member_id, business_members ( staff_name, profiles ( full_name ) )")
+        .select("service_id, member_id, business_members ( staff_name, profiles ( full_name ) )"),
+      listChecklistTemplates(businessId),
     ]);
 
   const currency = business?.currency ?? "LKR";
@@ -98,6 +105,8 @@ export default async function ServicesPage({
       is_active: service.is_active,
       show_price: service.show_price ?? true,
       sort_order: service.sort_order ?? 0,
+      default_checklist_template_id:
+        service.default_checklist_template_id ?? null,
     })) ?? [];
 
   const primaryServices = normalizedServices.filter((s) => !s.parent_service_id);
@@ -156,6 +165,11 @@ export default async function ServicesPage({
       currency={currency}
       businessId={businessId}
       staffByService={staffByService}
+      checklistTemplates={templates.map((t) => ({
+        id: t.id,
+        name: t.name,
+        is_active: t.is_active,
+      }))}
       saveAction={saveService}
       deleteAction={removeService}
       reorderAction={saveOrder}

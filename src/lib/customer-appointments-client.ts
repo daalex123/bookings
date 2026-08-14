@@ -15,6 +15,32 @@ type AppointmentJoinRow = {
   appointment_addons?:
     | { services: { name: string } | { name: string }[] | null }[]
     | null;
+  jobs?:
+    | {
+        status: string;
+        job_number?: string | null;
+        next_service_visible?: boolean | null;
+        next_service_name?: string | null;
+        next_service_due_on?: string | null;
+        next_service_notes?: string | null;
+        invoices?:
+          | { status: string; invoice_number: string | null }[]
+          | { status: string; invoice_number: string | null }
+          | null;
+      }[]
+    | {
+        status: string;
+        job_number?: string | null;
+        next_service_visible?: boolean | null;
+        next_service_name?: string | null;
+        next_service_due_on?: string | null;
+        next_service_notes?: string | null;
+        invoices?:
+          | { status: string; invoice_number: string | null }[]
+          | { status: string; invoice_number: string | null }
+          | null;
+      }
+    | null;
 };
 
 export function mapCustomerAppointment(
@@ -22,6 +48,16 @@ export function mapCustomerAppointment(
 ): CustomerAppointmentItem {
   const business = asJoined(row.businesses);
   const service = asJoined(row.services);
+  const job = asJoined(row.jobs);
+  const invoices = job?.invoices
+    ? Array.isArray(job.invoices)
+      ? job.invoices
+      : [job.invoices]
+    : [];
+  const invoice =
+    invoices.find((i) => i.status === "issued" || i.status === "paid") ??
+    invoices[0] ??
+    null;
 
   return {
     id: row.id,
@@ -34,6 +70,19 @@ export function mapCustomerAppointment(
     business_slug: business?.slug ?? "",
     service_name: service?.name ?? "Appointment",
     addon_names: mapAddonNames(row.appointment_addons),
+    job_status: job?.status ?? null,
+    job_number: job?.job_number ?? null,
+    invoice_status: invoice?.status ?? null,
+    invoice_number: invoice?.invoice_number ?? null,
+    next_service_name: job?.next_service_visible
+      ? job.next_service_name ?? null
+      : null,
+    next_service_due_on: job?.next_service_visible
+      ? job.next_service_due_on ?? null
+      : null,
+    next_service_notes: job?.next_service_visible
+      ? job.next_service_notes ?? null
+      : null,
   };
 }
 
@@ -48,7 +97,8 @@ export async function fetchCustomerAppointment(
       id, start_at, end_at, created_at, status, notes,
       businesses ( name, slug ),
       services ( name ),
-      appointment_addons ( services ( name ) )
+      appointment_addons ( services ( name ) ),
+      jobs ( status, job_number, next_service_visible, next_service_name, next_service_due_on, next_service_notes, invoices ( status, invoice_number ) )
     `
     )
     .eq("id", appointmentId)

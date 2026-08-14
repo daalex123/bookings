@@ -3,56 +3,56 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AdminNavIcons } from "@/lib/admin-icons";
+import { dashboardBusinessId } from "@/lib/admin-url";
 import { cn } from "@/lib/utils";
 
-const businessNav = [
+/** Primary mobile nav — full sidebar remains on desktop. */
+const businessNavMobile = [
   { href: "", label: "Home", icon: AdminNavIcons.overview },
-  { href: "/services", label: "Services", icon: AdminNavIcons.services },
   { href: "/appointments", label: "Bookings", icon: AdminNavIcons.appointments },
-  { href: "/income", label: "Income", icon: AdminNavIcons.income },
+  { href: "/billing", label: "Billing", icon: AdminNavIcons.billing },
   { href: "/customers", label: "Clients", icon: AdminNavIcons.customers },
-  { href: "/staff", label: "Staff", icon: AdminNavIcons.staff },
   { href: "/settings", label: "Settings", icon: AdminNavIcons.settings },
 ] as const;
 
-function getBusinessId(pathname: string): string | null {
-  const match = pathname.match(/^\/dashboard\/([^/]+)/);
-  if (!match) return null;
-  return match[1];
-}
-
 export function AdminBottomNav() {
   const pathname = usePathname();
-  const businessId = getBusinessId(pathname);
+  const businessId = dashboardBusinessId(pathname);
   const onBusinessRoute = Boolean(businessId);
   const base = businessId ? `/dashboard/${businessId}` : "/dashboard";
 
   const items = onBusinessRoute
-    ? businessNav.map((item) => {
-      const path = item.href ? `${base}${item.href}` : base;
-      const active =
-        item.href === ""
-          ? pathname === base
-          : pathname === path || pathname.startsWith(`${path}/`);
-      return { ...item, href: path, active };
-    })
+    ? businessNavMobile.map((item) => {
+        const path = item.href ? `${base}${item.href}` : base;
+        const active =
+          item.href === ""
+            ? pathname === base
+            : pathname === path || pathname.startsWith(`${path}/`);
+        return { ...item, href: path, active };
+      })
     : [
-      {
-        href: "/dashboard",
-        label: "Businesses",
-        icon: AdminNavIcons.businesses,
-        active: pathname === "/dashboard",
-      },
-    ];
+        {
+          href: "/dashboard",
+          label: "Businesses",
+          icon: AdminNavIcons.businesses,
+          active: pathname === "/dashboard",
+        },
+        {
+          href: "/dashboard/profile",
+          label: "Profile",
+          icon: AdminNavIcons.profile,
+          active: pathname === "/dashboard/profile",
+        },
+      ];
 
   return (
     <nav className="booking-bottom-nav lg:hidden">
-      <div className="mx-auto flex max-w-lg items-center justify-around">
+      <div className="flex w-full items-stretch justify-around gap-1 px-2">
         {items.map(({ href, label, icon: Icon, active }) => (
           <Link
             key={href}
             href={href}
-            className="flex min-w-0 flex-1 flex-col items-center gap-0.5 px-1 text-[10px] transition-colors sm:text-xs"
+            className="flex min-w-0 flex-1 flex-col items-center gap-0.5 px-1 py-0.5 text-[11px] transition-colors"
           >
             <Icon
               aria-hidden
@@ -64,8 +64,8 @@ export function AdminBottomNav() {
             />
             <span
               className={cn(
-                "truncate",
-                active ? "text-booking-accent" : "text-booking-muted"
+                "max-w-full truncate",
+                active ? "font-medium text-booking-accent" : "text-booking-muted"
               )}
             >
               {label}

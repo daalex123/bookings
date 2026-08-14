@@ -34,7 +34,7 @@ export function IncomePeriodTabs({
             className={cn(
               "rounded-full px-4 py-2 text-sm font-medium transition-colors",
               active
-                ? "bg-[#1e2235] text-white"
+                ? "bg-booking-accent text-booking-accent-fg"
                 : "bg-[#f0f2f5] text-[#8b92a5] hover:text-[#1e2235]"
             )}
           >

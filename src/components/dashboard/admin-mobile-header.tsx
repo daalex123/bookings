@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ConnectedNotificationBell } from "@/components/dashboard/notification-bell";
 import { AdminThemeToggle } from "@/components/dashboard/admin-theme-toggle";
 import { BookingSignOutButton } from "@/components/booking/booking-sign-out-button";
@@ -8,11 +9,13 @@ export function AdminMobileHeader({
   logoUrl,
   businessName,
   businessId,
+  profileHref,
 }: {
   displayName: string;
   logoUrl?: string | null;
   businessName?: string | null;
   businessId?: string;
+  profileHref: string;
 }) {
   const heading = businessName ?? "BookNow Admin";
   const initials = heading
@@ -24,7 +27,7 @@ export function AdminMobileHeader({
 
   return (
     <header className="booking-header-pad flex items-center justify-between gap-3 px-5 pb-2 lg:hidden">
-      <div className="flex min-w-0 items-center gap-3">
+      <Link href={profileHref} className="flex min-w-0 items-center gap-3">
         {logoUrl ? (
           <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-booking-elevated">
             <Image
@@ -48,7 +51,7 @@ export function AdminMobileHeader({
             Hey, {displayName.split(" ")[0]}
           </p>
         </div>
-      </div>
+      </Link>
       <div className="flex shrink-0 items-center gap-0.5">
         <AdminThemeToggle compact />
         <ConnectedNotificationBell appearance="booking" businessId={businessId} />

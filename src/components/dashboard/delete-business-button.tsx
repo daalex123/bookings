@@ -30,14 +30,14 @@ export function DeleteBusinessButton({
     );
 
     return (
-        <form ref={formRef} action={wrappedAction} className="flex-1">
+        <form ref={formRef} action={wrappedAction} className="w-full">
             <FormPendingOverlay message="Deleting business…" />
             <input type="hidden" name="id" value={businessId} />
             <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="w-full rounded-md border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20 hover:text-red-200"
+                className="h-9 w-full rounded-lg border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20 hover:text-red-200"
                 onClick={() => {
                     const confirmed = window.confirm(
                         `Delete "${businessName}"? This permanently removes services, appointments, and related data.`
@@ -45,7 +45,7 @@ export function DeleteBusinessButton({
                     if (confirmed) formRef.current?.requestSubmit();
                 }}
             >
-                <Trash2 className="mr-2 h-4 w-4" />
+                <Trash2 className="mr-2 h-4 w-4 shrink-0" />
                 Delete
             </Button>
         </form>

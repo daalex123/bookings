@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { format, isPast, isToday } from "date-fns";
@@ -47,6 +48,7 @@ export type AppointmentRow = {
   customer_label: string;
   date: string;
   time: string;
+  job_id?: string | null;
 };
 
 function formatCustomFieldLabel(key: string): string {
@@ -369,7 +371,7 @@ export function AppointmentsPanel({
                 className={cn(
                   "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
                   timeFilter === item.id
-                    ? "bg-[#1e2235] text-white"
+                    ? "bg-booking-accent text-booking-accent-fg"
                     : "bg-[#f0f2f5] text-[#8b92a5] hover:text-[#1e2235]"
                 )}
               >
@@ -387,7 +389,7 @@ export function AppointmentsPanel({
                 className={cn(
                   "rounded-full px-3 py-1 text-xs font-medium transition-colors",
                   statusFilter === item.id
-                    ? "bg-[#1e2235]/10 text-[#1e2235]"
+                    ? "bg-booking-accent/15 text-booking-accent"
                     : "bg-transparent text-[#8b92a5] hover:text-[#1e2235]"
                 )}
               >
@@ -511,6 +513,21 @@ export function AppointmentsPanel({
 
                     {!isEditing && (
                       <div className="flex flex-wrap gap-2 lg:shrink-0">
+                        {(appt.status === "confirmed" ||
+                          appt.status === "completed" ||
+                          appt.job_id) && (
+                          <Button asChild type="button" variant="outline" size="sm" className="rounded-full">
+                            <Link
+                              href={
+                                appt.job_id
+                                  ? `/dashboard/${businessId}/jobs/${appt.job_id}`
+                                  : `/dashboard/${businessId}/appointments?openJob=${appt.id}`
+                              }
+                            >
+                              {appt.job_id ? "Open job" : "Job"}
+                            </Link>
+                          </Button>
+                        )}
                         <Button
                           type="button"
                           variant="outline"

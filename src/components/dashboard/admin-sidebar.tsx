@@ -3,7 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { UserAvatar } from "@/components/account/user-avatar";
 import { AdminNavIcons } from "@/lib/admin-icons";
+import { dashboardBusinessId } from "@/lib/admin-url";
 import { signOut } from "@/lib/actions";
 import { cn } from "@/lib/utils";
 
@@ -11,31 +13,31 @@ const businessNav = [
   { href: "", label: "Overview", icon: AdminNavIcons.overview },
   { href: "/services", label: "Services", icon: AdminNavIcons.services },
   { href: "/appointments", label: "Appointments", icon: AdminNavIcons.appointments },
+  { href: "/jobs", label: "Jobs", icon: AdminNavIcons.jobs },
+  { href: "/checklists", label: "Checklists", icon: AdminNavIcons.checklists },
+  { href: "/billing", label: "Billing", icon: AdminNavIcons.billing },
   { href: "/income", label: "Reports", icon: AdminNavIcons.income },
   { href: "/customers", label: "Customers", icon: AdminNavIcons.customers },
   { href: "/staff", label: "Staff", icon: AdminNavIcons.staff },
   { href: "/settings", label: "Settings", icon: AdminNavIcons.settings },
+  { href: "/profile", label: "Profile", icon: AdminNavIcons.profile },
 ] as const;
-
-function getBusinessId(pathname: string): string | null {
-  const match = pathname.match(/^\/dashboard\/([^/]+)/);
-  if (!match) return null;
-  return match[1];
-}
 
 export function AdminSidebar({
   userName,
   userEmail,
+  userAvatarUrl,
   businessName,
   businessLogoUrl,
 }: {
   userName: string;
   userEmail: string;
+  userAvatarUrl?: string | null;
   businessName?: string | null;
   businessLogoUrl?: string | null;
 }) {
   const pathname = usePathname();
-  const businessId = getBusinessId(pathname);
+  const businessId = dashboardBusinessId(pathname);
   const onBusinessRoute = Boolean(businessId);
   const base = businessId ? `/dashboard/${businessId}` : "/dashboard";
 
@@ -47,12 +49,9 @@ export function AdminSidebar({
     .slice(0, 2)
     .toUpperCase();
 
-  const initials = userName
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  const profileHref = businessId
+    ? `/dashboard/${businessId}/profile`
+    : "/dashboard/profile";
 
   const sidebarContent = (
     <div className="flex h-full flex-col px-4 py-6 lg:px-5">
@@ -95,18 +94,32 @@ export function AdminSidebar({
 
       <nav className="flex flex-1 flex-col gap-0.5">
         {!onBusinessRoute ? (
-          <Link
-            href="/dashboard"
-            className={cn(
-              "group flex items-center gap-3 rounded-xl px-4 py-2.5 text-[0.84rem] font-medium transition-all duration-200",
-              pathname === "/dashboard"
-                ? "admin-pill-active"
-                : "admin-pill-idle"
-            )}
-          >
-            <AdminNavIcons.businesses className="h-4.5 w-4.5 transition-transform duration-200 group-hover:scale-110" strokeWidth={1.75} />
-            Businesses
-          </Link>
+          <>
+            <Link
+              href="/dashboard"
+              className={cn(
+                "group flex items-center gap-3 rounded-xl px-4 py-2.5 text-[0.84rem] font-medium transition-all duration-200",
+                pathname === "/dashboard"
+                  ? "admin-pill-active"
+                  : "admin-pill-idle"
+              )}
+            >
+              <AdminNavIcons.businesses className="h-4.5 w-4.5 transition-transform duration-200 group-hover:scale-110" strokeWidth={1.75} />
+              Businesses
+            </Link>
+            <Link
+              href="/dashboard/profile"
+              className={cn(
+                "group flex items-center gap-3 rounded-xl px-4 py-2.5 text-[0.84rem] font-medium transition-all duration-200",
+                pathname === "/dashboard/profile"
+                  ? "admin-pill-active"
+                  : "admin-pill-idle"
+              )}
+            >
+              <AdminNavIcons.profile className="h-4.5 w-4.5 transition-transform duration-200 group-hover:scale-110" strokeWidth={1.75} />
+              Profile
+            </Link>
+          </>
         ) : (
           <>
             {businessNav.map((item) => {
@@ -145,20 +158,25 @@ export function AdminSidebar({
       </nav>
 
       <div className="mt-auto border-t border-(--admin-border) pt-5">
-        <div className="flex items-center gap-3 rounded-xl px-2 py-2">
-          <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold shadow-sm"
-            style={{ background: "var(--admin-gradient)", color: "#0c0c0e" }}
-          >
-            {initials || "?"}
-          </div>
+        <Link
+          href={profileHref}
+          className={cn(
+            "flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-(--admin-accent-bg)",
+            pathname === profileHref && "bg-(--admin-accent-bg)"
+          )}
+        >
+          <UserAvatar
+            name={userName}
+            src={userAvatarUrl}
+            className="shadow-sm"
+          />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-(--admin-navy)">
               {userName}
             </p>
             <p className="truncate text-[11px] text-(--admin-muted)">{userEmail}</p>
           </div>
-        </div>
+        </Link>
         <form action={signOut} className="mt-2 px-2">
           <button
             type="submit"
@@ -173,7 +191,7 @@ export function AdminSidebar({
 
   return (
     <>
-      <aside className="hidden h-full w-66 shrink-0 border-r border-(--admin-border) bg-(--admin-surface) lg:static lg:block">
+      <aside className="hidden h-auto w-64 shrink-0 border-r border-(--admin-border) bg-(--admin-surface) lg:sticky lg:top-0 lg:block lg:h-dvh lg:w-64">
         {sidebarContent}
       </aside>
     </>

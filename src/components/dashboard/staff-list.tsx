@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { UserCog, Trash2, Plus, Loader2, Pencil, X, Check } from "lucide-react";
+import { ProfileImageUpload } from "@/components/account/profile-image-upload";
+import { UserAvatar } from "@/components/account/user-avatar";
 import { cn } from "@/lib/utils";
 import type { BusinessRole } from "@/types/database";
 import {
@@ -18,14 +20,17 @@ interface StaffMember {
     created_at: string;
     staff_name?: string | null;
     staff_phone?: string | null;
+    avatar_url?: string | null;
     profiles: {
         id: string;
         full_name: string | null;
         phone: string | null;
+        avatar_url?: string | null;
     }[] | {
         id: string;
         full_name: string | null;
         phone: string | null;
+        avatar_url?: string | null;
     } | null;
 }
 
@@ -130,7 +135,7 @@ export function StaffList({
             <div className="flex justify-end">
                 <button
                     onClick={() => setShowAdd(!showAdd)}
-                    className="flex items-center gap-2 rounded-full bg-[#1e2235] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#2a3048]"
+                    className="flex items-center gap-2 rounded-full bg-booking-accent px-4 py-2.5 text-sm font-medium text-booking-accent-fg transition hover:brightness-110"
                 >
                     <Plus className="h-4 w-4" />
                     Add staff member
@@ -150,7 +155,7 @@ export function StaffList({
                             className={cn(
                                 "rounded-lg px-3 py-1.5 text-xs font-medium transition",
                                 addMode === "manual"
-                                    ? "bg-[#1e2235] text-white"
+                                    ? "bg-booking-accent text-booking-accent-fg"
                                     : "bg-[#f0f2f5] text-[#8b92a5] hover:text-[#1e2235]"
                             )}
                         >
@@ -162,7 +167,7 @@ export function StaffList({
                             className={cn(
                                 "rounded-lg px-3 py-1.5 text-xs font-medium transition",
                                 addMode === "email"
-                                    ? "bg-[#1e2235] text-white"
+                                    ? "bg-booking-accent text-booking-accent-fg"
                                     : "bg-[#f0f2f5] text-[#8b92a5] hover:text-[#1e2235]"
                             )}
                         >
@@ -213,7 +218,7 @@ export function StaffList({
                         <button
                             type="submit"
                             disabled={isPending}
-                            className="flex items-center justify-center gap-2 rounded-xl bg-[#1e2235] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#2a3048] disabled:opacity-50"
+                            className="flex items-center justify-center gap-2 rounded-xl bg-booking-accent px-5 py-2.5 text-sm font-medium text-booking-accent-fg transition hover:brightness-110 disabled:opacity-50"
                         >
                             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
                             Add
@@ -232,14 +237,29 @@ export function StaffList({
                         const profile = Array.isArray(raw) ? raw[0] : raw;
                         const displayName = member.staff_name || profile?.full_name || "Unknown";
                         const displayPhone = member.staff_phone || profile?.phone || "No phone";
+                        const avatarUrl = member.avatar_url || profile?.avatar_url || null;
                         const assignedServices = staffServicesMap[member.id] ?? [];
                         const isEditing = editingId === member.id;
                         return (
                             <div key={member.id} className="admin-card p-5">
                                 <div className="flex items-start gap-3">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f0f2f5] text-[#1e2235]">
-                                        <UserCog className="h-4 w-4" />
-                                    </div>
+                                    {isEditing ? (
+                                        <ProfileImageUpload
+                                            kind="staff"
+                                            size="md"
+                                            businessId={businessId}
+                                            memberId={member.id}
+                                            defaultUrl={avatarUrl ?? ""}
+                                            displayName={displayName}
+                                            onUploaded={(url) => {
+                                                void updateStaffMember(businessId, member.id, {
+                                                    avatar_url: url || null,
+                                                });
+                                            }}
+                                        />
+                                    ) : (
+                                        <UserAvatar name={displayName} src={avatarUrl} />
+                                    )}
                                     <div className="min-w-0 flex-1">
                                         {isEditing ? (
                                             <div className="space-y-2">
@@ -268,7 +288,7 @@ export function StaffList({
                                                     <button
                                                         onClick={() => handleUpdate(member.id)}
                                                         disabled={isPending}
-                                                        className="flex items-center gap-1 rounded-lg bg-[#1e2235] px-3 py-1.5 text-xs font-medium text-white transition hover:bg-[#2a3048] disabled:opacity-50"
+                                                        className="flex items-center gap-1 rounded-lg bg-booking-accent px-3 py-1.5 text-xs font-medium text-booking-accent-fg transition hover:brightness-110 disabled:opacity-50"
                                                     >
                                                         {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                                                         Save
@@ -341,7 +361,7 @@ export function StaffList({
                                                                 className={cn(
                                                                     "rounded-full px-2.5 py-1 text-xs font-medium transition disabled:opacity-50",
                                                                     assigned
-                                                                        ? "bg-[#1e2235] text-white"
+                                                                        ? "bg-booking-accent text-booking-accent-fg"
                                                                         : "bg-[#f0f2f5] text-[#8b92a5] hover:bg-[#e4e6eb] hover:text-[#1e2235]"
                                                                 )}
                                                             >

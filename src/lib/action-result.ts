@@ -1,5 +1,12 @@
 export type ActionResult =
-  | { success: boolean; message?: string }
+  | {
+      success: boolean;
+      message?: string;
+      invoiceId?: string;
+      invoiceNumber?: string;
+      templateId?: string;
+      checklistId?: string;
+    }
   | { error: string | Record<string, string[]> }
   | { token: string }
   | { businessId: string }

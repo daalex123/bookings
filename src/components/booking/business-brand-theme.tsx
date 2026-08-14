@@ -50,9 +50,12 @@ function buildBookingThemeVars(
   const accentFg = accentForeground(accent);
   const bookingBg = backgroundColor || DEFAULT_BACKGROUND_COLOR;
 
+  const accentLight = mixHexColor(accent, "#ffffff", 0.28);
+
   return {
     accent,
     accentFg,
+    accentLight,
     bookingBg,
     bookingSurface: mixHexColor(bookingBg, accent, 0.14),
     bookingElevated: mixHexColor(bookingBg, accent, 0.22),
@@ -64,7 +67,7 @@ function buildBookingThemeVars(
   };
 }
 
-/** Customer booking palette (not applied to the admin dashboard shell). */
+/** Applies the business brand color to customer and admin accent tokens. */
 export function BusinessBrandTheme({
   business,
 }: {
@@ -88,12 +91,24 @@ export function BusinessBrandTheme({
         --booking-glass-bg-strong: ${theme.glassBgStrong};
         --booking-glass-border: ${theme.glassBorder};
         --booking-glass-border-strong: ${theme.glassBorderStrong};
+        --admin-accent: ${theme.accent};
+        --admin-accent-fg: ${theme.accentFg};
         background: var(--color-booking-bg);
       }
 
       .admin-app-shell.booking-theme {
         --color-booking-accent: ${theme.accent};
         --color-booking-accent-fg: ${theme.accentFg};
+        --admin-accent: ${theme.accent};
+        --admin-accent-fg: ${theme.accentFg};
+        --admin-accent-light: ${theme.accentLight};
+        --admin-accent-bg: color-mix(in srgb, ${theme.accent} 14%, transparent);
+        --admin-gradient: linear-gradient(135deg, ${theme.accent} 0%, ${theme.accentLight} 100%);
+        --admin-gradient-subtle: linear-gradient(
+          135deg,
+          color-mix(in srgb, ${theme.accent} 14%, transparent) 0%,
+          color-mix(in srgb, ${theme.accent} 6%, transparent) 100%
+        );
       }
     `}</style>
   );

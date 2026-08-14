@@ -14,8 +14,8 @@ export default async function StaffPage({
         supabase
             .from("business_members")
             .select(
-                `id, role, created_at, staff_name, staff_phone,
-         profiles ( id, full_name, phone )`
+                `id, role, created_at, staff_name, staff_phone, avatar_url,
+         profiles ( id, full_name, phone, avatar_url )`
             )
             .eq("business_id", businessId)
             .order("created_at", { ascending: true }),

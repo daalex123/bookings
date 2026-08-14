@@ -130,9 +130,33 @@ export const serviceAddonSchema = z.object({
   parent_service_id: z.string().uuid("Select a primary service"),
 });
 
+const dateOfBirthSchema = z
+  .string()
+  .min(1, "Date of birth is required")
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter a valid date")
+  .refine((value) => {
+    const date = new Date(`${value}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date <= today;
+  }, "Date of birth cannot be in the future")
+  .refine((value) => {
+    const date = new Date(`${value}T00:00:00`);
+    const today = new Date();
+    let age = today.getFullYear() - date.getFullYear();
+    const monthDiff = today.getMonth() - date.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
+      age -= 1;
+    }
+    return age >= 13 && age <= 120;
+  }, "Enter a valid date of birth");
+
 export const profileSchema = z.object({
   full_name: z.string().min(2, "Name is required"),
   phone: phoneSchema,
+  date_of_birth: dateOfBirthSchema,
+  avatar_url: optionalUrl,
 });
 
 export const bookingSchema = z.object({

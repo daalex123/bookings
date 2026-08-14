@@ -24,6 +24,8 @@ export type IncomeAppointmentRow = {
   end_at?: string;
   customer_id?: string;
   status: string;
+  service_price?: number | null;
+  service_cost_price?: number | null;
   services:
   | { id?: string; name?: string; price: number; cost_price?: number; duration_minutes?: number }
   | { id?: string; name?: string; price: number; cost_price?: number; duration_minutes?: number }[]
@@ -138,7 +140,10 @@ export function appointmentRevenue(row: IncomeAppointmentRow): number {
   if (!COUNTABLE_STATUSES.has(row.status)) return 0;
 
   const service = asJoined(row.services);
-  const servicePrice = Number(service?.price ?? 0);
+  const servicePrice =
+    row.service_price != null
+      ? Number(row.service_price)
+      : Number(service?.price ?? 0);
 
   const addons = Array.isArray(row.appointment_addons)
     ? row.appointment_addons
@@ -158,7 +163,10 @@ export function appointmentCost(row: IncomeAppointmentRow): number {
   if (!COUNTABLE_STATUSES.has(row.status)) return 0;
 
   const service = asJoined(row.services);
-  const serviceCost = Number(service?.cost_price ?? 0);
+  const serviceCost =
+    row.service_cost_price != null
+      ? Number(row.service_cost_price)
+      : Number(service?.cost_price ?? 0);
 
   const addons = Array.isArray(row.appointment_addons)
     ? row.appointment_addons

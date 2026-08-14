@@ -28,7 +28,8 @@ export default async function MyAppointmentsPage() {
       id, start_at, end_at, created_at, status, notes, business_id,
       businesses ( name, slug ),
       services ( name ),
-      appointment_addons ( services ( name ) )
+      appointment_addons ( services ( name ) ),
+      jobs ( status, job_number, next_service_visible, next_service_name, next_service_due_on, next_service_notes, invoices ( status, invoice_number ) )
     `
     )
     .eq("customer_id", user.id)

@@ -106,7 +106,7 @@ function NotificationBellView({
               "absolute z-10 flex min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold",
               isBookingVisual
                 ? "-right-1 -top-1 h-5 bg-booking-accent text-booking-accent-fg"
-                : "-right-0.5 -top-0.5 h-5 bg-[#1e2235] text-white"
+                : "-right-0.5 -top-0.5 h-5 bg-booking-accent text-booking-accent-fg"
             )}
             data-testid="notification-unread-badge"
           >
@@ -183,7 +183,7 @@ function NotificationBellView({
                         <span
                           className={cn(
                             "mt-1.5 h-2 w-2 shrink-0 rounded-full",
-                            isBookingVisual ? "bg-booking-accent" : "bg-[#1e2235]"
+                            isBookingVisual ? "bg-booking-accent" : "bg-booking-accent"
                           )}
                         />
                       )}

@@ -118,11 +118,8 @@ export function ShareBookingCard({
               type="button"
               onClick={copyLink}
               className={cn(
-                "inline-flex items-center gap-1 rounded-md font-medium transition-colors",
-                compact ? "px-2.5 py-1 text-[11px]" : "rounded-lg px-3 py-2 text-xs",
-                isDark
-                  ? "bg-booking-accent text-booking-accent-fg"
-                  : "bg-zinc-900 text-white hover:bg-zinc-800"
+                "inline-flex items-center gap-1 rounded-md font-medium transition-colors bg-booking-accent text-booking-accent-fg",
+                compact ? "px-2.5 py-1 text-[11px]" : "rounded-lg px-3 py-2 text-xs"
               )}
             >
               {copied ? (

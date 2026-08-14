@@ -84,7 +84,11 @@ function isBookingExperience(request: NextRequest): boolean {
   if (isBusinessAuthPath(pathname)) return true;
   if (
     request.cookies.has(BUSINESS_CONTEXT_COOKIE) &&
-    (pathname === "/my-appointments" || pathname === "/account")
+    (pathname === "/my-appointments" ||
+      pathname.startsWith("/my-appointments/") ||
+      pathname === "/my-invoices" ||
+      pathname.startsWith("/my-invoices/") ||
+      pathname === "/account")
   ) {
     return true;
   }
@@ -92,35 +96,58 @@ function isBookingExperience(request: NextRequest): boolean {
 }
 
 function isDashboardExperience(pathname: string): boolean {
-  return pathname.startsWith("/dashboard");
+  return pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
+}
+
+function requestHeadersWithRouteContext(request: NextRequest): Headers {
+  const requestHeaders = new Headers(request.headers);
+  const pathname = request.nextUrl.pathname;
+  requestHeaders.set("x-pathname", pathname);
+
+  if (isBookingExperience(request)) {
+    requestHeaders.set("x-booking-route", "1");
+  } else {
+    requestHeaders.delete("x-booking-route");
+  }
+
+  if (isDashboardExperience(pathname)) {
+    requestHeaders.set("x-dashboard-route", "1");
+  } else {
+    requestHeaders.delete("x-dashboard-route");
+  }
+
+  return requestHeaders;
+}
+
+function nextWithRouteContext(request: NextRequest): NextResponse {
+  const requestHeaders = requestHeadersWithRouteContext(request);
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+  return withRouteHeaders(request, response);
 }
 
 function withRouteHeaders(
   request: NextRequest,
   response: NextResponse
 ): NextResponse {
-  response.headers.set("x-pathname", request.nextUrl.pathname);
+  const pathname = request.nextUrl.pathname;
+  response.headers.set("x-pathname", pathname);
   if (isBookingExperience(request)) {
     response.headers.set("x-booking-route", "1");
   }
-  if (isDashboardExperience(request.nextUrl.pathname)) {
+  if (isDashboardExperience(pathname)) {
     response.headers.set("x-dashboard-route", "1");
   }
   return response;
 }
 
 function fastResponse(request: NextRequest): NextResponse {
-  return withRouteHeaders(
-    request,
-    applyBusinessContextCookie(request, NextResponse.next({ request }))
-  );
+  return applyBusinessContextCookie(request, nextWithRouteContext(request));
 }
 
-function createMiddlewareSupabase(
-  request: NextRequest,
-  response: NextResponse
-) {
-  let supabaseResponse = response;
+function createMiddlewareSupabase(request: NextRequest) {
+  let supabaseResponse = nextWithRouteContext(request);
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -134,7 +161,7 @@ function createMiddlewareSupabase(
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
-          supabaseResponse = NextResponse.next({ request });
+          supabaseResponse = nextWithRouteContext(request);
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           );
@@ -165,8 +192,7 @@ export async function updateSession(request: NextRequest) {
     return fastResponse(request);
   }
 
-  const initial = NextResponse.next({ request });
-  const { supabase, getResponse } = createMiddlewareSupabase(request, initial);
+  const { supabase, getResponse } = createMiddlewareSupabase(request);
 
   // Refresh session cookies locally; authorization uses getUser() in Server Components.
   const {

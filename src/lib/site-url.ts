@@ -1,4 +1,8 @@
+import "server-only";
 import { headers } from "next/headers";
+import { absoluteUrl } from "@/lib/urls";
+
+export { absoluteUrl };
 
 function isLocalHost(hostname: string): boolean {
   return (
@@ -12,7 +16,7 @@ function isLocalHost(hostname: string): boolean {
 
 /**
  * Public origin for the current request — booking links, QR codes, auth redirects.
- * Derived from request headers (supports localhost, LAN IPs, and production proxies).
+ * Server Components / server actions only (uses next/headers).
  * Set NEXT_PUBLIC_SITE_URL only when you need a fixed canonical URL (optional).
  */
 export async function getSiteUrl(): Promise<string> {
@@ -35,10 +39,4 @@ export async function getSiteUrl(): Promise<string> {
   }
 
   return "http://localhost:3000";
-}
-
-/** Build an absolute URL from a site origin and path */
-export function absoluteUrl(siteUrl: string, path: string): string {
-  const base = siteUrl.replace(/\/$/, "");
-  return path.startsWith("/") ? `${base}${path}` : `${base}/${path}`;
 }

@@ -10,6 +10,7 @@ import { ServicesPanel } from "@/components/dashboard/services-panel";
 import type { ServiceExtraItem } from "@/components/dashboard/service-extras-editor";
 import { listChecklistTemplates } from "@/lib/checklists";
 import { createClient } from "@/lib/supabase/server";
+import { asJoined } from "@/lib/utils";
 
 export default async function ServicesPage({
   params,
@@ -51,8 +52,9 @@ export default async function ServicesPage({
   // Build service_id -> staff names map
   const staffByService: Record<string, string[]> = {};
   for (const ss of staffServices ?? []) {
-    const member = ss.business_members as any;
-    const name = member?.staff_name || (Array.isArray(member?.profiles) ? member.profiles[0]?.full_name : member?.profiles?.full_name) || null;
+    const member = asJoined(ss.business_members);
+    const profile = asJoined(member?.profiles);
+    const name = member?.staff_name || profile?.full_name || null;
     if (!name) continue;
     if (!staffByService[ss.service_id]) staffByService[ss.service_id] = [];
     staffByService[ss.service_id].push(name);

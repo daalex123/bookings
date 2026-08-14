@@ -751,6 +751,7 @@ export async function updateAppointmentStatus(
     console.error("[notifications] Customer status notification failed", err);
   }
 
+  revalidatePath(`/dashboard/${businessId}`);
   revalidatePath(`/dashboard/${businessId}/appointments`);
   revalidatePath("/my-appointments");
   return { success: true };

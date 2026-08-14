@@ -55,7 +55,6 @@ export default async function BusinessOverviewPage({
         { data: business },
         siteUrl,
         { count: serviceCount },
-        { count: todayCount },
         { data: todayAppts },
         { data: upcomingAppts },
         { data: incomeAppts },
@@ -72,12 +71,6 @@ export default async function BusinessOverviewPage({
             .select("*", { count: "exact", head: true })
             .eq("business_id", businessId)
             .eq("is_active", true),
-        supabase
-            .from("appointments")
-            .select("*", { count: "exact", head: true })
-            .eq("business_id", businessId)
-            .gte("start_at", todayStart)
-            .lte("start_at", todayEnd),
         supabase
             .from("appointments")
             .select(
@@ -120,11 +113,14 @@ export default async function BusinessOverviewPage({
     const shareUrl = business?.slug ? bookingPublicUrl(business.slug, siteUrl) : "";
     const adminAppUrl = adminDashboardUrl(businessId, siteUrl);
 
-    const scheduleRows = (todayAppts ?? []) as AppointmentRow[];
+    const allTodayRows = (todayAppts ?? []) as AppointmentRow[];
+    const scheduleRows = allTodayRows.filter(
+        (row) => row.status === "pending" || row.status === "confirmed"
+    );
     const upcomingRows = (upcomingAppts ?? []) as AppointmentRow[];
     const monthRows = (monthAppts ?? []) as AppointmentRow[];
 
-    const todayStatusCounts = scheduleRows.reduce(
+    const todayStatusCounts = allTodayRows.reduce(
         (acc, row) => {
             acc.total += 1;
             if (row.status === "pending") acc.pending += 1;
@@ -224,8 +220,8 @@ export default async function BusinessOverviewPage({
                             <p className="text-[11px] font-medium text-(--admin-muted)">Income today</p>
                         </div>
                         <div className="rounded-xl border border-(--admin-border) bg-(--admin-elevated) px-5 py-3 text-right">
-                            <p className="text-xl font-black text-(--admin-accent)">{todayCount ?? 0}</p>
-                            <p className="text-[11px] font-medium text-(--admin-muted)">Appointments</p>
+                            <p className="text-xl font-black text-(--admin-accent)">{scheduleRows.length}</p>
+                            <p className="text-[11px] font-medium text-(--admin-muted)">Open today</p>
                         </div>
                         <div className="rounded-xl border border-(--admin-border) bg-(--admin-elevated) px-5 py-3 text-right">
                             <p className="text-xl font-black text-(--admin-accent)">
@@ -251,8 +247,8 @@ export default async function BusinessOverviewPage({
                     href={`/dashboard/${businessId}/income`}
                 />
                 <StatCard
-                    label="Appointments today"
-                    value={todayCount ?? 0}
+                    label="Open today"
+                    value={scheduleRows.length}
                     icon={Calendar}
                     href={`/dashboard/${businessId}/appointments?time=today`}
                 />
@@ -378,7 +374,7 @@ export default async function BusinessOverviewPage({
                             })
                         ) : (
                             <p className="px-6 py-10 text-center text-sm text-(--admin-muted)">
-                                No appointments scheduled for today.
+                                No remaining appointments for today.
                             </p>
                         )}
                     </div>

@@ -193,11 +193,15 @@ export async function completeJob(jobId: string, businessId: string) {
 
   if (error) return { error: error.message };
 
-  await supabase
+  const { error: appointmentError } = await supabase
     .from("appointments")
     .update({ status: "completed" })
     .eq("id", job.appointment_id)
     .eq("business_id", businessId);
+
+  if (appointmentError) {
+    console.error("[jobs] Failed to mark appointment completed", appointmentError);
+  }
 
   await appendJobEvent(supabase, {
     jobId,
@@ -208,6 +212,7 @@ export async function completeJob(jobId: string, businessId: string) {
     visibility: "public",
   });
 
+  revalidatePath(`/dashboard/${businessId}`);
   revalidatePath(`/dashboard/${businessId}/appointments`);
   revalidatePath(`/dashboard/${businessId}/jobs`);
   revalidatePath(`/dashboard/${businessId}/jobs/${jobId}`);

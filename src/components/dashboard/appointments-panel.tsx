@@ -78,6 +78,8 @@ type StatusFilter =
 type TimeFilter = "all" | "upcoming" | "today" | "past";
 type ViewMode = "calendar" | "list";
 
+const CLOSED_STATUSES = new Set(["cancelled", "completed", "no_show"]);
+
 const STATUS_STYLE: Record<string, string> = {
   pending: "bg-amber-500/25 text-amber-300 font-semibold",
   confirmed: "bg-emerald-500/25 text-emerald-300 font-semibold",
@@ -185,12 +187,12 @@ export function AppointmentsPanel({
 
   const todayCount = appointments.filter(
     (a) =>
-      isToday(new Date(a.start_at)) && !["cancelled"].includes(a.status)
+      isToday(new Date(a.start_at)) && !CLOSED_STATUSES.has(a.status)
   ).length;
   const pendingCount = appointments.filter((a) => a.status === "pending").length;
   const upcomingCount = appointments.filter(
     (a) =>
-      !isPast(new Date(a.end_at)) && !["cancelled", "completed"].includes(a.status)
+      !isPast(new Date(a.end_at)) && !CLOSED_STATUSES.has(a.status)
   ).length;
 
   const filtered = useMemo(() => {
@@ -200,8 +202,13 @@ export function AppointmentsPanel({
 
       const start = new Date(appt.start_at);
       const end = new Date(appt.end_at);
-      if (timeFilter === "today" && !isToday(start)) return false;
-      if (timeFilter === "upcoming" && (isPast(end) || ["cancelled", "completed"].includes(appt.status))) {
+      if (timeFilter === "today") {
+        if (!isToday(start)) return false;
+        if (statusFilter === "all" && CLOSED_STATUSES.has(appt.status)) {
+          return false;
+        }
+      }
+      if (timeFilter === "upcoming" && (isPast(end) || CLOSED_STATUSES.has(appt.status))) {
         return false;
       }
       if (timeFilter === "past" && !isPast(end)) return false;

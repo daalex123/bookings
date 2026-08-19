@@ -25,9 +25,11 @@ const STATUS_CHIP_LIGHT: Record<string, string> = {
 export function JobChecklistReadOnly({
   checklists,
   isBooking,
+  embedded = false,
 }: {
   checklists: JobChecklistView[];
   isBooking: boolean;
+  embedded?: boolean;
 }) {
   if (checklists.length === 0) return null;
 
@@ -39,10 +41,11 @@ export function JobChecklistReadOnly({
           <section
             key={checklist.id}
             className={cn(
-              "rounded-3xl p-5",
-              isBooking
-                ? "booking-glass-card"
-                : "border border-zinc-200 bg-white shadow-sm"
+              embedded ? "rounded-2xl p-0" : "rounded-3xl p-5",
+              !embedded &&
+                (isBooking
+                  ? "booking-glass-card"
+                  : "border border-zinc-200 bg-white shadow-sm")
             )}
           >
             <h2

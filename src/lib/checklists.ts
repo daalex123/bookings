@@ -16,6 +16,7 @@ import {
   type ChecklistTemplateListItem,
   type JobChecklistView,
 } from "@/lib/checklist-types";
+import { resolveUniqueKey } from "@/lib/customer-unique-key";
 
 async function requireMember(businessId: string) {
   const supabase = await createClient();
@@ -414,7 +415,7 @@ export async function applyChecklistToJob(
 
   const { data: job } = await supabase
     .from("jobs")
-    .select("id, status")
+    .select("id, status, appointment_id")
     .eq("id", jobId)
     .eq("business_id", businessId)
     .maybeSingle();
@@ -447,6 +448,47 @@ export async function applyChecklistToJob(
           .order("sort_order")
       : { data: [] };
 
+  let headerFields = parseHeaderFields(template.header_fields);
+  let headerValues: Record<string, string> = {};
+
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("customer_unique_key_field, booking_custom_fields")
+    .eq("id", businessId)
+    .maybeSingle();
+  if (job.appointment_id && business?.customer_unique_key_field) {
+    const { data: appointment } = await supabase
+      .from("appointments")
+      .select("custom_fields")
+      .eq("id", job.appointment_id)
+      .maybeSingle();
+    const uniqueKey = resolveUniqueKey(
+      appointment?.custom_fields,
+      business.customer_unique_key_field,
+      business.booking_custom_fields
+    );
+    if (uniqueKey) {
+      for (const field of headerFields) {
+        const id = field.id.toLowerCase();
+        const slugLabel = field.label.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+        if (
+          id === uniqueKey.field.toLowerCase() ||
+          slugLabel === uniqueKey.field.toLowerCase() ||
+          field.label.trim().toLowerCase() === uniqueKey.label.toLowerCase()
+        ) {
+          headerValues[field.id] = uniqueKey.value;
+        }
+      }
+      if (Object.keys(headerValues).length === 0) {
+        headerFields = [
+          { id: uniqueKey.field, label: uniqueKey.label, type: "text" },
+          ...headerFields,
+        ];
+        headerValues[uniqueKey.field] = uniqueKey.value;
+      }
+    }
+  }
+
   const { data: checklist, error } = await supabase
     .from("job_checklists")
     .insert({
@@ -455,8 +497,8 @@ export async function applyChecklistToJob(
       template_id: templateId,
       title: template.name,
       status_options: parseStatusOptions(template.status_options),
-      header_fields: parseHeaderFields(template.header_fields),
-      header_values: {},
+      header_fields: headerFields,
+      header_values: headerValues,
     })
     .select("id")
     .single();

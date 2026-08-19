@@ -1,5 +1,6 @@
 import { JobDetailPage } from "@/components/dashboard/job-detail-page";
 import { getJobChecklists, listChecklistTemplates } from "@/lib/checklists";
+import { resolveUniqueKey } from "@/lib/customer-unique-key";
 import { createClient } from "@/lib/supabase/server";
 import { asJoined } from "@/lib/utils";
 import { notFound } from "next/navigation";
@@ -18,6 +19,7 @@ export default async function JobPage({
     { data: members },
     checklists,
     templates,
+    { data: business },
   ] = await Promise.all([
     supabase
       .from("jobs")
@@ -36,6 +38,11 @@ export default async function JobPage({
       .eq("business_id", businessId),
     getJobChecklists(businessId, jobId),
     listChecklistTemplates(businessId),
+    supabase
+      .from("businesses")
+      .select("customer_unique_key_field, booking_custom_fields")
+      .eq("id", businessId)
+      .maybeSingle(),
   ]);
 
   if (!job) notFound();
@@ -45,7 +52,7 @@ export default async function JobPage({
       supabase
         .from("appointments")
         .select(
-          `id, start_at, status, customer_id,
+          `id, start_at, status, customer_id, custom_fields,
            services ( name ),
            profiles ( full_name )`
         )
@@ -112,6 +119,11 @@ export default async function JobPage({
         status: appointment.status,
         service_name: service?.name ?? "Service",
         customer_name: profile?.full_name ?? "Customer",
+        unique_key: resolveUniqueKey(
+          appointment.custom_fields,
+          business?.customer_unique_key_field,
+          business?.booking_custom_fields
+        ),
       }}
       events={events ?? []}
       staff={staff}

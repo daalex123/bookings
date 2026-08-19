@@ -10,6 +10,7 @@ import { asJoined, formatPrice, cn } from "@/lib/utils";
 import { mapAddonNames } from "@/lib/appointment-addons";
 import { JobChecklistReadOnly } from "@/components/booking/job-checklist-readonly";
 import { getJobChecklists } from "@/lib/checklists";
+import { ChecklistDocActions } from "@/components/print/checklist-doc-actions";
 
 export default async function AppointmentHistoryDetailPage({
   params,
@@ -252,7 +253,37 @@ export default async function AppointmentHistoryDetailPage({
         </Section>
       )}
 
-      <JobChecklistReadOnly checklists={checklists} isBooking={isBooking} />
+      {job && (
+        <Section
+          isBooking={isBooking}
+          title="Checklist"
+          action={
+            <ChecklistDocActions
+              previewHref={`/my-appointments/${appointmentId}/checklist`}
+              pdfHref={`/api/jobs/${job.id}/checklists/pdf`}
+              variant={isBooking ? "booking" : "admin"}
+            />
+          }
+        >
+          {checklists.length > 0 ? (
+            <JobChecklistReadOnly
+              checklists={checklists}
+              isBooking={isBooking}
+              embedded
+            />
+          ) : (
+            <p
+              className={cn(
+                "text-sm",
+                isBooking ? "text-white/55" : "text-zinc-500"
+              )}
+            >
+              No checklist has been filled for this visit yet. You can still
+              preview the document once staff apply a form.
+            </p>
+          )}
+        </Section>
+      )}
 
       {invoices.map(
         (invoice: {
@@ -290,6 +321,27 @@ export default async function AppointmentHistoryDetailPage({
             >
               {invoice.invoice_number ?? "Invoice"}
             </Link>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <Link
+                href={`/my-invoices/${invoice.id}/preview`}
+                className={cn(
+                  "text-sm font-medium underline-offset-2 hover:underline",
+                  isBooking ? "text-white/80" : "text-zinc-700"
+                )}
+              >
+                Preview
+              </Link>
+              <a
+                href={`/api/invoices/${invoice.id}/pdf`}
+                download
+                className={cn(
+                  "text-sm font-medium underline-offset-2 hover:underline",
+                  isBooking ? "text-booking-accent" : "text-zinc-900"
+                )}
+              >
+                Download PDF
+              </a>
+            </div>
 
             <ul className="mt-4 space-y-2">
               {[...(invoice.invoice_items ?? [])]

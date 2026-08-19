@@ -11,6 +11,7 @@ export type CustomerAppointmentItem = {
   addon_names: string[];
   job_status?: string | null;
   job_number?: string | null;
+  job_id?: string | null;
   invoice_status?: string | null;
   invoice_number?: string | null;
   next_service_name?: string | null;

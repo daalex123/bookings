@@ -74,6 +74,8 @@ export default async function InvoiceEditPage({
         discount_amount: Number(invoice.discount_amount),
         amount_paid: Number(invoice.amount_paid),
         total: Number(invoice.total),
+        customer_unique_key: invoice.customer_unique_key,
+        customer_unique_key_label: invoice.customer_unique_key_label,
       }}
       initialLines={(items ?? []).map((item) => ({
         service_id: item.service_id,

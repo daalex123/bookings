@@ -7,7 +7,9 @@ import {
   invoicesMatchingJob,
   type LinkedInvoice,
 } from "@/lib/job-invoices";
+import { resolveUniqueKey, formatUniqueKey } from "@/lib/customer-unique-key";
 import { asJoined, cn, formatPrice } from "@/lib/utils";
+import { ChecklistDocActions } from "@/components/print/checklist-doc-actions";
 
 const STATUS_STYLE: Record<string, string> = {
   queued: "bg-amber-500/15 text-amber-700",
@@ -41,7 +43,7 @@ export default async function JobsPage({
       `id, job_number, status, started_at, completed_at, created_at,
        appointment_id, customer_id,
        profiles ( full_name ),
-       appointments ( start_at, services ( name ) )`
+       appointments ( start_at, custom_fields, services ( name ) )`
     )
     .eq("business_id", businessId)
     .order("created_at", { ascending: false });
@@ -55,6 +57,11 @@ export default async function JobsPage({
 
   const { data: jobs } = await query;
   const jobList = jobs ?? [];
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("customer_unique_key_field, booking_custom_fields")
+    .eq("id", businessId)
+    .maybeSingle();
   const jobIds = jobList.map((job) => job.id);
   const appointmentIds = jobList.map((job) => job.appointment_id);
 
@@ -111,12 +118,13 @@ export default async function JobsPage({
               <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3 font-semibold">Invoices</th>
               <th className="px-4 py-3 font-semibold">Scheduled</th>
+              <th className="px-4 py-3 font-semibold">Checklist</th>
             </tr>
           </thead>
           <tbody>
             {jobList.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-[#8b92a5]">
+                <td colSpan={7} className="px-4 py-8 text-center text-[#8b92a5]">
                   No jobs yet. Jobs appear when appointments are confirmed or
                   started.
                 </td>
@@ -128,6 +136,13 @@ export default async function JobsPage({
               const service = asJoined(appointment?.services);
               const jobInvoices = invoicesMatchingJob(invoices, job);
               const number = formatJobNumber(job.job_number, job.id);
+              const uniqueKeyLine = formatUniqueKey(
+                resolveUniqueKey(
+                  appointment?.custom_fields,
+                  business?.customer_unique_key_field,
+                  business?.booking_custom_fields
+                )
+              );
               return (
                 <tr
                   key={job.id}
@@ -148,6 +163,11 @@ export default async function JobsPage({
                     >
                       {profile?.full_name ?? "Customer"}
                     </Link>
+                    {uniqueKeyLine ? (
+                      <p className="mt-0.5 text-xs text-[#8b92a5]">
+                        {uniqueKeyLine}
+                      </p>
+                    ) : null}
                   </td>
                   <td className="px-4 py-3">{service?.name ?? "Service"}</td>
                   <td className="px-4 py-3">
@@ -183,6 +203,12 @@ export default async function JobsPage({
                     {appointment?.start_at
                       ? format(new Date(appointment.start_at), "PP · p")
                       : "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    <ChecklistDocActions
+                      previewHref={`/dashboard/${businessId}/jobs/${job.id}/print`}
+                      pdfHref={`/api/jobs/${job.id}/checklists/pdf`}
+                    />
                   </td>
                 </tr>
               );

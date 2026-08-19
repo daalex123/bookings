@@ -23,6 +23,7 @@ export default async function MyInvoiceDetailPage({
     .select(
       `id, invoice_number, status, currency, subtotal, discount_amount, total,
        amount_paid, notes, issued_at, created_at, appointment_id,
+       customer_unique_key, customer_unique_key_label,
        businesses ( name, slug ),
        appointments ( start_at, services ( name ) ),
        invoice_items ( id, description, quantity, unit_price, sort_order ),
@@ -80,6 +81,34 @@ export default async function MyInvoiceDetailPage({
               {business?.name ?? "Business"}
               {service?.name ? ` · ${service.name}` : ""}
             </p>
+            {invoice.customer_unique_key ? (
+              <p className={isBooking ? "text-white/80" : "text-zinc-700"}>
+                {invoice.customer_unique_key_label
+                  ? `${invoice.customer_unique_key_label}: `
+                  : ""}
+                {invoice.customer_unique_key}
+              </p>
+            ) : null}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link
+                href={`/my-invoices/${invoice.id}/preview`}
+                className={cn(
+                  "rounded-full px-3 py-1.5 text-xs font-semibold",
+                  isBooking
+                    ? "bg-white/10 text-white"
+                    : "bg-zinc-100 text-zinc-800"
+                )}
+              >
+                Preview
+              </Link>
+              <a
+                href={`/api/invoices/${invoice.id}/pdf`}
+                download
+                className="rounded-full bg-booking-accent px-3 py-1.5 text-xs font-semibold text-booking-accent-fg"
+              >
+                Download PDF
+              </a>
+            </div>
           </div>
           <span
             className={cn(

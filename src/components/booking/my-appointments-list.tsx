@@ -12,6 +12,7 @@ import { NotificationBell } from "@/components/dashboard/notification-bell";
 import { FormPendingOverlay } from "@/components/ui/form-pending-overlay";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { cn } from "@/lib/utils";
+import { ChecklistDocActions } from "@/components/print/checklist-doc-actions";
 import {
   isHistoryAppointment,
   isUpcomingAppointment,
@@ -411,6 +412,13 @@ function AppointmentCard({
         >
           View details
         </Link>
+        {appt.job_id && (
+          <ChecklistDocActions
+            previewHref={`/my-appointments/${appt.id}/checklist`}
+            pdfHref={`/api/jobs/${appt.job_id}/checklists/pdf`}
+            variant={isBooking ? "booking" : "admin"}
+          />
+        )}
         {appt.business_slug && (
           <Link
             href={bookingPagePathBySlug(appt.business_slug)}

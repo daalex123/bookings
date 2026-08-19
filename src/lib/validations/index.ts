@@ -104,6 +104,37 @@ export const businessSchema = z.object({
       (value) => !value || /^\+?[0-9]{8,15}$/.test(value),
       "Enter a valid WhatsApp number (8–15 digits)"
     ),
+  address: z.string().trim().max(500).optional(),
+  contact_phone: z
+    .string()
+    .trim()
+    .optional()
+    .transform((value) => {
+      if (!value) return undefined;
+      const normalized = normalizePhone(value);
+      return normalized === "" ? undefined : normalized;
+    })
+    .refine(
+      (value) => !value || /^\+?[0-9]{8,15}$/.test(value),
+      "Enter a valid contact number (8–15 digits)"
+    ),
+  customer_unique_key_field: z
+    .string()
+    .trim()
+    .optional()
+    .transform((value) => (value ? value : undefined)),
+  document_template: z
+    .object({
+      header_align: z.enum(["left", "center"]).optional(),
+      footer_align: z.enum(["left", "center"]).optional(),
+      show_logo: z.boolean().optional(),
+      show_name: z.boolean().optional(),
+      show_address: z.boolean().optional(),
+      show_contact: z.boolean().optional(),
+      header_text: z.string().max(2000).optional(),
+      footer_text: z.string().max(4000).optional(),
+    })
+    .optional(),
 });
 
 export const serviceSchema = z.object({

@@ -82,6 +82,35 @@ export type JobChecklistView = {
   responses: JobChecklistResponseView[];
 };
 
+export function templateToPreviewChecklist(
+  template: ChecklistTemplateDetail
+): JobChecklistView {
+  const responses: JobChecklistResponseView[] = [];
+  let sort = 0;
+  for (const section of template.sections) {
+    for (const item of section.items) {
+      responses.push({
+        id: item.id,
+        section_title: section.title,
+        label: item.label,
+        sort_order: sort++,
+        item_type: item.item_type,
+        value: null,
+      });
+    }
+  }
+  return {
+    id: template.id,
+    title: template.name,
+    template_id: template.id,
+    status_options: template.status_options,
+    header_fields: template.header_fields,
+    header_values: {},
+    comments: null,
+    responses,
+  };
+}
+
 export const DEFAULT_STATUS_OPTIONS: ChecklistStatusOption[] = [
   { code: "ok", label: "Checked" },
   { code: "A", label: "Adjusted" },

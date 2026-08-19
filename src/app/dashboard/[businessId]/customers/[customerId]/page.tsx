@@ -8,6 +8,7 @@ import {
   invoicesMatchingJob,
   type LinkedInvoice,
 } from "@/lib/job-invoices";
+import { collectUniqueKeys, formatUniqueKey } from "@/lib/customer-unique-key";
 import { createClient } from "@/lib/supabase/server";
 import { asJoined, cn, formatPrice } from "@/lib/utils";
 
@@ -35,14 +36,14 @@ export default async function CustomerHistoryPage({
            appointment_id, customer_id,
            next_service_name, next_service_due_on, next_service_visible,
            profiles ( id, full_name, phone, avatar_url ),
-           appointments ( start_at, status, services ( name ) )`
+           appointments ( start_at, status, custom_fields, services ( name ) )`
         )
         .eq("business_id", businessId)
         .eq("customer_id", customerId)
         .order("created_at", { ascending: false }),
       supabase
         .from("businesses")
-        .select("currency")
+        .select("currency, customer_unique_key_field, booking_custom_fields")
         .eq("id", businessId)
         .maybeSingle(),
       supabase
@@ -87,6 +88,11 @@ export default async function CustomerHistoryPage({
 
   const name = profile.full_name ?? "Customer";
   const currency = business?.currency ?? "LKR";
+  const uniqueKeys = collectUniqueKeys(
+    jobList.map((job) => asJoined(job.appointments)),
+    business?.customer_unique_key_field,
+    business?.booking_custom_fields
+  );
   const latestNext = jobList.find(
     (job) => job.next_service_name || job.next_service_due_on
   );
@@ -114,6 +120,11 @@ export default async function CustomerHistoryPage({
             {[profile.phone].filter(Boolean).join(" · ") ||
               "No contact details"}
           </p>
+          {uniqueKeys.length > 0 && (
+            <p className="mt-1 text-sm font-medium text-[#1e2235]">
+              {uniqueKeys.map((key) => formatUniqueKey(key)).join(" · ")}
+            </p>
+          )}
           <p className="mt-1 text-xs text-[#8b92a5]">
             {jobList.length} job{jobList.length === 1 ? "" : "s"}
           </p>

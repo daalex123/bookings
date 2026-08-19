@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { appendJobEvent } from "@/lib/jobs";
 import { createClient } from "@/lib/supabase/server";
 import { asJoined } from "@/lib/utils";
+import { resolveUniqueKey } from "@/lib/customer-unique-key";
 import type { InvoicePaymentMethod } from "@/types/database";
 
 export type InvoiceLineInput = {
@@ -232,9 +233,37 @@ export async function createDraftInvoice(params: {
 
   const { data: business } = await supabase
     .from("businesses")
-    .select("currency")
+    .select("currency, customer_unique_key_field, booking_custom_fields")
     .eq("id", params.businessId)
     .single();
+
+  let uniqueKey: { label: string; value: string } | null = null;
+  if (appointmentId && business?.customer_unique_key_field) {
+    const { data: appointment } = await supabase
+      .from("appointments")
+      .select("custom_fields")
+      .eq("id", appointmentId)
+      .maybeSingle();
+    uniqueKey = resolveUniqueKey(
+      appointment?.custom_fields,
+      business.customer_unique_key_field,
+      business.booking_custom_fields
+    );
+  } else if (business?.customer_unique_key_field) {
+    const { data: appointment } = await supabase
+      .from("appointments")
+      .select("custom_fields")
+      .eq("business_id", params.businessId)
+      .eq("customer_id", params.customerId)
+      .order("start_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    uniqueKey = resolveUniqueKey(
+      appointment?.custom_fields,
+      business.customer_unique_key_field,
+      business.booking_custom_fields
+    );
+  }
 
   let lines = params.lines;
   if ((!lines || lines.length === 0) && appointmentId) {
@@ -265,6 +294,8 @@ export async function createDraftInvoice(params: {
       job_id: jobId,
       currency: business?.currency ?? "LKR",
       notes: params.notes ?? null,
+      customer_unique_key: uniqueKey?.value ?? null,
+      customer_unique_key_label: uniqueKey?.label ?? null,
       ...totals,
       status: "draft",
     })

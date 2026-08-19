@@ -28,6 +28,7 @@ export default async function MyInvoicesPage({
     .from("invoices")
     .select(
       `id, invoice_number, status, total, amount_paid, currency, issued_at, created_at,
+       customer_unique_key, customer_unique_key_label,
        businesses ( name ),
        appointments ( services ( name ) )`
     )
@@ -148,6 +149,19 @@ export default async function MyInvoicesPage({
                         {business?.name ?? "Business"}
                         {service?.name ? ` · ${service.name}` : ""}
                       </p>
+                      {invoice.customer_unique_key ? (
+                        <p
+                          className={cn(
+                            "mt-0.5 truncate text-sm",
+                            isBooking ? "text-white/80" : "text-zinc-700"
+                          )}
+                        >
+                          {invoice.customer_unique_key_label
+                            ? `${invoice.customer_unique_key_label}: `
+                            : ""}
+                          {invoice.customer_unique_key}
+                        </p>
+                      ) : null}
                     </div>
                     <span
                       className={cn(

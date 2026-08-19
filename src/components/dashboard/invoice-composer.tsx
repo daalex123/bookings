@@ -110,6 +110,8 @@ export function InvoiceComposer({
     discount_amount: number;
     amount_paid: number;
     total: number;
+    customer_unique_key?: string | null;
+    customer_unique_key_label?: string | null;
   };
   initialLines: InvoiceLineInput[];
 }) {
@@ -291,12 +293,21 @@ export function InvoiceComposer({
         description="Build line items dynamically, then issue a branded invoice."
         action={
           hasSavedInvoice ? (
-            <Link
-              href={`/dashboard/${businessId}/billing/${invoice!.id}/print`}
-              className="text-sm font-medium underline-offset-2 hover:underline"
-            >
-              Print view
-            </Link>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href={`/dashboard/${businessId}/billing/${invoice!.id}/print`}
+                className="text-sm font-medium underline-offset-2 hover:underline"
+              >
+                Preview
+              </Link>
+              <a
+                href={`/api/invoices/${invoice!.id}/pdf`}
+                download
+                className="text-sm font-medium underline-offset-2 hover:underline"
+              >
+                Download PDF
+              </a>
+            </div>
           ) : null
         }
       />
@@ -328,6 +339,14 @@ export function InvoiceComposer({
                     No customers yet. They appear after their first booking.
                   </p>
                 )}
+                {invoice?.customer_unique_key ? (
+                  <p className="text-xs font-medium text-[#1e2235]">
+                    {invoice.customer_unique_key_label
+                      ? `${invoice.customer_unique_key_label}: `
+                      : ""}
+                    {invoice.customer_unique_key}
+                  </p>
+                ) : null}
               </div>
               <div className="space-y-1.5">
                 <Label>Status</Label>

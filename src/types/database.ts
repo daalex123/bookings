@@ -80,6 +80,12 @@ export interface Database {
           admin_background_color: string;
           contact_email: string | null;
           contact_whatsapp: string | null;
+          address: string | null;
+          contact_phone: string | null;
+          industry_category: string | null;
+          booking_custom_fields: Json | null;
+          customer_unique_key_field: string | null;
+          document_template: Json;
           booking_token: string;
           next_invoice_number: number;
           next_job_number: number;
@@ -101,6 +107,12 @@ export interface Database {
           admin_background_color?: string;
           contact_email?: string | null;
           contact_whatsapp?: string | null;
+          address?: string | null;
+          contact_phone?: string | null;
+          industry_category?: string | null;
+          booking_custom_fields?: Json | null;
+          customer_unique_key_field?: string | null;
+          document_template?: Json;
           booking_token?: string;
           next_invoice_number?: number;
           next_job_number?: number;
@@ -122,6 +134,12 @@ export interface Database {
           admin_background_color?: string;
           contact_email?: string | null;
           contact_whatsapp?: string | null;
+          address?: string | null;
+          contact_phone?: string | null;
+          industry_category?: string | null;
+          booking_custom_fields?: Json | null;
+          customer_unique_key_field?: string | null;
+          document_template?: Json;
           booking_token?: string;
           next_invoice_number?: number;
           next_job_number?: number;
@@ -718,6 +736,8 @@ export interface Database {
           paid_at: string | null;
           payment_provider: string | null;
           external_payment_id: string | null;
+          customer_unique_key: string | null;
+          customer_unique_key_label: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -741,6 +761,8 @@ export interface Database {
           paid_at?: string | null;
           payment_provider?: string | null;
           external_payment_id?: string | null;
+          customer_unique_key?: string | null;
+          customer_unique_key_label?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -764,6 +786,8 @@ export interface Database {
           paid_at?: string | null;
           payment_provider?: string | null;
           external_payment_id?: string | null;
+          customer_unique_key?: string | null;
+          customer_unique_key_label?: string | null;
           created_at?: string;
           updated_at?: string;
         };

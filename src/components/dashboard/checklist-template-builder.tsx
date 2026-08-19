@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { AdminSelect } from "@/components/dashboard/admin-select";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { useActionToast } from "@/hooks/use-action-toast";
+import { ChecklistDocActions } from "@/components/print/checklist-doc-actions";
 import {
   deleteChecklistTemplate,
   upsertChecklistTemplate,
@@ -210,7 +211,15 @@ export function ChecklistTemplateBuilder({
     <div className="space-y-6">
       <PageHeader
         title={template ? "Edit checklist" : "New checklist"}
-        description="Design the form staff fill on a job. Customers see the completed version."
+        description="Design the form staff fill on a job. Preview and download the printed document from here."
+        action={
+          template?.id ? (
+            <ChecklistDocActions
+              previewHref={`/dashboard/${businessId}/checklists/${template.id}/preview`}
+              pdfHref={`/api/checklists/templates/${template.id}/pdf`}
+            />
+          ) : undefined
+        }
       />
 
       <section className="space-y-4 rounded-2xl border border-[#1e2235]/10 bg-white p-5">

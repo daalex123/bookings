@@ -26,6 +26,7 @@ import {
   STAFF_NOTIFICATION_AUDIENCE,
 } from "@/lib/notifications/constants";
 import { DEFAULT_ADMIN_BACKGROUND_COLOR, DEFAULT_BACKGROUND_COLOR, DEFAULT_BRAND_COLOR, DEFAULT_CURRENCY, DEFAULT_TIMEZONE } from "@/lib/constants";
+import { parseDocumentTemplate } from "@/lib/document-template";
 import { getPublicBusiness, publicBusinessCacheTag } from "@/lib/booking-data";
 import { bookingPagePathBySlug, bookingFlowUrl } from "@/lib/booking";
 import { sendBookingNotifications } from "@/lib/notifications/send-booking-notifications";
@@ -221,6 +222,16 @@ export async function updateBusiness(businessId: string, formData: FormData) {
     }
   }
 
+  const documentTemplateRaw = formData.get("document_template_json")?.toString().trim();
+  let documentTemplateParsed: unknown = undefined;
+  if (documentTemplateRaw) {
+    try {
+      documentTemplateParsed = JSON.parse(documentTemplateRaw);
+    } catch {
+      return { error: { form: ["Document template JSON is invalid"] } };
+    }
+  }
+
   const parsed = businessSchema.safeParse({
     name: formData.get("name"),
     slug: formData.get("slug"),
@@ -240,6 +251,11 @@ export async function updateBusiness(businessId: string, formData: FormData) {
       DEFAULT_ADMIN_BACKGROUND_COLOR,
     contact_email: formData.get("contact_email")?.toString() || "",
     contact_whatsapp: formData.get("contact_whatsapp")?.toString() || "",
+    address: formData.get("address")?.toString() || undefined,
+    contact_phone: formData.get("contact_phone")?.toString() || "",
+    customer_unique_key_field:
+      formData.get("customer_unique_key_field")?.toString() || undefined,
+    document_template: documentTemplateParsed,
   });
 
   if (!parsed.success) {
@@ -266,6 +282,10 @@ export async function updateBusiness(businessId: string, formData: FormData) {
         parsed.data.admin_background_color ?? DEFAULT_ADMIN_BACKGROUND_COLOR,
       contact_email: parsed.data.contact_email ?? null,
       contact_whatsapp: parsed.data.contact_whatsapp ?? null,
+      address: parsed.data.address?.trim() ? parsed.data.address.trim() : null,
+      contact_phone: parsed.data.contact_phone ?? null,
+      customer_unique_key_field: parsed.data.customer_unique_key_field ?? null,
+      document_template: parseDocumentTemplate(parsed.data.document_template),
     })
     .eq("id", businessId);
 

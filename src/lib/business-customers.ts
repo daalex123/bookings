@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { collectUniqueKeys, formatUniqueKey } from "@/lib/customer-unique-key";
 import { asJoined } from "@/lib/utils";
 
 export type BusinessCustomer = {
@@ -6,6 +7,7 @@ export type BusinessCustomer = {
   full_name: string | null;
   email: string;
   phone: string | null;
+  unique_keys?: string[];
 };
 
 export type BusinessCustomerOption = {
@@ -19,7 +21,9 @@ export function toCustomerOptions(
   return customers.map((c) => ({
     id: c.id,
     label:
-      [c.full_name, c.email, c.phone].filter(Boolean).join(" · ") || "Customer",
+      [c.full_name, ...(c.unique_keys ?? []), c.email, c.phone]
+        .filter(Boolean)
+        .join(" · ") || "Customer",
   }));
 }
 
@@ -112,7 +116,7 @@ export async function getBusinessCustomers(
     !error && data ? (data as BusinessCustomer[]) : [];
 
   if (fromRpc.length > 0) {
-    return fromRpc;
+    return attachUniqueKeys(supabase, businessId, fromRpc);
   }
 
   const [fromAppointments, fromInvoices] = await Promise.all([
@@ -120,5 +124,50 @@ export async function getBusinessCustomers(
     customersFromInvoices(supabase, businessId),
   ]);
 
-  return mergeCustomers(fromRpc, fromAppointments, fromInvoices);
+  return attachUniqueKeys(
+    supabase,
+    businessId,
+    mergeCustomers(fromRpc, fromAppointments, fromInvoices)
+  );
+}
+
+async function attachUniqueKeys(
+  supabase: SupabaseClient,
+  businessId: string,
+  customers: BusinessCustomer[]
+): Promise<BusinessCustomer[]> {
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("customer_unique_key_field, booking_custom_fields")
+    .eq("id", businessId)
+    .maybeSingle();
+  if (!business?.customer_unique_key_field || customers.length === 0) {
+    return customers;
+  }
+
+  const { data: appointments } = await supabase
+    .from("appointments")
+    .select("customer_id, custom_fields")
+    .eq("business_id", businessId);
+
+  const byCustomer = new Map<string, string[]>();
+  for (const appt of appointments ?? []) {
+    const keys = collectUniqueKeys(
+      [appt],
+      business.customer_unique_key_field,
+      business.booking_custom_fields
+    );
+    if (keys.length === 0) continue;
+    const existing = byCustomer.get(appt.customer_id) ?? [];
+    for (const key of keys) {
+      const line = formatUniqueKey(key);
+      if (line && !existing.includes(line)) existing.push(line);
+    }
+    byCustomer.set(appt.customer_id, existing);
+  }
+
+  return customers.map((customer) => ({
+    ...customer,
+    unique_keys: byCustomer.get(customer.id) ?? [],
+  }));
 }

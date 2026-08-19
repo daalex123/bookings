@@ -16,6 +16,8 @@ import {
   groupResponsesBySection,
   type JobChecklistView,
 } from "@/lib/checklist-types";
+import { formatUniqueKey, type UniqueKeyRef } from "@/lib/customer-unique-key";
+import { ChecklistDocActions } from "@/components/print/checklist-doc-actions";
 import { cn } from "@/lib/utils";
 
 const STATUS_CHIP: Record<string, string> = {
@@ -33,12 +35,14 @@ export function JobChecklistPanel({
   jobStatus,
   checklists,
   templates,
+  uniqueKey,
 }: {
   businessId: string;
   jobId: string;
   jobStatus: string;
   checklists: JobChecklistView[];
   templates: { id: string; name: string }[];
+  uniqueKey?: UniqueKeyRef | null;
 }) {
   const canApply = jobStatus === "queued" || jobStatus === "in_progress";
   const canEdit = jobStatus !== "cancelled";
@@ -62,26 +66,32 @@ export function JobChecklistPanel({
             Inspection and task forms for this job. Customers can view the filled form.
           </p>
         </div>
-        {canApply && templates.length > 0 && (
-          <div className="flex flex-wrap items-end gap-2">
-            <div className="min-w-[180px] space-y-1">
-              <Label>Apply template</Label>
-              <AdminSelect
-                value={templateId}
-                onChange={(e) => setTemplateId(e.target.value)}
-              >
-                {templates.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
-                ))}
-              </AdminSelect>
-            </div>
-            <Button type="button" size="sm" onClick={onApply}>
-              Apply
-            </Button>
-          </div>
-        )}
+        <div className="flex flex-wrap items-end gap-2">
+          <ChecklistDocActions
+            previewHref={`/dashboard/${businessId}/jobs/${jobId}/print`}
+            pdfHref={`/api/jobs/${jobId}/checklists/pdf`}
+          />
+          {canApply && templates.length > 0 && (
+            <>
+              <div className="min-w-[180px] space-y-1">
+                <Label>Apply template</Label>
+                <AdminSelect
+                  value={templateId}
+                  onChange={(e) => setTemplateId(e.target.value)}
+                >
+                  {templates.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name}
+                    </option>
+                  ))}
+                </AdminSelect>
+              </div>
+              <Button type="button" size="sm" onClick={onApply}>
+                Apply
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {checklists.length === 0 && (
@@ -95,13 +105,14 @@ export function JobChecklistPanel({
 
       <div className="space-y-6">
         {checklists.map((checklist) => (
-          <JobChecklistEditor
+            <JobChecklistEditor
             key={checklist.id}
             businessId={businessId}
             jobId={jobId}
             jobStatus={jobStatus}
             checklist={checklist}
             canEdit={canEdit}
+            uniqueKey={uniqueKey}
           />
         ))}
       </div>
@@ -115,12 +126,14 @@ function JobChecklistEditor({
   jobStatus,
   checklist,
   canEdit,
+  uniqueKey,
 }: {
   businessId: string;
   jobId: string;
   jobStatus: string;
   checklist: JobChecklistView;
   canEdit: boolean;
+  uniqueKey?: UniqueKeyRef | null;
 }) {
   const { runWithToast } = useActionToast();
   const [headerValues, setHeaderValues] = useState(checklist.header_values);
@@ -186,6 +199,11 @@ function JobChecklistEditor({
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h3 className="font-semibold text-[#1e2235]">{checklist.title}</h3>
+          {formatUniqueKey(uniqueKey) ? (
+            <p className="mt-1 text-sm font-medium text-[#1e2235]">
+              {formatUniqueKey(uniqueKey)}
+            </p>
+          ) : null}
           <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-[#8b92a5]">
             {checklist.status_options.map((option) => (
               <span key={option.code}>
@@ -195,11 +213,21 @@ function JobChecklistEditor({
             ))}
           </p>
         </div>
-        {canEdit && !locked && (
-          <Button type="button" variant="ghost" size="sm" onClick={onRemove}>
-            Remove
-          </Button>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <ChecklistDocActions
+            previewHref={`/dashboard/${businessId}/jobs/${jobId}/print`}
+            pdfHref={`/api/jobs/${jobId}/checklists/pdf`}
+          />
+          {canEdit && !locked && (
+            <Button type="button" variant="ghost" size="sm" onClick={onRemove}>
+              Remove
+            </Button>
+          )}
+        </div>
+        <ChecklistDocActions
+          previewHref={`/dashboard/${businessId}/jobs/${jobId}/print`}
+          pdfHref={`/api/jobs/${jobId}/checklists/pdf`}
+        />
       </div>
 
       {checklist.header_fields.length > 0 && (

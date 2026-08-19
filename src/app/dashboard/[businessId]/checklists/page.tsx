@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
 import { listChecklistTemplates } from "@/lib/checklists";
+import { ChecklistDocActions } from "@/components/print/checklist-doc-actions";
 
 export default async function ChecklistsPage({
   params,
@@ -32,7 +33,7 @@ export default async function ChecklistsPage({
           the default.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-[#1e2235]/10 bg-white">
+        <div className="overflow-x-auto rounded-2xl border border-[#1e2235]/10 bg-white">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-[#1e2235]/10 bg-[#f0f2f5]/60 text-xs uppercase tracking-wide text-[#8b92a5]">
               <tr>
@@ -40,6 +41,7 @@ export default async function ChecklistsPage({
                 <th className="px-4 py-3 font-semibold">Items</th>
                 <th className="px-4 py-3 font-semibold">Status</th>
                 <th className="px-4 py-3 font-semibold">Updated</th>
+                <th className="px-4 py-3 font-semibold">Document</th>
               </tr>
             </thead>
             <tbody>
@@ -73,6 +75,12 @@ export default async function ChecklistsPage({
                   </td>
                   <td className="px-4 py-3 text-[#8b92a5]">
                     {format(new Date(template.updated_at), "PP")}
+                  </td>
+                  <td className="px-4 py-3">
+                    <ChecklistDocActions
+                      previewHref={`/dashboard/${businessId}/checklists/${template.id}/preview`}
+                      pdfHref={`/api/checklists/templates/${template.id}/pdf`}
+                    />
                   </td>
                 </tr>
               ))}

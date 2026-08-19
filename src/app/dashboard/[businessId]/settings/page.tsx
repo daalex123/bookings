@@ -21,6 +21,8 @@ import { ShareBookingCard } from "@/components/booking/share-booking-card";
 import { BrandColorField } from "@/components/dashboard/brand-color-field";
 import { BookingCustomFieldsBuilder } from "@/components/dashboard/booking-custom-fields-builder";
 import { AdminSelect } from "@/components/dashboard/admin-select";
+import { BusinessHiddenFields } from "@/components/dashboard/business-hidden-fields";
+import { DocumentTemplateDesigner } from "@/components/dashboard/document-template-designer";
 import { ImageUploadField } from "@/components/dashboard/image-upload-field";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { RegenerateLinkButton } from "@/components/dashboard/regenerate-link-button";
@@ -86,6 +88,29 @@ export default async function SettingsPage({
   const customFieldsHiddenValue = JSON.stringify(
     (business?.booking_custom_fields as unknown) ?? categoryDefaults
   );
+  const documentTemplateHiddenValue = JSON.stringify(
+    business?.document_template ?? {}
+  );
+  const hiddenValues = {
+    name: business?.name ?? "",
+    slug: business?.slug ?? "",
+    description: business?.description ?? "",
+    tagline: business?.tagline ?? "",
+    timezone: business?.timezone ?? DEFAULT_TIMEZONE,
+    currency: business?.currency ?? DEFAULT_CURRENCY,
+    industry_category: business?.industry_category ?? "general",
+    booking_custom_fields_json: customFieldsHiddenValue,
+    customer_unique_key_field: business?.customer_unique_key_field ?? "",
+    logo_url: business?.logo_url ?? "",
+    cover_image_url: business?.cover_image_url ?? "",
+    brand_color: business?.brand_color ?? DEFAULT_BRAND_COLOR,
+    background_color: business?.background_color ?? DEFAULT_BACKGROUND_COLOR,
+    contact_email: business?.contact_email ?? "",
+    contact_whatsapp: business?.contact_whatsapp ?? "",
+    address: business?.address ?? "",
+    contact_phone: business?.contact_phone ?? "",
+    document_template_json: documentTemplateHiddenValue,
+  };
 
   return (
     <div className="space-y-6 lg:space-y-8">
@@ -168,6 +193,19 @@ export default async function SettingsPage({
               </p>
             </div>
             <div className="space-y-2">
+              <Label htmlFor="contact_phone">Contact number</Label>
+              <Input
+                id="contact_phone"
+                name="contact_phone"
+                type="tel"
+                defaultValue={business?.contact_phone ?? ""}
+                placeholder="0112345678 or +94112345678"
+              />
+              <p className="text-xs text-zinc-500">
+                Shown on invoices, checklists, and other printed documents.
+              </p>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="contact_whatsapp">Business WhatsApp</Label>
               <Input
                 id="contact_whatsapp"
@@ -197,57 +235,27 @@ export default async function SettingsPage({
                 )}
               </p>
             </div>
-            <input type="hidden" name="name" value={business?.name ?? ""} />
-            <input type="hidden" name="slug" value={business?.slug ?? ""} />
-            <input
-              type="hidden"
-              name="description"
-              value={business?.description ?? ""}
-            />
-            <input
-              type="hidden"
-              name="tagline"
-              value={business?.tagline ?? ""}
-            />
-            <input
-              type="hidden"
-              name="timezone"
-              value={business?.timezone ?? DEFAULT_TIMEZONE}
-            />
-            <input
-              type="hidden"
-              name="currency"
-              value={business?.currency ?? DEFAULT_CURRENCY}
-            />
-            <input
-              type="hidden"
-              name="industry_category"
-              value={business?.industry_category ?? "general"}
-            />
-            <input
-              type="hidden"
-              name="booking_custom_fields_json"
-              value={customFieldsHiddenValue}
-            />
-            <input
-              type="hidden"
-              name="logo_url"
-              value={business?.logo_url ?? ""}
-            />
-            <input
-              type="hidden"
-              name="cover_image_url"
-              value={business?.cover_image_url ?? ""}
-            />
-            <input
-              type="hidden"
-              name="brand_color"
-              value={business?.brand_color ?? DEFAULT_BRAND_COLOR}
-            />
-            <input
-              type="hidden"
-              name="background_color"
-              value={business?.background_color ?? DEFAULT_BACKGROUND_COLOR}
+            <div className="space-y-2">
+              <Label htmlFor="address">Business address</Label>
+              <Textarea
+                id="address"
+                name="address"
+                defaultValue={business?.address ?? ""}
+                rows={3}
+                placeholder="Street, city, postal code"
+              />
+              <p className="text-xs text-zinc-500">
+                Printed in the document header when the template includes address.
+              </p>
+            </div>
+            <BusinessHiddenFields
+              values={hiddenValues}
+              omit={[
+                "contact_email",
+                "contact_whatsapp",
+                "contact_phone",
+                "address",
+              ]}
             />
             <SubmitButton pendingLabel="Saving…">
               Save notification settings
@@ -270,42 +278,9 @@ export default async function SettingsPage({
             }}
             className="space-y-4 max-w-lg"
           >
-            <input type="hidden" name="name" value={business?.name ?? ""} />
-            <input type="hidden" name="slug" value={business?.slug ?? ""} />
-            <input
-              type="hidden"
-              name="description"
-              value={business?.description ?? ""}
-            />
-            <input
-              type="hidden"
-              name="timezone"
-              value={business?.timezone ?? DEFAULT_TIMEZONE}
-            />
-            <input
-              type="hidden"
-              name="currency"
-              value={business?.currency ?? DEFAULT_CURRENCY}
-            />
-            <input
-              type="hidden"
-              name="industry_category"
-              value={business?.industry_category ?? "general"}
-            />
-            <input
-              type="hidden"
-              name="booking_custom_fields_json"
-              value={customFieldsHiddenValue}
-            />
-            <input
-              type="hidden"
-              name="contact_email"
-              value={business?.contact_email ?? ""}
-            />
-            <input
-              type="hidden"
-              name="contact_whatsapp"
-              value={business?.contact_whatsapp ?? ""}
+            <BusinessHiddenFields
+              values={hiddenValues}
+              omit={["logo_url", "cover_image_url", "brand_color", "background_color", "tagline"]}
             />
 
             <ImageUploadField
@@ -429,6 +404,7 @@ export default async function SettingsPage({
             <BookingCustomFieldsBuilder
               initialCategory={business?.industry_category ?? "general"}
               initialFields={business?.booking_custom_fields as unknown}
+              initialUniqueKey={business?.customer_unique_key_field}
             />
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
@@ -480,17 +456,67 @@ export default async function SettingsPage({
               name="background_color"
               value={business?.background_color ?? DEFAULT_BACKGROUND_COLOR}
             />
-            <input
-              type="hidden"
-              name="contact_email"
-              value={business?.contact_email ?? ""}
-            />
-            <input
-              type="hidden"
-              name="contact_whatsapp"
-              value={business?.contact_whatsapp ?? ""}
+            <BusinessHiddenFields
+              values={hiddenValues}
+              omit={[
+                "name",
+                "slug",
+                "description",
+                "tagline",
+                "industry_category",
+                "booking_custom_fields_json",
+                "customer_unique_key_field",
+                "currency",
+                "timezone",
+                "logo_url",
+                "cover_image_url",
+                "brand_color",
+                "background_color",
+              ]}
             />
             <SubmitButton pendingLabel="Saving…">Save profile</SubmitButton>
+          </ActionForm>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Document header &amp; footer</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-4 max-w-2xl text-sm text-zinc-600">
+            Design the header and footer applied when you print or generate
+            invoices and checklists. Address and contact numbers come from the
+            details above.
+          </p>
+          <ActionForm
+            action={saveBusiness}
+            messages={{
+              loading: "Saving document template…",
+              success: "Document template saved",
+              error: "Could not save document template",
+            }}
+            className="space-y-4"
+          >
+            <BusinessHiddenFields
+              values={hiddenValues}
+              omit={["document_template_json"]}
+            />
+            <DocumentTemplateDesigner
+              business={{
+                name: business?.name ?? "Business",
+                logo_url: business?.logo_url,
+                brand_color: business?.brand_color,
+                address: business?.address,
+                contact_email: business?.contact_email,
+                contact_phone: business?.contact_phone,
+                contact_whatsapp: business?.contact_whatsapp,
+              }}
+              initialTemplate={business?.document_template}
+            />
+            <SubmitButton pendingLabel="Saving…">
+              Save document template
+            </SubmitButton>
           </ActionForm>
         </CardContent>
       </Card>

@@ -19,8 +19,10 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { AdminSelect } from "@/components/dashboard/admin-select";
 import { JobChecklistPanel } from "@/components/dashboard/job-checklist-panel";
 import { JobNextServiceForm } from "@/components/dashboard/job-next-service-form";
+import { ChecklistDocActions } from "@/components/print/checklist-doc-actions";
 import { formatPrice, cn } from "@/lib/utils";
 import { formatJobNumber } from "@/lib/job-invoices";
+import { formatUniqueKey, type UniqueKeyRef } from "@/lib/customer-unique-key";
 import type { JobEventVisibility, JobStatus } from "@/types/database";
 import type { JobChecklistView } from "@/lib/checklist-types";
 
@@ -49,6 +51,7 @@ type JobDetailProps = {
     status: string;
     service_name: string;
     customer_name: string;
+    unique_key?: UniqueKeyRef | null;
   };
   events: {
     id: string;
@@ -151,9 +154,17 @@ export function JobDetailPage({
     <div className="space-y-6">
       <PageHeader
         title={formatJobNumber(job.job_number, job.id)}
-        description={`${appointment.service_name} · ${appointment.customer_name}`}
+        description={`${appointment.service_name} · ${appointment.customer_name}${
+          formatUniqueKey(appointment.unique_key)
+            ? ` · ${formatUniqueKey(appointment.unique_key)}`
+            : ""
+        }`}
         action={
           <div className="flex flex-wrap items-center gap-3">
+            <ChecklistDocActions
+              previewHref={`/dashboard/${businessId}/jobs/${job.id}/print`}
+              pdfHref={`/api/jobs/${job.id}/checklists/pdf`}
+            />
             <Link
               href={`/dashboard/${businessId}/customers/${job.customer_id}`}
               className="text-sm font-medium text-[var(--admin-navy)] underline-offset-2 hover:underline"
@@ -342,6 +353,7 @@ export function JobDetailPage({
         jobStatus={job.status}
         checklists={checklists}
         templates={templates}
+        uniqueKey={appointment.unique_key}
       />
     </div>
   );

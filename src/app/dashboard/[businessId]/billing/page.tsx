@@ -27,6 +27,7 @@ export default async function BillingPage({
     .from("invoices")
     .select(
       `id, invoice_number, status, total, amount_paid, currency, created_at, issued_at,
+       customer_unique_key, customer_unique_key_label,
        profiles ( full_name )`
     )
     .eq("business_id", businessId)
@@ -110,7 +111,17 @@ export default async function BillingPage({
                       {inv.invoice_number ?? "Draft"}
                     </Link>
                   </td>
-                  <td className="px-4 py-3">{profile?.full_name ?? "Customer"}</td>
+                  <td className="px-4 py-3">
+                    <p>{profile?.full_name ?? "Customer"}</p>
+                    {inv.customer_unique_key ? (
+                      <p className="text-xs text-[#8b92a5]">
+                        {inv.customer_unique_key_label
+                          ? `${inv.customer_unique_key_label}: `
+                          : ""}
+                        {inv.customer_unique_key}
+                      </p>
+                    ) : null}
+                  </td>
                   <td className="px-4 py-3">
                     <span
                       className={cn(

@@ -17,6 +17,7 @@ type AppointmentJoinRow = {
     | null;
   jobs?:
     | {
+        id?: string;
         status: string;
         job_number?: string | null;
         next_service_visible?: boolean | null;
@@ -29,6 +30,7 @@ type AppointmentJoinRow = {
           | null;
       }[]
     | {
+        id?: string;
         status: string;
         job_number?: string | null;
         next_service_visible?: boolean | null;
@@ -72,6 +74,7 @@ export function mapCustomerAppointment(
     addon_names: mapAddonNames(row.appointment_addons),
     job_status: job?.status ?? null,
     job_number: job?.job_number ?? null,
+    job_id: job?.id ?? null,
     invoice_status: invoice?.status ?? null,
     invoice_number: invoice?.invoice_number ?? null,
     next_service_name: job?.next_service_visible
@@ -98,7 +101,7 @@ export async function fetchCustomerAppointment(
       businesses ( name, slug ),
       services ( name ),
       appointment_addons ( services ( name ) ),
-      jobs ( status, job_number, next_service_visible, next_service_name, next_service_due_on, next_service_notes, invoices ( status, invoice_number ) )
+      jobs ( id, status, job_number, next_service_visible, next_service_name, next_service_due_on, next_service_notes, invoices ( status, invoice_number ) )
     `
     )
     .eq("id", appointmentId)

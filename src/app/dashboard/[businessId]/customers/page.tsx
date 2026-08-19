@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { format } from "date-fns";
+import { collectUniqueKeys, formatUniqueKey } from "@/lib/customer-unique-key";
 import { asJoined } from "@/lib/utils";
 import { UserAvatar } from "@/components/account/user-avatar";
 import { PageHeader } from "@/components/dashboard/page-header";
@@ -16,11 +17,17 @@ export default async function CustomersPage({
   const { data: appointments } = await supabase
     .from("appointments")
     .select(
-      `customer_id, start_at, status,
+      `customer_id, start_at, status, custom_fields,
        profiles ( full_name, phone, avatar_url )`
     )
     .eq("business_id", businessId)
     .order("start_at", { ascending: false });
+
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("customer_unique_key_field, booking_custom_fields")
+    .eq("id", businessId)
+    .maybeSingle();
 
   const customerMap = new Map<
     string,
@@ -31,6 +38,7 @@ export default async function CustomersPage({
       avatarUrl: string | null;
       bookings: number;
       lastVisit: string;
+      uniqueKeys: string[];
     }
   >();
 
@@ -50,7 +58,20 @@ export default async function CustomersPage({
         avatarUrl: profile?.avatar_url ?? null,
         bookings: 1,
         lastVisit: appt.start_at,
+        uniqueKeys: [],
       });
+    }
+    const keys = collectUniqueKeys(
+      [appt],
+      business?.customer_unique_key_field,
+      business?.booking_custom_fields
+    );
+    const row = customerMap.get(appt.customer_id);
+    if (row) {
+      for (const key of keys) {
+        const line = formatUniqueKey(key);
+        if (line && !row.uniqueKeys.includes(line)) row.uniqueKeys.push(line);
+      }
     }
   });
 
@@ -81,6 +102,11 @@ export default async function CustomersPage({
                     {customer.phone || "No phone"} · {customer.bookings}{" "}
                     booking{customer.bookings !== 1 ? "s" : ""}
                   </p>
+                  {customer.uniqueKeys.length > 0 && (
+                    <p className="mt-1 truncate text-sm font-medium text-[#1e2235]">
+                      {customer.uniqueKeys.join(" · ")}
+                    </p>
+                  )}
                   <p className="mt-2 text-xs text-[#8b92a5]">
                     Last visit: {format(new Date(customer.lastVisit), "PPP")}
                   </p>

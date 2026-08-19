@@ -125,9 +125,11 @@ function getCategoryDefaults(category: string): BuilderField[] {
 export function BookingCustomFieldsBuilder({
     initialCategory,
     initialFields,
+    initialUniqueKey = "",
 }: {
     initialCategory: string;
     initialFields: unknown;
+    initialUniqueKey?: string | null;
 }) {
     const hasExplicitOverride = Array.isArray(initialFields);
     const parsedInitial = Array.isArray(initialFields)
@@ -139,6 +141,13 @@ export function BookingCustomFieldsBuilder({
     const [fields, setFields] = useState<BuilderField[]>(
         hasExplicitOverride ? parsedInitial : getCategoryDefaults(initialCategory)
     );
+    const [uniqueKey, setUniqueKey] = useState(() => {
+        const names = (
+            hasExplicitOverride ? parsedInitial : getCategoryDefaults(initialCategory)
+        ).map((f) => f.name);
+        if (initialUniqueKey && names.includes(initialUniqueKey)) return initialUniqueKey;
+        return "";
+    });
 
     const serializedValue = useMemo(
         () => JSON.stringify(normalizeForSave(fields)),
@@ -176,12 +185,18 @@ export function BookingCustomFieldsBuilder({
     function resetToCategoryDefaults() {
         const select = document.getElementById("industry_category") as HTMLSelectElement | null;
         const selectedCategory = select?.value || initialCategory;
-        setFields(getCategoryDefaults(selectedCategory));
+        const next = getCategoryDefaults(selectedCategory);
+        setFields(next);
+        const names = next.map((f) => f.name);
+        if (names.includes("vehicle_number")) setUniqueKey("vehicle_number");
+        else if (names.includes("patient_id")) setUniqueKey("patient_id");
+        else setUniqueKey("");
     }
 
     return (
         <div className="space-y-4 rounded-xl border border-zinc-200 bg-zinc-50/40 p-4">
             <input type="hidden" name="booking_custom_fields_json" value={serializedValue} />
+            <input type="hidden" name="customer_unique_key_field" value={uniqueKey} />
 
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -189,8 +204,8 @@ export function BookingCustomFieldsBuilder({
                         Booking custom fields
                     </Label>
                     <p className="text-xs text-zinc-500">
-                        Add customer fields shown in the booking form. Changes save with the
-                        business profile.
+                        Add customer fields shown in the booking form. Mark one as the unique
+                        key so it maps to the customer on checklists and invoices.
                     </p>
                 </div>
                 <Button
@@ -226,7 +241,17 @@ export function BookingCustomFieldsBuilder({
                         <div key={field.id} className="space-y-3 rounded-lg border border-zinc-200 bg-white p-4">
                             <div className="flex items-center justify-between gap-2">
                                 <p className="text-sm font-semibold text-zinc-800">Field {index + 1}</p>
-                                <Button
+                                <div className="flex items-center gap-2">
+                                    <label className="flex items-center gap-2 text-xs font-medium text-[#1e2235]">
+                                        <input
+                                            type="radio"
+                                            name="unique_key_radio"
+                                            checked={uniqueKey === field.name && field.name.length > 0}
+                                            onChange={() => setUniqueKey(field.name)}
+                                        />
+                                        Unique key
+                                    </label>
+                                    <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
@@ -236,6 +261,7 @@ export function BookingCustomFieldsBuilder({
                                     <Trash2 className="h-4 w-4" />
                                     Remove
                                 </Button>
+                                </div>
                             </div>
 
                             <div className="grid gap-3 sm:grid-cols-2">
@@ -392,6 +418,18 @@ export function BookingCustomFieldsBuilder({
                     ))
                 )}
             </div>
+
+            {fields.length > 0 && (
+                <label className="flex items-center gap-2 text-sm text-[#5c6378]">
+                    <input
+                        type="radio"
+                        name="unique_key_radio"
+                        checked={uniqueKey === ""}
+                        onChange={() => setUniqueKey("")}
+                    />
+                    No unique key field
+                </label>
+            )}
         </div>
     );
 }
